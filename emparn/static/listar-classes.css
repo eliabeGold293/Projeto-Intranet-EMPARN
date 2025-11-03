@@ -1,0 +1,77 @@
+/* Estilo exclusivo para a interface de listagem de classes */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    background-color: #1e2a38;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    margin-top: 0;
+    font-size: 22px;
+    text-align: center;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 15px 0;
+}
+
+.sidebar a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.sidebar a:hover {
+    background-color: #34495e;
+}
+
+.content {
+    flex: 1;
+    padding: 40px;
+    background-color: #ffffff;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+ul.lista {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+ul.lista li {
+    background-color: #ecf0f1;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+p {
+    color: #7f8c8d;
+}
