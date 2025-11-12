@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <!-- Formulário de criação de card -->
         <form action="../apis/salvar_cards.php" method="POST" class="mb-5">
             <div class="mb-3">
-                <label for="titulo" class="form-label">Nome do Quadradinho:</label>
+                <label for="titulo" class="form-label">Nome do Card:</label>
                 <input type="text" class="form-control" name="titulo" required>
             </div>
             <div class="mb-3">
@@ -218,11 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 <label for="link" class="form-label">Link de Destino:</label>
                 <input type="url" class="form-control" name="link" placeholder="https://www.exemplo.com" required>
             </div>
-            <button type="submit" class="btn btn-success">Adicionar Quadradinho</button>
+            <button type="submit" class="btn btn-success">Adicionar Card</button>
         </form>
 
         <!-- Listagem dos cards -->
-        <h4>🗂️ Quadradinhos Atuais</h4>
+        <h4>🗂️ Cards Atuais</h4>
         <table class="table table-striped table-bordered">
             <thead class="table-success">
                 <tr>

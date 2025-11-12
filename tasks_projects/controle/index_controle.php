@@ -62,7 +62,7 @@ include '../templates/gen_menu.php';
     <h2>🎛️ Painel de Controle</h2>
 
     <div class="card-box">
-        <h5>Gerenciar Quadradinhos do Dashboard</h5>
+        <h5>Gerenciar Cards do Dashboard</h5>
         <div class="btn-acoes">
             <a href="gerenciar_dashboard.php" class="btn btn-primary">Abrir Gerenciador</a>
             <a href="../apis/salvar_cards.php" class="btn btn-success">API de Criação</a>
@@ -84,7 +84,7 @@ include '../templates/gen_menu.php';
         <div class="row text-center">
             <div class="col-md-3">
                 <div class="p-3 bg-success text-white rounded shadow-sm">
-                    <h6>Quadradinhos</h6>
+                    <h6>Cards</h6>
                     <p class="fs-4">
                         <?php
                         $totalCards = $pdo->query("SELECT COUNT(*) FROM dashboard")->fetchColumn();
