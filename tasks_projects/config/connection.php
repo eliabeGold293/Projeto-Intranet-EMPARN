@@ -6,7 +6,7 @@ $port = '5432'; // porta padrão do PostgreSQL
 $dbname = 'emparn';
 $user = 'postgres';
 $password = 'password';
-$modo_debug = false;
+$modo_debug = true;
 
 try {
     $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);

@@ -20,7 +20,6 @@ require_once "../config/connection.php";
     </nav>
 </header>
 
-
 <!-- Carrossel -->
 <?php
 $sql_carrossel = "SELECT * FROM noticias ORDER BY data_publicacao DESC LIMIT 3";
@@ -35,7 +34,7 @@ $result_carrossel = $stmt_carrossel->fetchAll(PDO::FETCH_ASSOC);
             foreach ($result_carrossel as $row):
         ?>
         <div class="carousel-item <?= $ativo ? 'active' : '' ?>">
-            <img src="admin/<?= htmlspecialchars($row['imagem']) ?>" class="d-block w-100" alt="Notícia">
+            <img src="../uploads_noticias/<?= htmlspecialchars($row['imagem']) ?>" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="Notícia">
             <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
                 <h5><?= htmlspecialchars($row['titulo']) ?></h5>
                 <p><?= htmlspecialchars($row['subtitulo']) ?></p>
@@ -90,7 +89,7 @@ $result_historico = $stmt_historico->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($result_historico as $row): ?>
         <div class="col">
             <div class="card h-100 shadow-sm">
-                <img src="admin/<?= htmlspecialchars($row['imagem']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['titulo']) ?>">
+                <img src="../uploads_noticias/<?= htmlspecialchars($row['imagem']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['titulo']) ?>">
                 <div class="card-body">
                     <h5 class="card-title"><?= htmlspecialchars($row['titulo']) ?></h5>
                     <p class="card-text"><?= htmlspecialchars($row['subtitulo']) ?></p>

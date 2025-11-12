@@ -1,6 +1,5 @@
 <?php
 require_once "../config/connection.php";
-
 // Busca todas as classes da tabela classe_usuario
 try {
     $stmt = $pdo->prepare("SELECT id, nome, grau_acesso FROM classe_usuario ORDER BY nome ASC");
