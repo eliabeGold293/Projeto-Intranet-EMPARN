@@ -15,8 +15,7 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE classe_usuario (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nome VARCHAR(100) UNIQUE NOT NULL,
-	grau_acesso INT NOT NULL
-	
+    grau_acesso INT NOT NULL
 );
 
 CREATE TABLE area_atuacao (
@@ -54,13 +53,12 @@ CREATE TABLE usuario_area (
 );
 
 -- 4.1 USUÁRIO QUE ACESSOU 
-
 CREATE TABLE usuario_acesso (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    usuario_id INT NOT NULL REFERENCES usuario(id), -- referência ao usuário cadastrado
-    data_acesso TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- quando acessou
-    ip VARCHAR(45), -- opcional: IPv4 ou IPv6
-    user_agent VARCHAR(255) -- opcional: navegador/dispositivo
+    usuario_id INT NOT NULL REFERENCES usuario(id),
+    data_acesso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip VARCHAR(45),
+    user_agent VARCHAR(255)
 );
 
 -- =====================================================================
@@ -142,14 +140,6 @@ CREATE TABLE arquivo (
 -- 9. TABELAS DE DASHBOARD E INDICADORES
 -- =====================================================================
 CREATE TABLE dashboard_bloco (
-
-CREATE TABLE indicador (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    titulo VARCHAR(150) NOT NULL,
-    tipo_conteudo VARCHAR(100),
-    url_destino TEXT,
-    ordem_exibicao INT DEFAULT 0
-);
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
     descricao TEXT,
@@ -158,7 +148,14 @@ CREATE TABLE indicador (
     atualizado_em TIMESTAMP DEFAULT NOW()
 );
 
--- Tabela de notícias
+CREATE TABLE indicador (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo VARCHAR(150) NOT NULL,
+    tipo_conteudo VARCHAR(100),
+    url_destino TEXT,
+    ordem_exibicao INT DEFAULT 0
+);
+
 CREATE TABLE noticias (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
@@ -169,7 +166,6 @@ CREATE TABLE noticias (
     data_publicacao TIMESTAMP DEFAULT NOW()
 );
 
--- Tabela de quadradinhos do dashboard
 CREATE TABLE dashboard (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     titulo VARCHAR(100) NOT NULL,
