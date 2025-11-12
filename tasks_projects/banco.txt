@@ -1,0 +1,179 @@
+-- =====================================================================
+-- 1. FUNÇÃO E TRIGGER PARA ATUALIZAR AUTOMATICAMENTE A COLUNA DE MODIFICAÇÃO
+-- =====================================================================
+CREATE OR REPLACE FUNCTION atualizar_data_modificacao()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.data_modificacao = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =====================================================================
+-- 2. TABELAS DE REFERÊNCIA BÁSICAS (CLASSES E ÁREAS)
+-- =====================================================================
+CREATE TABLE classe_usuario (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(100) UNIQUE NOT NULL,
+	grau_acesso INT NOT NULL
+	
+);
+
+CREATE TABLE area_atuacao (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(200) UNIQUE NOT NULL
+);
+
+-- =====================================================================
+-- 3. TABELA DE USUÁRIOS
+-- =====================================================================
+CREATE TABLE usuario (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(200) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    classe_name VARCHAR NOT NULL REFERENCES classe_usuario(nome),
+    area_name VARCHAR NOT NULL REFERENCES area_atuacao(nome),
+    data_criacao TIMESTAMP DEFAULT NOW(),
+    data_modificacao TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TRIGGER trg_usuario_modificado
+BEFORE UPDATE ON usuario
+FOR EACH ROW
+EXECUTE FUNCTION atualizar_data_modificacao();
+
+-- =====================================================================
+-- 4. RELAÇÃO ABERTA ENTRE USUÁRIOS E ÁREAS
+-- =====================================================================
+CREATE TABLE usuario_area (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    area_id INT NOT NULL REFERENCES area_atuacao(id) ON DELETE CASCADE,
+    UNIQUE (usuario_id, area_id)
+);
+
+-- 4.1 USUÁRIO QUE ACESSOU 
+
+CREATE TABLE usuario_acesso (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    usuario_id INT NOT NULL REFERENCES usuario(id), -- referência ao usuário cadastrado
+    data_acesso TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- quando acessou
+    ip VARCHAR(45), -- opcional: IPv4 ou IPv6
+    user_agent VARCHAR(255) -- opcional: navegador/dispositivo
+);
+
+-- =====================================================================
+-- 5. TABELA DE PROJETOS
+-- =====================================================================
+CREATE TABLE projeto (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo VARCHAR(300) NOT NULL,
+    descricao TEXT,
+    data_inicio DATE,
+    data_fim DATE,
+    status VARCHAR(50) DEFAULT 'Em andamento',
+    criado_por INT REFERENCES usuario(id),
+    data_criacao TIMESTAMP DEFAULT NOW(),
+    data_modificacao TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TRIGGER trg_projeto_modificado
+BEFORE UPDATE ON projeto
+FOR EACH ROW
+EXECUTE FUNCTION atualizar_data_modificacao();
+
+-- =====================================================================
+-- 6. PAPÉIS DINÂMICOS EM PROJETOS
+-- =====================================================================
+CREATE TABLE papel_projeto (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(50) UNIQUE NOT NULL
+);
+
+INSERT INTO papel_projeto (nome) VALUES
+('RESPONSÁVEL'),
+('COLABORADOR'),
+('REVISOR'),
+('COORDENADOR');
+
+CREATE TABLE projeto_usuario (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    projeto_id INT NOT NULL REFERENCES projeto(id) ON DELETE CASCADE,
+    usuario_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    papel_id INT NOT NULL REFERENCES papel_projeto(id) ON DELETE CASCADE,
+    UNIQUE (projeto_id, usuario_id, papel_id)
+);
+
+-- =====================================================================
+-- 7. TABELA DE TAREFAS VINCULADAS A PROJETOS
+-- =====================================================================
+CREATE TABLE tarefa (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    projeto_id INT REFERENCES projeto(id) ON DELETE CASCADE,
+    titulo VARCHAR(300) NOT NULL,
+    descricao TEXT,
+    status VARCHAR(50) DEFAULT 'Em andamento',
+    prazo DATE,
+    data_conclusao DATE,
+    data_criacao TIMESTAMP DEFAULT NOW(),
+    data_modificacao TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TRIGGER trg_tarefa_modificada
+BEFORE UPDATE ON tarefa
+FOR EACH ROW
+EXECUTE FUNCTION atualizar_data_modificacao();
+
+-- =====================================================================
+-- 8. ARQUIVOS E BIBLIOTECA INSTITUCIONAL
+-- =====================================================================
+CREATE TABLE arquivo (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_original VARCHAR(255) NOT NULL,
+    caminho_armazenado TEXT NOT NULL,
+    tipo VARCHAR(100),
+    projeto_id INT REFERENCES projeto(id) ON DELETE CASCADE,
+    enviado_por INT REFERENCES usuario(id),
+    data_upload TIMESTAMP DEFAULT NOW()
+);
+
+-- =====================================================================
+-- 9. TABELAS DE DASHBOARD E INDICADORES
+-- =====================================================================
+CREATE TABLE dashboard_bloco (
+
+CREATE TABLE indicador (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo VARCHAR(150) NOT NULL,
+    tipo_conteudo VARCHAR(100),
+    url_destino TEXT,
+    ordem_exibicao INT DEFAULT 0
+);
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    descricao TEXT,
+    valor NUMERIC,
+    unidade VARCHAR(50),
+    atualizado_em TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabela de notícias
+CREATE TABLE noticias (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    subtitulo VARCHAR(255),
+    texto TEXT NOT NULL,
+    imagem VARCHAR(255),
+    autoria VARCHAR(100),
+    data_publicacao TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabela de quadradinhos do dashboard
+CREATE TABLE dashboard (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo VARCHAR(100) NOT NULL,
+    cor VARCHAR(50) DEFAULT 'bg-primary',
+    link VARCHAR(255) DEFAULT NULL,
+    data_criacao TIMESTAMP DEFAULT NOW()
+);
