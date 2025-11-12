@@ -1,0 +1,99 @@
+/* ===== Reset básico ===== */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== Cabeçalho ===== */
+header {
+    background: linear-gradient(90deg, #003e4d, #0046a0);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+header img {
+    max-height: 100px;
+}
+
+/* ===== Carrossel ===== */
+#noticiasCarrossel img {
+    max-height: 500px;
+    object-fit: cover;
+}
+
+.carousel-caption {
+    padding: 15px;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+}
+
+.carousel-caption h5 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.carousel-caption p {
+    font-size: 1rem;
+}
+
+/* Botões do carrossel */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1);
+}
+
+/* ===== Painel de Serviços ===== */
+section h2 {
+    font-weight: bold;
+    color: #004d40;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* ===== Histórico de Notícias ===== */
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-body h5 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #00796b;
+}
+
+.card-body p {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* ===== Rodapé ===== */
+footer {
+    background: #004d40;
+    color: #fff;
+    font-size: 0.9rem;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+}
