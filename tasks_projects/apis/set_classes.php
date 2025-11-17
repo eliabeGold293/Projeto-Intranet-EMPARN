@@ -1,6 +1,4 @@
 <?php 
-# API para atualizar informações do usuário
-
 require_once "../config/connection.php";
 
 $id          = isset($_POST['id']) ? (int) $_POST['id'] : 0;
@@ -9,7 +7,6 @@ $grau_acesso = isset($_POST['grau_acesso']) ? (int) $_POST['grau_acesso'] : 0;
 
 if ($id > 0) {
     try {
-        // Monta dinamicamente os campos que serão atualizados
         $campos = [];
         $params = [':id' => $id];
 
@@ -17,7 +14,7 @@ if ($id > 0) {
             $campos[] = "nome = :nome";
             $params[':nome'] = $nome;
         }
-        if ($garu_acesso) {
+        if ($grau_acesso) { // corrigido: antes estava $garu_acesso
             $campos[] = "grau_acesso = :grau_acesso";
             $params[':grau_acesso'] = $grau_acesso;
         }

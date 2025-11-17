@@ -1,12 +1,12 @@
 
 <?php
 
-$host = 'localhost'; // ou o IP do servidor
+$host = 'localhost'; // ou o IP do servidor (deve ser este)
 $port = '5432'; // porta padrão do PostgreSQL
-$dbname = 'emparn';
-$user = 'postgres';
-$password = 'password';
-$modo_debug = true;
+$dbname = 'emparn'; //nome da base de dados
+$user = 'postgres'; // nome padrão (deve ser ele)
+$password = 'password'; // teste primeiro com 'password' se não der certo coloque sua senha do postgrsql "admin"
+$modo_debug = true; // deve estar sempre true durante teste.
 
 try {
     $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);

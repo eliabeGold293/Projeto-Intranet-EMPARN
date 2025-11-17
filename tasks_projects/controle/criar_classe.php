@@ -45,6 +45,16 @@
     .form-container button:hover {
         background: #357ab8;
     }
+
+    .message {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
 </style>
 <body>
     <!-- Navegação reutilizável -->
@@ -53,7 +63,7 @@
     <!-- Encapsulamento do conteúdo -->
     <section class="form-container">
         <h2>Criar Classe</h2>
-        <form action="../apis/criar_classe_us.php" method="POST">
+        <form id="createClassForm">
             <label>Nome da Classe:</label>
             <input type="text" name="nome" required>
 
@@ -62,6 +72,37 @@
 
             <button type="submit">Salvar</button>
         </form>
+        <div id="message"></div>
     </section>
+
+    <script>
+        document.getElementById("createClassForm").addEventListener("submit", function(e) {
+            e.preventDefault(); // evita recarregar a página
+
+            const formData = new FormData(this);
+
+            fetch("../apis/criar_classe_us.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                const msgDiv = document.getElementById("message");
+                if (data.toLowerCase().includes("sucesso")) {
+                    msgDiv.textContent = "Classe criada com sucesso!";
+                    msgDiv.className = "message success";
+                    this.reset(); // limpa o formulário
+                } else {
+                    msgDiv.textContent = "Erro ao criar classe: " + data;
+                    msgDiv.className = "message error";
+                }
+            })
+            .catch(() => {
+                const msgDiv = document.getElementById("message");
+                msgDiv.textContent = "Erro ao criar classe.";
+                msgDiv.className = "message error";
+            });
+        });
+    </script>
 </body>
 </html>

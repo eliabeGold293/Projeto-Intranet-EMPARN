@@ -26,9 +26,8 @@ try {
     <title>Cadastro de Usuário</title>
 </head>
 <style>
-    /* Container do formulário */
     .form-container {
-        margin-left: 320px; /* espaço para a sidebar */
+        margin-left: 320px;
         padding: 20px;
         background: #fff;
         border-radius: 8px;
@@ -65,47 +64,92 @@ try {
     .form-container button:hover {
         background: #357ab8;
     }
+
+    .message {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .error {
+        background: #f8d7da;
+        color: #721c24;
+    }
 </style>
 <body>
     <?php include '../templates/gen_menu.php'; ?>
 
     <section class="form-container">
         <h2>Cadastro de Usuário</h2>
-        <form action="../apis/criar_us.php" method="POST">
+        <form id="userForm">
             <label>Nome:</label>
             <input type="text" name="nome" required>
-            <br><br>
 
             <label>Email:</label>
             <input type="email" name="email" required>
-            <br><br>
 
             <label>Senha:</label>
             <input type="password" name="senha" required>
-            <br><br>
 
             <label>Classe:</label>
-            <select name="classe_name" id="classe_name"> 
+            <select name="classe_id" id="classe_id"> 
                 <?php foreach ($classe_usuario as $class_us): ?>
-                    <option value="<?=htmlspecialchars($class_us['nome'])?>">
-                        <?=htmlspecialchars($class_us['nome'])?>
+                    <option value="<?= htmlspecialchars($class_us['id']) ?>">
+                        <?= htmlspecialchars($class_us['nome']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <br><br>
 
             <label>Área:</label>
-            <select name="area_name" id="area_name">
+            <select name="area_id" id="area_id">
                 <?php foreach ($areas as $area): ?>
-                    <option value="<?=htmlspecialchars($area['nome'])?>">
-                        <?=htmlspecialchars($area['nome'])?>
+                    <option value="<?= htmlspecialchars($area['id']) ?>">
+                        <?= htmlspecialchars($area['nome']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
-            <br><br>
+
 
             <button type="submit">Salvar</button>
         </form>
+
+        <div id="message"></div>
     </section>
+
+    <script>
+        document.getElementById("userForm").addEventListener("submit", function(e) {
+            e.preventDefault(); // evita recarregar a página
+
+            const formData = new FormData(this);
+
+            fetch("../apis/criar_us.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                const msgDiv = document.getElementById("message");
+                if (data.toLowerCase().includes("sucesso")) {
+                    msgDiv.textContent = "Usuário criado com sucesso!";
+                    msgDiv.className = "message success";
+                    this.reset(); // limpa o formulário
+                } else {
+                    msgDiv.textContent = "Erro ao criar usuário: " + data;
+                    msgDiv.className = "message error";
+                }
+            })
+            .catch(() => {
+                const msgDiv = document.getElementById("message");
+                msgDiv.textContent = "Erro ao criar usuário.";
+                msgDiv.className = "message error";
+            });
+        });
+    </script>
 </body>
 </html>

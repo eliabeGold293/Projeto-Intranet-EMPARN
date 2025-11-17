@@ -11,7 +11,12 @@ if ($id > 0) {
 
         echo "Área de Atuação deletada com sucesso!";
     } catch (PDOException $e) {
-        echo "Erro ao tentar deletar Área de Atuação: " . $e->getMessage();
+        if ($e->getCode() === '23503') {
+            // Mensagem amigável para o usuário
+            echo "❌ Não é possível excluir esta área porque existem usuários vinculados a ela.";
+        } else {
+            echo "❌ Erro ao excluir área: " . $e->getMessage();
+        }
     }
 } else {
     echo "Informe um ID válido.";

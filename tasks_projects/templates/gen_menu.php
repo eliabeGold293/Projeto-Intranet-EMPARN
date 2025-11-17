@@ -83,20 +83,14 @@
             <li class="menu-section">Usuário</li>
             <li><a href="../controle/cadastrar_us.php" class="<?= $pagina === '../controle/cadastrar_us.php' ? 'active' : '' ?>">Criar Usuário</a></li>
             <li><a href="../controle/get_us.php" class="<?= $pagina === '../controle/get_us.php' ? 'active' : '' ?>">Ver Usuários <br> Existentes</a></li>
-            <li><a href="../controle/deletar_us.php" class="<?= $pagina === '../controle/deletar_us.php' ? 'active' : '' ?>">Deletar Usuário</a></li>
-            <li><a href="../controle/update_us.php" class="<?= $pagina === '../controle/update_us.php' ? 'active' : '' ?>">Editar Dados de Usuário</a></li>
-
+            
             <li class="menu-section">Classes de Usuário</li>
             <li><a href="criar_classe.php" class="<?= $pagina === 'criar_classe.php' ? 'active' : '' ?>">Criar Classe</a></li>
             <li><a href="listar_classes.php" class="<?= $pagina === 'listar_classes.php' ? 'active' : '' ?>">Ver Classes <br> Existentes</a></li>
-            <li><a href="deletar_classe.php" class="<?= $pagina === 'deletar_classe.php' ? 'active' : '' ?>">Deletar Classe</a></li>
-            <li><a href="update_classe.php" class="<?= $pagina === 'update_classe.php' ? 'active' : '' ?>">Editar Classe</a></li>
 
             <li class="menu-section">Áreas de Atuação</li>
             <li><a href="criar_area.php" class="<?= $pagina === 'criar_area.php' ? 'active' : '' ?>">Criar Área de Atuação</a></li>
             <li><a href="listar_areas.php" class="<?= $pagina === 'listar_areas.php' ? 'active' : '' ?>">Ver Áreas de Atuação Existentes</a></li>
-            <li><a href="deletar_area.php" class="<?= $pagina === 'deletar_area.php' ? 'active' : '' ?>">Deletar Área de Atuação</a></li>
-            <li><a href="update_area.php" class="<?= $pagina === 'update_area.php' ? 'active' : '' ?>">Editar Área de Atuação</a></li>
 
             <li class="menu-section">Notícias</li>
             <li><a href="cadastro_noticias.php" class="<?= $pagina === 'cadastro_noticias.php' ? 'active' : '' ?>">📰 Cadastrar Notícias</a></li>

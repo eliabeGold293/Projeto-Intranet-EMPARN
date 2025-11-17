@@ -1,18 +1,15 @@
 <?php 
-# API para atualizar informações do usuário
-
 require_once "../config/connection.php";
 
 $id          = isset($_POST['id']) ? (int) $_POST['id'] : 0;
 $nome        = $_POST['nome'] ?? null;
 $email       = $_POST['email'] ?? null;
 $senha       = $_POST['senha'] ?? null;
-$classe_name = $_POST['classe_name'] ?? null;
-$area_name   = $_POST['area_name'] ?? null;
+$classe_id   = isset($_POST['classe_id']) ? (int) $_POST['classe_id'] : null;
+$area_id     = isset($_POST['area_id']) ? (int) $_POST['area_id'] : null;
 
 if ($id > 0) {
     try {
-        // Monta dinamicamente os campos que serão atualizados
         $campos = [];
         $params = [':id' => $id];
 
@@ -25,18 +22,17 @@ if ($id > 0) {
             $params[':email'] = $email;
         }
         if ($senha) {
-            // Criptografa a senha antes de salvar
             $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
             $campos[] = "senha = :senha";
             $params[':senha'] = $senha_hash;
         }
-        if ($classe_name) {
-            $campos[] = "classe_name = :classe_name";
-            $params[':classe_name'] = $classe_name;
+        if ($classe_id) {
+            $campos[] = "classe_id = :classe_id";
+            $params[':classe_id'] = $classe_id;
         }
-        if ($area_name) {
-            $campos[] = "area_name = :area_name";
-            $params[':area_name'] = $area_name;
+        if ($area_id) {
+            $campos[] = "area_id = :area_id";
+            $params[':area_id'] = $area_id;
         }
 
         if (!empty($campos)) {
@@ -55,5 +51,4 @@ if ($id > 0) {
 } else {
     echo "⚠️ Informe um ID válido.";
 }
-
 
