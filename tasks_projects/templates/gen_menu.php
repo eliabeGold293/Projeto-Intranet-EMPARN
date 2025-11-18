@@ -94,7 +94,7 @@
 
             <li class="menu-section">Notícias</li>
             <li><a href="cadastro_noticias.php" class="<?= $pagina === 'cadastro_noticias.php' ? 'active' : '' ?>">📰 Cadastrar Notícias</a></li>
-            <li><a href="excluir_noticia.php" class="<?= $pagina === 'excluir_noticia.php' ? 'active' : '' ?>">🗑️ Excluir Notícias</a></li>
+            <li><a href="get_noticias.php" class="<?= $pagina === 'get_noticias.php' ? 'active' : '' ?>">Ver Notícias</a></li>
 
             <li class="menu-section">Dashboard</li>
             <li><a href="../controle/gerenciar_dashboard.php" class="<?= $pagina === '../controle/gerenciar_dashboard.php' ? 'active' : '' ?>">📊 Gerenciar Dashboard</a></li>
