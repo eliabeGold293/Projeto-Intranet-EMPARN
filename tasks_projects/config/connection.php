@@ -1,6 +1,5 @@
 
 <?php
-
 $host = 'localhost'; // ou o IP do servidor (deve ser este)
 $port = '5432'; // porta padrão do PostgreSQL
 $dbname = 'emparn'; //nome da base de dados
@@ -16,7 +15,6 @@ try {
     if ($modo_debug){
         echo "Conexão bem-sucedida!";
     }
-
 } catch (PDOException $e) {
     echo "Erro na conexão: " . $e->getMessage();
 }

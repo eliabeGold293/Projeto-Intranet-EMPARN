@@ -166,8 +166,19 @@ try {
                         <td><?= htmlspecialchars($us["email"]) ?></td>
                         <td><?= htmlspecialchars($us["classe_nome"]) ?></td>
                         <td><?= htmlspecialchars($us["area_nome"]) ?></td>
-                        <td><?= htmlspecialchars($us["data_criacao"]) ?></td>
-                        <td><?= htmlspecialchars($us["data_modificacao"]) ?></td>
+                        <td>
+                            <?php 
+                            $dataCriacao = new DateTime($us["data_criacao"]);
+                            echo $dataCriacao->format('(d/m/y)(H:i:s)');
+                            ?>
+                        </td>
+                        <td>
+                            <?php 
+                            $dataModificacao = new DateTime($us["data_modificacao"]);
+                            echo $dataModificacao->format('(d/m/y)(H:i:s)');
+                            ?>
+                        </td>
+
                         <td>
                             <button class="btn btn-edit" onclick="showEditForm(
                                 <?= $us['id'] ?>,

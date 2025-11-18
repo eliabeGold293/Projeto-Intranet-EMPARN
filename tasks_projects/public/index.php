@@ -10,45 +10,26 @@ require_once "../config/connection.php";
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./static/index.css">
 </head>
+<style>
+    .btn-gradient {
+        background: linear-gradient(135deg, #007bff, #00c6ff);
+        color: #fff;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        background: linear-gradient(135deg, #0056b3, #0096c7);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+</style>
 <body>
+    <!--Cabeçalho -->
+    <?php include __DIR__ . '/../templates/header_emparn.php'; ?>
 
-    <!-- Cabeçalho -->
-    <header class="text-center py-3 bg-light shadow-sm">
-        <img src="img/logo-emparn.png" alt="Logo EMPARN" height="100">
-        <nav class="mt-2">
-            <a href="../controle/index_controle.php" class="btn btn-outline-primary btn-sm">Controle</a>
-        </nav>
-    </header>
-
-    <!-- Carrossel -->
-    <?php
-    $sql_carrossel = "SELECT * FROM noticias ORDER BY data_publicacao DESC LIMIT 3";
-    $stmt_carrossel = $pdo->query($sql_carrossel);
-    $result_carrossel = $stmt_carrossel->fetchAll(PDO::FETCH_ASSOC);
-    ?>
-    <div id="noticiasCarrossel" class="carousel slide mt-4" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <?php
-            $ativo = true;
-            if (count($result_carrossel) > 0):
-                foreach ($result_carrossel as $row):
-            ?>
-            <div class="carousel-item <?= $ativo ? 'active' : '' ?>">
-                <img src="../uploads_noticias/<?= htmlspecialchars($row['imagem']) ?>" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="Notícia">
-                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
-                    <h5><?= htmlspecialchars($row['titulo']) ?></h5>
-                    <p><?= htmlspecialchars($row['subtitulo']) ?></p>
-                </div>
-            </div>
-            <?php $ativo = false; endforeach; endif; ?>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#noticiasCarrossel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#noticiasCarrossel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </button>
-    </div>
+    <!-- Carrossel de Notícias -->
+    <?php include __DIR__ . '/../templates/carrossel_noticias.php'; ?>
 
     <!-- Dashboard Dinâmico -->
     <section class="container mt-5">
@@ -72,34 +53,20 @@ require_once "../config/connection.php";
                 </a>
             </div>
             <?php endforeach; else: ?>
-            <p class="text-center text-muted">Nenhum quadradinho cadastrado ainda.</p>
+            <p class="text-center text-muted">Nenhuma card cadastrado ainda.</p>
             <?php endif; ?>
         </div>
     </section>
 
     <!-- Histórico de Notícias -->
-    <?php
-    $sql_historico = "SELECT * FROM noticias ORDER BY data_publicacao DESC LIMIT 6 OFFSET 3";
-    $stmt_historico = $pdo->query($sql_historico);
-    $result_historico = $stmt_historico->fetchAll(PDO::FETCH_ASSOC);
-    ?>
-    <section class="container mt-5 mb-5">
-        <h2 class="text-center mb-4">Notícias Anteriores</h2>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            <?php foreach ($result_historico as $row): ?>
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="../uploads_noticias/<?= htmlspecialchars($row['imagem']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['titulo']) ?>">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($row['titulo']) ?></h5>
-                        <p class="card-text"><?= htmlspecialchars($row['subtitulo']) ?></p>
-                        <small class="text-muted">Publicado em <?= date('d/m/Y', strtotime($row['data_publicacao'])) ?></small>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </section>
+    <?php include __DIR__ . '/../templates/historico_noticias.php'; ?>
+
+    <div class="container text-center mb-5">
+        <a href="todas_as_noticias.php" 
+        class="btn btn-gradient btn-lg px-4 py-2 shadow-lg rounded-pill">
+            <i class="bi bi-newspaper"></i> Confira todas as notícias
+        </a>
+    </div>
 
     <footer class="text-center bg-dark text-white py-3">
         <p>© <?= date('Y') ?> EMPARN - Todos os direitos reservados.</p>

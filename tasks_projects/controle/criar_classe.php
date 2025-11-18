@@ -6,11 +6,9 @@
     <link rel="stylesheet" href="style.css"> <!-- CSS separado -->
 </head>
 <style>
-    /* Container do formulário */
-    .form-container {
-        margin-left: 320px; /* espaço para a sidebar */
-        margin-top: 40px;
-        padding: 20px;
+   .form-container {
+        margin-left: 320px;
+        padding: 30px; /* espaçamento interno uniforme */
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -19,27 +17,43 @@
 
     .form-container h2 {
         margin-top: 0;
+        margin-bottom: 20px;
         color: #333;
         font-family: Arial, sans-serif;
+        text-align: left; /* título alinhado à esquerda */
     }
 
-    .form-container input {
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-container label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .form-container input,
+    .form-container select {
         width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        margin-bottom: 15px;
+        padding: 10px;
+        margin-bottom: 20px;
         border: 1px solid #ccc;
         border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box; /* garante que padding não ultrapasse largura */
     }
 
     .form-container button {
         background: #4a90e2;
         color: #fff;
         border: none;
-        padding: 10px 15px;
+        padding: 10px 20px;
         border-radius: 4px;
         cursor: pointer;
         transition: background 0.3s ease;
+        align-self: flex-start; /* botão alinhado à esquerda */
     }
 
     .form-container button:hover {

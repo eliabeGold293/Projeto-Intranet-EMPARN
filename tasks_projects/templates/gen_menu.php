@@ -97,7 +97,7 @@
             <li><a href="excluir_noticia.php" class="<?= $pagina === 'excluir_noticia.php' ? 'active' : '' ?>">🗑️ Excluir Notícias</a></li>
 
             <li class="menu-section">Dashboard</li>
-            <li><a href="../templates/gerenciar_dashboard.php" class="<?= $pagina === '../templates/gerenciar_dashboard.php' ? 'active' : '' ?>">📊 Gerenciar Dashboard</a></li>
+            <li><a href="../controle/gerenciar_dashboard.php" class="<?= $pagina === '../controle/gerenciar_dashboard.php' ? 'active' : '' ?>">📊 Gerenciar Dashboard</a></li>
             <li><a href="../public/index.php" class="<?= $pagina === '../public/index.php' ? 'active' : '' ?>">↩️ Voltar ao Site</a></li>
         </ul>
         <br>

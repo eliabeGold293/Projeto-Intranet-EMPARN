@@ -173,3 +173,6 @@ CREATE TABLE dashboard (
     link VARCHAR(255) DEFAULT NULL,
     data_criacao TIMESTAMP DEFAULT NOW()
 );
+
+
+/opt/lampp/htdocs/tasks_projects/uploads_noticias/1763473712_amazing-fruits-1920x1200-wallpaper-deliciosa-coleccion-de-frutas.jpg

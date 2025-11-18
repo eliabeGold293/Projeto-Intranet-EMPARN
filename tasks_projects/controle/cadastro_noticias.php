@@ -77,8 +77,18 @@ include '../templates/gen_menu.php';
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Link da Notícia:</label>
+            <input type="url" name="link" class="form-control" placeholder="https://www.exemplo.com" required>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Imagem da Notícia:</label>
             <input type="file" name="imagem" class="form-control" accept="image/*" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Fonte da imagem:</label>
+            <textarea name="fonte_imagem" class="form-control" required></textarea>
         </div>
 
         <button type="submit" class="btn btn-success px-4">Salvar Notícia</button>

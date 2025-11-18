@@ -3,12 +3,14 @@ require_once "../config/connection.php"; // já tem $pdo
 
 try {
     // Captura dos dados
-    $titulo    = $_POST['titulo'] ?? null;
-    $subtitulo = $_POST['subtitulo'] ?? null;
-    $texto     = $_POST['texto'] ?? null;
-    $autoria   = $_POST['autoria'] ?? null;
+    $titulo       = $_POST['titulo'] ?? null;
+    $subtitulo    = $_POST['subtitulo'] ?? null;
+    $texto        = $_POST['texto'] ?? null;
+    $autoria      = $_POST['autoria'] ?? null;
+    $link         = $_POST['link'] ?? null;
+    $fonte_imagem = $_POST['fonte_imagem'] ?? null;
 
-    if (!$titulo || !$texto || !$autoria) {
+    if (!$titulo || !$texto || !$autoria || !$link || !$fonte_imagem) {
         throw new Exception("Dados obrigatórios não informados.");
     }
 
@@ -42,24 +44,28 @@ try {
     }
 
     // Inserção no banco (sem data_publicacao, o banco gera automaticamente)
-    $sql = "INSERT INTO noticias (titulo, subtitulo, texto, imagem, autoria) 
-            VALUES (:titulo, :subtitulo, :texto, :imagem, :autoria)";
+    $sql = "INSERT INTO noticias (titulo, subtitulo, texto, imagem, autoria, link, fonte_imagem) 
+            VALUES (:titulo, :subtitulo, :texto, :imagem, :autoria, :link, :fonte_imagem)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
-        ':titulo'    => $titulo,
-        ':subtitulo' => $subtitulo,
-        ':texto'     => $texto,
-        ':imagem'    => $caminho,   // caminho limpo para o navegador
-        ':autoria'   => $autoria
+        ':titulo'       => $titulo,
+        ':subtitulo'    => $subtitulo,
+        ':texto'        => $texto,
+        ':imagem'       => $caminho,   // caminho limpo para o navegador
+        ':autoria'      => $autoria,
+        ':link'         => $link,
+        ':fonte_imagem' => $fonte_imagem
     ]);
 
     $id = $pdo->lastInsertId();
 
     echo json_encode([
-        "status" => "success",
-        "id"     => $id,
-        "titulo" => $titulo,
-        "imagem" => $caminho
+        "status"       => "success",
+        "id"           => $id,
+        "titulo"       => $titulo,
+        "imagem"       => $caminho,
+        "link"         => $link,
+        "fonte_imagem" => $fonte_imagem
     ]);
 
 } catch (Exception $e) {
@@ -69,3 +75,4 @@ try {
             <strong>Erro:</strong> " . htmlspecialchars($e->getMessage()) . "
           </div>";
 }
+?>
