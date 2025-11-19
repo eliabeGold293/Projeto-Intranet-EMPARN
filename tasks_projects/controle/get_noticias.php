@@ -73,8 +73,5 @@ $result_todas = $stmt_todas->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </div>
     </div>
-    <footer class="text-center bg-dark text-white py-3">
-        <p>© <?= date('Y') ?> EMPARN - Todos os direitos reservados.</p>
-    </footer>
 </body>
 </html>
