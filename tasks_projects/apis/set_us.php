@@ -10,6 +10,16 @@ $area_id     = isset($_POST['area_id']) ? (int) $_POST['area_id'] : null;
 
 if ($id > 0) {
     try {
+        // Buscar dados antigos do usuário antes da atualização
+        $stmtAntigo = $pdo->prepare("SELECT nome, email FROM usuario WHERE id = :id");
+        $stmtAntigo->execute([':id' => $id]);
+        $usuarioAntigo = $stmtAntigo->fetch(PDO::FETCH_ASSOC);
+
+        if (!$usuarioAntigo) {
+            echo "❌ Usuário não encontrado.";
+            exit;
+        }
+
         $campos = [];
         $params = [':id' => $id];
 
@@ -40,6 +50,33 @@ if ($id > 0) {
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
 
+            // Registrar ação no log
+            $descricao = "✏️ Usuário '{$usuarioAntigo['nome']}' atualizado";
+            if ($nome) {
+                $descricao .= " → novo nome: '{$nome}'";
+            }
+            if ($email) {
+                $descricao .= " → novo email: '{$email}'";
+            }
+            if ($classe_id) {
+                $descricao .= " → nova classe_id: {$classe_id}";
+            }
+            if ($area_id) {
+                $descricao .= " → nova area_id: {$area_id}";
+            }
+            if ($senha) {
+                $descricao .= " → senha alterada";
+            }
+
+            $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
+                                      VALUES (:usuario_id, 'usuario', 'ATUALIZAR', :descricao)");
+            // Aqui você pode usar o ID do usuário logado na sessão, se houver.
+            // Como exemplo, deixamos NULL.
+            $stmtLog->execute([
+                ':usuario_id' => null,
+                ':descricao'  => $descricao
+            ]);
+
             echo "✅ Alterações realizadas com sucesso!";
         } else {
             echo "⚠️ Nenhum campo foi informado para atualização.";
@@ -51,4 +88,4 @@ if ($id > 0) {
 } else {
     echo "⚠️ Informe um ID válido.";
 }
-
+?>

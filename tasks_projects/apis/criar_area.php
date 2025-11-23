@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once "../config/connection.php";
 
 $nome = $_POST['nome'] ?? null;
@@ -18,6 +18,20 @@ if ($nome) {
             $sql = "INSERT INTO area_atuacao (nome) VALUES (:nome)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':nome' => $nome]);
+
+            // Captura ID da nova área
+            $novaAreaId = $pdo->lastInsertId();
+
+            // Registrar ação no log
+            $descricao = "📌 Área de Atuação '{$nome}' adicionada";
+            $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
+                                      VALUES (:usuario_id, 'area_atuacao', 'INSERIR', :descricao)");
+            // Aqui você pode usar o ID do usuário logado na sessão (se tiver),
+            // mas como exemplo vamos deixar NULL
+            $stmtLog->execute([
+                ':usuario_id' => null,
+                ':descricao'  => $descricao
+            ]);
 
             echo "Área de Atuação adicionada com sucesso!";
         }

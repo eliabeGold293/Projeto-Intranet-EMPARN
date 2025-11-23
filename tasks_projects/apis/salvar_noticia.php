@@ -131,6 +131,17 @@ try {
         }
     }
 
+    // Registrar ação no log
+    $descricao = "📰 Notícia '{$titulo}' criada";
+    $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
+                              VALUES (:usuario_id, 'noticias', 'INSERIR', :descricao)");
+    // Aqui você pode usar o ID do usuário logado na sessão, se houver.
+    // Como exemplo, deixamos NULL.
+    $stmtLog->execute([
+        ':usuario_id' => null,
+        ':descricao'  => $descricao
+    ]);
+
     header('Content-Type: application/json');
     echo json_encode([
         "status" => "success",

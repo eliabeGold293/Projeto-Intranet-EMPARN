@@ -54,6 +54,12 @@ include '../templates/gen_menu.php';
             text-align: center;
             border-top: 1px solid #ccc;
         }
+
+        /* Caixa de últimas ações com rolagem */
+        #listaAcoes {
+            max-height: 500px; /* altura que comporta ~20 registros */
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -109,10 +115,10 @@ include '../templates/gen_menu.php';
                     <h6>Usuários</h6>
                     <p class="fs-4">
                         <?php
-                        $totalCards = $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn();
-                        echo $totalCards;
+                        $totalUsuarios = $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn();
+                        echo $totalUsuarios;
                         ?>
-                    </p> <!-- Exemplo fixo -->
+                    </p>
                 </div>
             </div>
             <div class="col-md-3">
@@ -125,12 +131,40 @@ include '../templates/gen_menu.php';
     </div>
 
     <div class="card-box">
-        <h5>Últimas Ações</h5>
-        <ul class="list-group">
-            <li class="list-group-item">✔️ Card "Meteorologia" adicionado</li>
-            <li class="list-group-item">🗑️ Notícia "Chuvas no Sertão" excluída</li>
-            <li class="list-group-item">✏️ Card "Agropecuária" atualizado</li>
-            <li class="list-group-item">👤 Novo usuário cadastrado</li>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="mb-0">Últimas Ações</h5>
+            <div class="d-flex gap-2 ms-3">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filtro-acao" type="checkbox" id="filtroTodos" value="TODOS" checked>
+                    <label class="form-check-label" for="filtroTodos">Todos</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filtro-acao" type="checkbox" id="filtroCriacao" value="INSERIR">
+                    <label class="form-check-label" for="filtroCriacao">Criações</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filtro-acao" type="checkbox" id="filtroAtualizacao" value="ATUALIZAR">
+                    <label class="form-check-label" for="filtroAtualizacao">Atualizações</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filtro-acao" type="checkbox" id="filtroExclusao" value="EXCLUIR">
+                    <label class="form-check-label" for="filtroExclusao">Deleções</label>
+                </div>
+            </div>
+        </div>
+
+        <ul class="list-group" id="listaAcoes">
+            <?php
+            $stmt = $pdo->query("SELECT descricao, acao, data_acao 
+                                FROM log_acao 
+                                ORDER BY data_acao DESC");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                echo "<li class='list-group-item acao-item' data-acao='{$row['acao']}'>
+                        {$row['descricao']} 
+                        <small class='text-muted'>(" . date('d/m/Y H:i', strtotime($row['data_acao'])) . ")</small>
+                    </li>";
+            }
+            ?>
         </ul>
     </div>
 </div>
@@ -140,5 +174,40 @@ include '../templates/gen_menu.php';
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function aplicarFiltro() {
+    const todos = document.getElementById('filtroTodos').checked;
+    const ativos = Array.from(document.querySelectorAll('.filtro-acao:checked'))
+                        .map(c => c.value);
+
+    document.querySelectorAll('#listaAcoes .acao-item').forEach(item => {
+        if (todos || ativos.includes(item.dataset.acao)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+document.querySelectorAll('.filtro-acao').forEach(chk => {
+    chk.addEventListener('change', () => {
+        if (chk.value === 'TODOS' && chk.checked) {
+            document.querySelectorAll('.filtro-acao').forEach(c => {
+                if (c.value !== 'TODOS') c.checked = false;
+            });
+        } else {
+            if (chk.value !== 'TODOS' && chk.checked) {
+                document.getElementById('filtroTodos').checked = false;
+            }
+        }
+        aplicarFiltro();
+    });
+});
+
+// Aplica filtro inicial
+aplicarFiltro();
+</script>
+
 </body>
 </html>

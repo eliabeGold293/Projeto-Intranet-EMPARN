@@ -24,6 +24,20 @@ if ($nome && $grau_acesso) {
             ':grau_acesso' => $grau_acesso
         ]);
 
+        // Captura ID da nova classe
+        $novaClasseId = $pdo->lastInsertId();
+
+        // Registrar ação no log
+        $descricao = "🏷️ Classe de Usuário '{$nome}' adicionada (grau de acesso {$grau_acesso})";
+        $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
+                                  VALUES (:usuario_id, 'classe_usuario', 'INSERIR', :descricao)");
+        // Aqui você pode usar o ID do usuário logado na sessão, se houver. 
+        // Como exemplo, deixamos NULL.
+        $stmtLog->execute([
+            ':usuario_id' => null,
+            ':descricao'  => $descricao
+        ]);
+
         echo "Classe adicionada com sucesso!";
     } catch (PDOException $e) {
         echo "Erro ao tentar salvar nova classe: " . $e->getMessage();
