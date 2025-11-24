@@ -13,7 +13,7 @@ if ($id > 0) {
         $classeAntiga = $stmtAntigo->fetch(PDO::FETCH_ASSOC);
 
         if (!$classeAntiga) {
-            echo "❌ Classe não encontrada.";
+            echo "Classe não encontrada.";
             exit;
         }
 
@@ -35,7 +35,7 @@ if ($id > 0) {
             $stmt->execute($params);
 
             // Registrar ação no log
-            $descricao = "✏️ Classe de Usuário '{$classeAntiga['nome']}' (grau {$classeAntiga['grau_acesso']}) atualizada";
+            $descricao = "Classe de Usuário '{$classeAntiga['nome']}' (grau {$classeAntiga['grau_acesso']}) atualizada";
             if ($nome) {
                 $descricao .= " → novo nome: '{$nome}'";
             }
@@ -52,15 +52,15 @@ if ($id > 0) {
                 ':descricao'  => $descricao
             ]);
 
-            echo "✅ Alterações realizadas com sucesso!";
+            echo "Alterações realizadas com sucesso!";
         } else {
-            echo "⚠️ Nenhum campo foi informado para atualização.";
+            echo "Nenhum campo foi informado para atualização.";
         }
 
     } catch (PDOException $e) {
-        echo "❌ Erro ao salvar alterações: " . $e->getMessage();
+        echo "Erro ao salvar alterações: " . $e->getMessage();
     }
 } else {
-    echo "⚠️ Informe um ID válido.";
+    echo "Informe um ID válido.";
 }
 ?>

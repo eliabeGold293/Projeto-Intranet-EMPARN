@@ -13,7 +13,7 @@ if ($id > 0) {
             $areaAntiga = $stmtAntigo->fetch(PDO::FETCH_ASSOC);
 
             if (!$areaAntiga) {
-                echo "❌ Área não encontrada.";
+                echo "Área não encontrada.";
                 exit;
             }
 
@@ -26,7 +26,7 @@ if ($id > 0) {
             ]);
 
             // Registrar ação no log
-            $descricao = "✏️ Área de Atuação '{$areaAntiga['nome']}' atualizada para '{$nome}'";
+            $descricao = "Área de Atuação '{$areaAntiga['nome']}' atualizada para '{$nome}'";
             $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
                                       VALUES (:usuario_id, 'area_atuacao', 'ATUALIZAR', :descricao)");
             // Aqui você pode usar o ID do usuário logado na sessão, se houver.

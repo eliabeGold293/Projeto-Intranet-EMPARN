@@ -23,7 +23,7 @@ if ($nome) {
             $novaAreaId = $pdo->lastInsertId();
 
             // Registrar ação no log
-            $descricao = "📌 Área de Atuação '{$nome}' adicionada";
+            $descricao = "Área de Atuação '{$nome}' adicionada";
             $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
                                       VALUES (:usuario_id, 'area_atuacao', 'INSERIR', :descricao)");
             // Aqui você pode usar o ID do usuário logado na sessão (se tiver),

@@ -11,7 +11,7 @@ if ($id > 0) {
         $area = $stmtNome->fetch(PDO::FETCH_ASSOC);
 
         if (!$area) {
-            echo "❌ Área não encontrada.";
+            echo "Área não encontrada.";
             exit;
         }
 
@@ -35,9 +35,9 @@ if ($id > 0) {
     } catch (PDOException $e) {
         if ($e->getCode() === '23503') {
             // Mensagem amigável para o usuário
-            echo "❌ Não é possível excluir esta área porque existem usuários vinculados a ela.";
+            echo "Não é possível excluir esta área porque existem usuários vinculados a ela.";
         } else {
-            echo "❌ Erro ao excluir área: " . $e->getMessage();
+            echo "Erro ao excluir área: " . $e->getMessage();
         }
     }
 } else {

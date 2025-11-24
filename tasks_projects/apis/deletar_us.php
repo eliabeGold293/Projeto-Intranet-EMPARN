@@ -11,17 +11,16 @@ if ($id > 0) {
         $usuario = $stmtNome->fetch(PDO::FETCH_ASSOC);
 
         if (!$usuario) {
-            echo "❌ Usuário não encontrado.";
+            echo "Usuário não encontrado.";
             exit;
         }
-
         // Excluir usuário
         $sql = "DELETE FROM usuario WHERE id = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([":id" => $id]);
 
         // Registrar ação no log
-        $descricao = "🗑️ Usuário '{$usuario['nome']}' excluído";
+        $descricao = "Usuário '{$usuario['nome']}' excluído";
         $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
                                   VALUES (:usuario_id, 'usuario', 'EXCLUIR', :descricao)");
         // Aqui você pode usar o ID do usuário logado na sessão, se houver.

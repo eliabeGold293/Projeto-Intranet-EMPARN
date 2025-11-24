@@ -11,7 +11,7 @@ if ($id > 0) {
         $classe = $stmtNome->fetch(PDO::FETCH_ASSOC);
 
         if (!$classe) {
-            echo "❌ Classe não encontrada.";
+            echo "Classe não encontrada.";
             exit;
         }
 
@@ -21,7 +21,7 @@ if ($id > 0) {
         $stmt->execute([":id" => $id]);
 
         // Registrar ação no log
-        $descricao = "🗑️ Classe de Usuário '{$classe['nome']}' excluída";
+        $descricao = "Classe de Usuário '{$classe['nome']}' excluída";
         $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
                                   VALUES (:usuario_id, 'classe_usuario', 'EXCLUIR', :descricao)");
         // Aqui você pode usar o ID do usuário logado na sessão, se houver. 
@@ -35,9 +35,9 @@ if ($id > 0) {
     } catch (PDOException $e) {
         if ($e->getCode() === '23503') {
             // Mensagem amigável para o usuário
-            echo "❌ Não é possível excluir esta classe porque existem usuários vinculados a ela.";
+            echo "Não é possível excluir esta classe porque existem usuários vinculados a ela.";
         } else {
-            echo "❌ Erro ao excluir classe: " . $e->getMessage();
+            echo "Erro ao excluir classe: " . $e->getMessage();
         }
     }
 } else {

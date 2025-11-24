@@ -86,7 +86,7 @@ try {
 
     $idNoticia = $pdo->lastInsertId();
 
-    // 🔄 Atualiza o link correto para notícia própria
+    // Atualiza o link correto para notícia própria
     if ($tipoNoticia === "propria") {
         $link = "../public/noticia_gen.php?id=" . $idNoticia;
         $sqlUpdate = "UPDATE noticias SET link = :link WHERE id = :id";
@@ -132,7 +132,7 @@ try {
     }
 
     // Registrar ação no log
-    $descricao = "📰 Notícia '{$titulo}' criada";
+    $descricao = "Notícia '{$titulo}' criada";
     $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
                               VALUES (:usuario_id, 'noticias', 'INSERIR', :descricao)");
     // Aqui você pode usar o ID do usuário logado na sessão, se houver.

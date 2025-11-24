@@ -16,7 +16,7 @@ if ($id > 0) {
         $usuarioAntigo = $stmtAntigo->fetch(PDO::FETCH_ASSOC);
 
         if (!$usuarioAntigo) {
-            echo "❌ Usuário não encontrado.";
+            echo "Usuário não encontrado.";
             exit;
         }
 
@@ -51,7 +51,7 @@ if ($id > 0) {
             $stmt->execute($params);
 
             // Registrar ação no log
-            $descricao = "✏️ Usuário '{$usuarioAntigo['nome']}' atualizado";
+            $descricao = "Usuário '{$usuarioAntigo['nome']}' atualizado";
             if ($nome) {
                 $descricao .= " → novo nome: '{$nome}'";
             }
@@ -77,15 +77,15 @@ if ($id > 0) {
                 ':descricao'  => $descricao
             ]);
 
-            echo "✅ Alterações realizadas com sucesso!";
+            echo "Alterações realizadas com sucesso!";
         } else {
-            echo "⚠️ Nenhum campo foi informado para atualização.";
+            echo "Nenhum campo foi informado para atualização.";
         }
 
     } catch (PDOException $e) {
-        echo "❌ Erro ao salvar alterações: " . $e->getMessage();
+        echo "Erro ao salvar alterações: " . $e->getMessage();
     }
 } else {
-    echo "⚠️ Informe um ID válido.";
+    echo "Informe um ID válido.";
 }
 ?>

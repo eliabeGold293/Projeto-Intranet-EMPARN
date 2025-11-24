@@ -20,7 +20,7 @@ try {
     $id = $pdo->lastInsertId();
 
     // Registrar ação no log
-    $descricao = "📊 Card '{$titulo}' criado";
+    $descricao = "Card '{$titulo}' criado";
     $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
                               VALUES (:usuario_id, 'dashboard', 'INSERIR', :descricao)");
     // Aqui você pode usar o ID do usuário logado na sessão, se houver.
