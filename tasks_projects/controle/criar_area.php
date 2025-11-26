@@ -3,103 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <title>Criar Área de Atuação</title>
-    <link rel="stylesheet" href="style.css"> <!-- CSS separado -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            margin: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            margin-left: 250px; /* largura padrão do menu lateral */
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        .card {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
-<style>
-    .form-container {
-        margin-left: 320px;
-        padding: 30px; /* espaçamento interno uniforme */
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        max-width: 600px;
-        box-sizing: border-box;
-    }
-
-    .form-container h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: #333;
-        font-family: Arial, sans-serif;
-        text-align: left; /* título alinhado à esquerda */
-    }
-
-    .form-container form {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-container label {
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: #333;
-    }
-
-    .form-container input,
-    .form-container select {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
-        box-sizing: border-box;
-    }
-
-    .form-container button {
-        background: #4a90e2;
-        color: #fff;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-        align-self: flex-start; /* botão alinhado à esquerda */
-    }
-
-    .form-container button:hover {
-        background: #357ab8;
-    }
-
-    .message {
-        margin-top: 15px;
-        padding: 10px;
-        border-radius: 4px;
-        font-weight: bold;
-    }
-
-    .success {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .error {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-
-</style>
 <body>
-    <!-- Navegação reutilizável -->
+    <!-- Menu reutilizável -->
     <?php include '../templates/gen_menu.php'; ?>
 
-    <!-- Encapsulamento do conteúdo -->
-    <section class="form-container">
-        <h2>Criar Área de Atuação</h2>
-        <form id="createAreaForm" action="../apis/criar_area.php" method="POST">
-            <label>Nome da Área:</label>
-            <input type="text" name="nome" required>
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+        <div class="container">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Criar Área de Atuação</h4>
+                </div>
+                <div class="card-body">
+                    <form id="createAreaForm" action="../apis/criar_area.php" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nome da Área</label>
+                            <input type="text" name="nome" class="form-control" required>
+                            <div class="invalid-feedback">Informe o nome da área.</div>
+                        </div>
 
-            <button type="submit">Salvar</button>
-        </form>
+                        <button type="submit" class="btn btn-success">Salvar</button>
+                    </form>
 
-        <div id="message"></div>
-    </section>
+                    <div id="message" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Validação Bootstrap
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+
+        // Submissão AJAX
         document.getElementById("createAreaForm").addEventListener("submit", function(e) {
             e.preventDefault();
+
+            if (!this.checkValidity()) return;
 
             const formData = new FormData(this);
 
@@ -111,21 +93,17 @@
             .then(data => {
                 const msgDiv = document.getElementById("message");
                 if (data.toLowerCase().includes("sucesso")) {
-                    msgDiv.textContent = "Área criada com sucesso!";
-                    msgDiv.className = "message success";
+                    msgDiv.innerHTML = '<div class="alert alert-success">Área criada com sucesso!</div>';
                     this.reset();
+                    this.classList.remove('was-validated');
                 } else {
-                    msgDiv.textContent = "Erro ao criar área: " + data;
-                    msgDiv.className = "message error";
+                    msgDiv.innerHTML = '<div class="alert alert-danger">Erro ao criar área: ' + data + '</div>';
                 }
             })
             .catch(() => {
-                const msgDiv = document.getElementById("message");
-                msgDiv.textContent = "Erro ao criar área.";
-                msgDiv.className = "message error";
+                document.getElementById("message").innerHTML = '<div class="alert alert-danger">Erro ao criar área.</div>';
             });
         });
-</script>
-
+    </script>
 </body>
 </html>

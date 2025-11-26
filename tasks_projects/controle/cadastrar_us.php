@@ -1,5 +1,6 @@
 <?php
 require_once "../config/connection.php";
+
 // Busca todas as classes da tabela classe_usuario
 try {
     $stmt = $pdo->prepare("SELECT id, nome, grau_acesso FROM classe_usuario ORDER BY nome ASC");
@@ -24,106 +25,119 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Cadastro de Usuário</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            margin: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            margin-left: 250px; /* largura padrão do menu */
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+
+        .card {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
-<style>
-    .form-container {
-        margin-left: 320px;
-        padding: 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        max-width: 600px;
-    }
-
-    .form-container h2 {
-        margin-top: 0;
-        color: #333;
-        font-family: Arial, sans-serif;
-    }
-
-    .form-container input,
-    .form-container select {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
-    .form-container button {
-        background: #4a90e2;
-        color: #fff;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-
-    .form-container button:hover {
-        background: #357ab8;
-    }
-
-    .message {
-        margin-top: 15px;
-        padding: 10px;
-        border-radius: 4px;
-        font-weight: bold;
-    }
-
-    .success {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .error {
-        background: #f8d7da;
-        color: #721c24;
-    }
-</style>
 <body>
     <?php include '../templates/gen_menu.php'; ?>
 
-    <section class="form-container">
-        <h2>Cadastro de Usuário</h2>
-        <form id="userForm">
-            <label>Nome:</label>
-            <input type="text" name="nome" required>
+    <main class="main-content">
+        <div class="container">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Cadastro de Usuário</h4>
+                </div>
+                <div class="card-body">
+                    <form id="userForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Nome</label>
+                            <input type="text" name="nome" class="form-control" required>
+                            <div class="invalid-feedback">Informe o nome.</div>
+                        </div>
 
-            <label>Email:</label>
-            <input type="email" name="email" required>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                            <div class="invalid-feedback">Informe um email válido.</div>
+                        </div>
 
-            <label>Senha:</label>
-            <input type="password" name="senha" required>
+                        <div class="mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" name="senha" class="form-control" required>
+                            <div class="invalid-feedback">Informe uma senha.</div>
+                        </div>
 
-            <label>Classe:</label>
-            <select name="classe_id" id="classe_id"> 
-                <?php foreach ($classe_usuario as $class_us): ?>
-                    <option value="<?= htmlspecialchars($class_us['id']) ?>">
-                        <?= htmlspecialchars($class_us['nome']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                        <div class="mb-3">
+                            <label class="form-label">Classe</label>
+                            <select name="classe_id" id="classe_id" class="form-select" required>
+                                <?php foreach ($classe_usuario as $class_us): ?>
+                                    <option value="<?= htmlspecialchars($class_us['id']) ?>">
+                                        <?= htmlspecialchars($class_us['nome']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="invalid-feedback">Selecione uma classe.</div>
+                        </div>
 
-            <label>Área:</label>
-            <select name="area_id" id="area_id">
-                <?php foreach ($areas as $area): ?>
-                    <option value="<?= htmlspecialchars($area['id']) ?>">
-                        <?= htmlspecialchars($area['nome']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                        <div class="mb-3">
+                            <label class="form-label">Área</label>
+                            <select name="area_id" id="area_id" class="form-select" required>
+                                <?php foreach ($areas as $area): ?>
+                                    <option value="<?= htmlspecialchars($area['id']) ?>">
+                                        <?= htmlspecialchars($area['nome']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="invalid-feedback">Selecione uma área.</div>
+                        </div>
 
-            <button type="submit">Salvar</button>
-        </form>
+                        <button type="submit" class="btn btn-success">Salvar</button>
+                    </form>
 
-        <div id="message"></div>
-    </section>
+                    <div id="message" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Validação Bootstrap
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+
+        // Submissão AJAX
         document.getElementById("userForm").addEventListener("submit", function(e) {
-            e.preventDefault(); // evita recarregar a página
+            e.preventDefault();
+
+            if (!this.checkValidity()) return;
 
             const formData = new FormData(this);
 
@@ -135,18 +149,15 @@ try {
             .then(data => {
                 const msgDiv = document.getElementById("message");
                 if (data.toLowerCase().includes("sucesso")) {
-                    msgDiv.textContent = "Usuário criado com sucesso!";
-                    msgDiv.className = "message success";
-                    this.reset(); // limpa o formulário
+                    msgDiv.innerHTML = '<div class="alert alert-success">Usuário criado com sucesso!</div>';
+                    this.reset();
+                    this.classList.remove('was-validated');
                 } else {
-                    msgDiv.textContent = "Erro ao criar usuário: " + data;
-                    msgDiv.className = "message error";
+                    msgDiv.innerHTML = '<div class="alert alert-danger">Erro ao criar usuário: ' + data + '</div>';
                 }
             })
             .catch(() => {
-                const msgDiv = document.getElementById("message");
-                msgDiv.textContent = "Erro ao criar usuário.";
-                msgDiv.className = "message error";
+                document.getElementById("message").innerHTML = '<div class="alert alert-danger">Erro ao criar usuário.</div>';
             });
         });
     </script>
