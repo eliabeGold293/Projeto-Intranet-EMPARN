@@ -13,7 +13,6 @@
         selector: 'textarea#default'
       });
     </script>
-
     <style>
         body {
             background-color: #f4f6f8;
