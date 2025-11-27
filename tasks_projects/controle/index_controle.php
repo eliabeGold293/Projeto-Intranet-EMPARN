@@ -193,12 +193,11 @@ require_once "../config/connection.php";
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function aplicarFiltro() {
-            const todos = document.getElementById('filtroTodos').checked;
-            const ativos = Array.from(document.querySelectorAll('.filtro-acao:checked'))
-                                .map(c => c.value);
+            const ativo = document.querySelector('.filtro-acao:checked');
+            const valor = ativo ? ativo.value : "TODOS";
 
             document.querySelectorAll('#listaAcoes .acao-item').forEach(item => {
-                if (todos || ativos.includes(item.dataset.acao)) {
+                if (valor === "TODOS" || item.dataset.acao === valor) {
                     item.style.display = '';
                 } else {
                     item.style.display = 'none';
@@ -206,17 +205,19 @@ require_once "../config/connection.php";
             });
         }
 
+        // Comportamento de rádio usando checkboxes
         document.querySelectorAll('.filtro-acao').forEach(chk => {
             chk.addEventListener('change', () => {
-                if (chk.value === 'TODOS' && chk.checked) {
-                    document.querySelectorAll('.filtro-acao').forEach(c => {
-                        if (c.value !== 'TODOS') c.checked = false;
-                    });
-                } else {
-                    if (chk.value !== 'TODOS' && chk.checked) {
-                        document.getElementById('filtroTodos').checked = false;
-                    }
+                // Desmarca todos os outros
+                document.querySelectorAll('.filtro-acao').forEach(c => {
+                    if (c !== chk) c.checked = false;
+                });
+
+                // Se o usuário desmarcar tudo, volta para "Todos"
+                if (!chk.checked) {
+                    document.getElementById('filtroTodos').checked = true;
                 }
+
                 aplicarFiltro();
             });
         });

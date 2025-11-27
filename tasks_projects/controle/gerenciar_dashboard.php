@@ -27,8 +27,10 @@ include '../templates/gen_menu.php';
         }
 
         @media (max-width: 768px) {
-            .main-content { margin-left: 0; padding: 20px; }
-            footer { margin-left: 0; }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
         }
 
         h2, h3 {

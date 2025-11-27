@@ -1,189 +1,369 @@
-let contadorTopicos = 1;
-let dadosTemporarios = { anuncio: null, noticia: null };
+// ====================== CONFIG TINYMCE (CONFIG COMUM) ======================
+const TINYMCE_COMMON = {
+    height: 350,
+    menubar: true,
+    language: "pt_BR",
+    plugins: "lists link image table code fullscreen media",
+    toolbar: `
+        undo redo |
+        bold italic underline |
+        alignleft aligncenter alignright |
+        numlist bullist |
+        link image media table |
+        fullscreen code
+    `,
+    branding: false
+};
 
-document.addEventListener("DOMContentLoaded", () => {
-    const radioExistente = document.getElementById("noticiaExistente");
-    const radioPropria = document.getElementById("noticiaPropria");
-    const formAnuncio = document.getElementById("formAnuncio");
-    const formNoticia = document.getElementById("formNoticia");
-    const linkInput = document.getElementById("linkInput");
-    const statusAnuncio = document.getElementById("statusAnuncio");
-    const statusNoticia = document.getElementById("statusNoticia");
-    const btnSalvarTudo = document.getElementById("btnSalvarTudo");
-
-    function atualizarInterface() {
-        if (radioExistente.checked) {
-            formAnuncio.querySelectorAll("input, textarea, button").forEach(el => el.disabled = false);
-            formNoticia.querySelectorAll("input, textarea, button").forEach(el => el.disabled = true);
-
-            linkInput.removeAttribute("readonly");
-            linkInput.value = "";
-
-            statusAnuncio.textContent = "Habilitada";
-            statusAnuncio.className = "status-label habilitada";
-
-            statusNoticia.textContent = "Desabilitada";
-            statusNoticia.className = "status-label desabilitada";
-        } else {
-            formAnuncio.querySelectorAll("input, textarea, button").forEach(el => el.disabled = false);
-            formNoticia.querySelectorAll("input, textarea, button").forEach(el => el.disabled = false);
-
-            const noticiaPath = "../public/noticia_gen.php?id=";
-            const encoded = btoa(noticiaPath);
-            linkInput.value = encoded;
-            linkInput.setAttribute("readonly", true);
-
-            statusAnuncio.textContent = "Habilitada";
-            statusAnuncio.className = "status-label habilitada";
-
-            statusNoticia.textContent = "Habilitada";
-            statusNoticia.className = "status-label habilitada";
+// Inicia TinyMCE em todos os textareas com a classe .editor já existentes
+function initTinyMCE() {
+    // Evita inicializar novamente editores já inicializados
+    document.querySelectorAll("textarea.editor").forEach(txt => {
+        if (!tinymce.get(txt.id)) {
+            // se não tiver id, cria um
+            if (!txt.id) txt.id = "mce_" + Math.random().toString(36).slice(2, 9);
+            tinymce.init(Object.assign({}, TINYMCE_COMMON, { target: txt }));
         }
-    }
+    });
+}
 
-    radioExistente.addEventListener("change", atualizarInterface);
-    radioPropria.addEventListener("change", atualizarInterface);
+// Inicia TinyMCE apenas em um textarea DOM (usado ao criar tópico dinamicamente)
+function initTinyMCEOnElement(textareaEl) {
+    if (!textareaEl.id) textareaEl.id = "mce_" + Math.random().toString(36).slice(2, 9);
+    tinymce.init(Object.assign({}, TINYMCE_COMMON, { target: textareaEl }));
+}
 
-    atualizarInterface();
+// Garante que conteúdo do TinyMCE vai para os <textarea> antes de ler o form
+function triggerTinySaveAll() {
+    if (typeof tinymce !== "undefined") tinymce.triggerSave();
+}
 
-    btnSalvarTudo.addEventListener("click", () => {
-        const tipo = radioExistente.checked ? "existente" : "propria";
+// ====================== UTIL: RENOMEAR TÓPICOS (names & data-file-name) ======================
+function renumerarTopicos(container, formId) {
+    const topicos = container.querySelectorAll(".topico");
 
-        if (tipo === "existente") {
-            if (!dadosTemporarios.anuncio) {
-                alert("Você precisa clicar em 'Salvar Anúncio' antes de salvar todas as alterações.");
-                return;
-            }
-            enviarDados(dadosTemporarios.anuncio, "Anúncio");
+    topicos.forEach((topico, index) => {
+        const header = topico.querySelector("h5");
+        if (header) header.innerText = `Tópico ${index + 1}`;
+
+        topico.querySelectorAll("input, textarea, select").forEach(el => {
+            const oldName = el.getAttribute("name");
+            if (!oldName) return;
+            const newName = oldName.replace(/topicos\[\d+\]/, `topicos[${index}]`);
+            el.setAttribute("name", newName);
+        });
+
+        // ajustar input file dataset/name
+        const fileInput = topico.querySelector(".topico-file");
+        if (fileInput) {
+            fileInput.setAttribute("name", `topicos[${index}][imagem]`);
+            fileInput.dataset.fileName = `topicos_${index}_imagem`;
+        }
+    });
+}
+
+// ====================== DND NATIVE (drag & drop simples) ======================
+// Ativa drag nativo em todos os .topico dentro do container
+function enableDragForContainer(container, formId) {
+    let dragSrcEl = null;
+
+    container.querySelectorAll(".topico").forEach(item => {
+        item.setAttribute("draggable", "true");
+        // add handlers
+        item.addEventListener("dragstart", (e) => {
+            triggerTinySaveAll(); // salva conteúdo para evitar perda ao rearranjar
+            dragSrcEl = item;
+            item.classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+            try { e.dataTransfer.setData("text/plain", "dragging"); } catch (err) { /* firefox */ }
+        });
+
+        item.addEventListener("dragend", () => {
+            item.classList.remove("dragging");
+            dragSrcEl = null;
+        });
+    });
+
+    // while dragging over container, determine position
+    container.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(container, e.clientY);
+        const dragging = container.querySelector(".dragging");
+        if (!dragging) return;
+        if (!afterElement) {
+            container.appendChild(dragging);
         } else {
-            if (!dadosTemporarios.anuncio || !dadosTemporarios.noticia) {
-                alert("Você precisa clicar em 'Salvar Anúncio' e 'Salvar Notícia Completa' antes de salvar todas as alterações.");
-                return;
-            }
-
-            // 🔄 Combina os dois FormData
-            const combinado = new FormData();
-            for (let [key, value] of dadosTemporarios.anuncio.entries()) {
-                combinado.append(key, value);
-            }
-            for (let [key, value] of dadosTemporarios.noticia.entries()) {
-                if (!combinado.has(key)) {
-                    combinado.append(key, value);
-                }
-            }
-
-            enviarDados(combinado, "Notícia completa");
+            container.insertBefore(dragging, afterElement);
         }
     });
 
-    // 🔄 Sincronização de campos só quando "Cadastrar minha própria notícia" estiver ativo
-    const anuncioTitulo = document.querySelector("#formAnuncio input[name='titulo']");
-    const anuncioSubtitulo = document.querySelector("#formAnuncio input[name='subtitulo']");
-    const anuncioAutoria = document.querySelector("#formAnuncio input[name='autoria']");
-
-    const noticiaTitulo = document.querySelector("#formNoticia input[name='titulo']");
-    const noticiaSubtitulo = document.querySelector("#formNoticia input[name='subtitulo']");
-    const noticiaAutoria = document.querySelector("#formNoticia input[name='autoria']");
-
-    function sincronizarCampos(campoA, campoB) {
-        campoA.addEventListener("input", () => {
-            if (radioPropria.checked) {
-                if (campoA.value.trim() !== "") {
-                    campoB.value = campoA.value;
-                    campoB.setAttribute("readonly", true);
-                    campoA.removeAttribute("readonly");
-                } else {
-                    campoB.value = "";
-                    campoB.removeAttribute("readonly");
-                }
-            }
-        });
-
-        campoB.addEventListener("input", () => {
-            if (radioPropria.checked) {
-                if (campoB.value.trim() !== "") {
-                    campoA.value = campoB.value;
-                    campoA.setAttribute("readonly", true);
-                    campoB.removeAttribute("readonly");
-                } else {
-                    campoA.value = "";
-                    campoA.removeAttribute("readonly");
-                }
-            }
-        });
-    }
-
-    sincronizarCampos(anuncioTitulo, noticiaTitulo);
-    sincronizarCampos(anuncioSubtitulo, noticiaSubtitulo);
-    sincronizarCampos(anuncioAutoria, noticiaAutoria);
-});
-
-async function enviarDados(formData, tipo) {
-    try {
-        const res = await fetch("../apis/salvar_noticia.php", { method: "POST", body: formData });
-        const text = await res.text();
-        let data;
-
-        try {
-            data = JSON.parse(text);
-        } catch {
-            throw new Error(`Resposta não é JSON (${tipo}): ${text}`);
-        }
-
-        if (!res.ok || data.status === "error") {
-            throw new Error(data.message || `Erro ao salvar ${tipo}.`);
-        }
-
-        alert(`${tipo} salvo com sucesso!`);
-    } catch (err) {
-        alert(`Erro ao salvar ${tipo}: ${err.message}`);
-        console.error("Detalhes do erro:", err);
-    }
+    // on drop, renumerar
+    container.addEventListener("drop", (e) => {
+        e.preventDefault();
+        renumerarTopicos(container, formId);
+    });
 }
 
-function salvarTemporario(tipo) {
-    const form = document.getElementById(tipo === 'anuncio' ? 'formAnuncio' : 'formNoticia');
-    const formData = new FormData(form);
+// helper: find element after cursor
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.topico:not(.dragging)')];
 
-    const radioExistente = document.getElementById("noticiaExistente");
-    formData.append("tipo_noticia", radioExistente.checked ? "existente" : "propria");
-
-    dadosTemporarios[tipo] = formData;
-
-    const msgBox = document.getElementById(tipo === 'anuncio' ? 'msgAnuncio' : 'msgNoticia');
-    msgBox.classList.remove("d-none");
-    msgBox.textContent = "Alterações Salvas";
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        // offset negative means cursor is above center -> candidate
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-function adicionarTopico() {
-    const container = document.getElementById('topicos-container');
-    const novoTopico = document.createElement('div');
-    novoTopico.classList.add('topico','border','rounded','p-3','mb-3');
-    novoTopico.innerHTML = `
-        <h5>Tópico ${contadorTopicos+1}</h5>
-        <div class="mb-3">
-            <label class="form-label">Título do Tópico:</label>
-            <input type="text" name="topicos[${contadorTopicos}][titulo]" class="form-control">
+// ====================== ADICIONAR TÓPICO ======================
+function addTopic(formId) {
+    const container = document.querySelector(`#topicos-container-${formId}`);
+    if (!container) return console.warn("Container de tópicos não encontrado:", formId);
+
+    const index = container.children.length;
+
+    const topicoHTML = document.createElement("div");
+    topicoHTML.className = "topico border rounded p-3 mb-3";
+    topicoHTML.setAttribute("data-index", index);
+    topicoHTML.setAttribute("draggable", "true");
+
+    topicoHTML.innerHTML = `
+        <input type="hidden" name="topicos[${index}][id]" value="">
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5>Tópico ${index + 1}</h5>
+            <div>
+                <button type="button" class="btn btn-sm btn-outline-danger me-1" onclick="removeTopic(this, ${formId})">
+                    <i class="bi bi-x-circle"></i> Remover
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary drag-handle" title="Arrastar">
+                    <i class="bi bi-arrows-move"></i>
+                </button>
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Texto:</label>
-            <textarea name="topicos[${contadorTopicos}][texto]" class="form-control" rows="4" required></textarea>
-        </div>
+
         <div class="mb-3">
             <label class="form-label">Imagem:</label>
-            <input type="file" name="topicos[${contadorTopicos}][imagem]" class="form-control" accept="image/*">
+            <input type="file" class="form-control topico-file" accept="image/*" data-file-name="topicos_${index}_imagem">
+            <div class="small text-muted mt-1">Tamanho recomendado: 1200x800</div>
         </div>
+
         <div class="mb-3">
             <label class="form-label">Fonte da Imagem:</label>
-            <textarea name="topicos[${contadorTopicos}][fonte_imagem]" class="form-control"></textarea>
+            <textarea name="topicos[${index}][fonte_imagem]" class="form-control"></textarea>
         </div>
-        <button type="button" class="btn btn-sm btn-danger" onclick="removerTopico(this)">Remover</button>
+
+        <div class="mb-3">
+            <label class="form-label">Título do Tópico:</label>
+            <input type="text" name="topicos[${index}][titulo]" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Texto:</label>
+            <textarea name="topicos[${index}][texto]" class="form-control editor" rows="5"></textarea>
+        </div>
     `;
-    container.appendChild(novoTopico);
-    contadorTopicos++;
+
+    container.appendChild(topicoHTML);
+
+    // set proper name attribute for file (for PHP $_FILES)
+    const fileInput = topicoHTML.querySelector(".topico-file");
+    if (fileInput) {
+        fileInput.name = `topicos[${index}][imagem]`;
+        fileInput.dataset.fileName = `topicos_${index}_imagem`;
+    }
+
+    // init TinyMCE only on the new textarea
+    const textarea = topicoHTML.querySelector("textarea.editor");
+    if (textarea) initTinyMCEOnElement(textarea);
+
+    // attach drag handlers for the new element
+    attachDragHandlersToTopico(topicoHTML, container, formId);
+
+    // renumerar para garantir nomes corretos (ótimo quando removidos/ordenados)
+    renumerarTopicos(container, formId);
 }
 
-function removerTopico(botao) {
-    const topico = botao.closest('.topico');
-    topico.remove();
+// attach drag handlers to a specific topico element
+function attachDragHandlersToTopico(topicoEl, container, formId) {
+    topicoEl.addEventListener("dragstart", (e) => {
+        triggerTinySaveAll();
+        topicoEl.classList.add("dragging");
+        try { e.dataTransfer.setData("text/plain", "drag"); } catch (err) {}
+    });
+    topicoEl.addEventListener("dragend", () => {
+        topicoEl.classList.remove("dragging");
+        renumerarTopicos(container, formId);
+    });
 }
+
+// ====================== REMOVER TÓPICO ======================
+function removeTopic(btn, formId) {
+    if (!confirm("Tem certeza que deseja remover este tópico?")) return;
+
+    const topicoEl = btn.closest(".topico");
+    const container = document.querySelector(`#topicos-container-${formId}`);
+    if (!topicoEl || !container) return;
+
+    // remove editor instance for the textarea inside (to avoid orphan instances)
+    const ta = topicoEl.querySelector("textarea");
+    if (ta && ta.id && tinymce.get(ta.id)) {
+        tinymce.get(ta.id).remove();
+    }
+
+    topicoEl.remove();
+    renumerarTopicos(container, formId);
+}
+
+// ====================== CRIAR FORMULÁRIO DE NOTÍCIA (BOTÃO) ======================
+let formCount = 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+    const addNewsBtn = document.getElementById("addNewsForm");
+    if (!addNewsBtn) {
+        console.warn("Botão addNewsForm não encontrado.");
+        return;
+    }
+
+    addNewsBtn.addEventListener("click", () => {
+        formCount++;
+        const formId = formCount;
+
+        const formHTML = `
+            <div class="card mb-4" id="news-card-${formId}">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-newspaper"></i> Nova Notícia #${formId}</span>
+                    <button type="button" class="btn btn-sm btn-outline-light" onclick="removeNews(${formId})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <form class="newsForm" enctype="multipart/form-data">
+
+                        <input type="hidden" name="id" value="">
+
+                        <div class="mb-3">
+                            <label class="form-label">Título:</label>
+                            <input type="text" name="titulo" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Subtítulo:</label>
+                            <input type="text" name="subtitulo" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Autoria:</label>
+                            <input type="text" name="autoria" class="form-control" required>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Imagem Principal:</label>
+                                <input type="file" name="imagem" class="form-control" accept="image/*">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fonte da Imagem Principal:</label>
+                                <textarea name="fonte_imagem" class="form-control"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-3">
+                            <label class="form-label">Conteúdo Principal:</label>
+                            <textarea name="texto" class="form-control editor" rows="6" required></textarea>
+                        </div>
+
+                        <hr>
+                        <h5>Tópicos</h5>
+                        <div id="topicos-container-${formId}" class="topicos-container"></div>
+
+                        <div class="d-flex gap-3 mt-3">
+                            <button type="button" class="btn btn-outline-secondary" onclick="addTopic(${formId})">
+                                <i class="bi bi-plus-circle"></i> Adicionar Tópico
+                            </button>
+
+                            <button type="button" class="btn btn-danger save-btn">
+                                <i class="bi bi-save"></i> <span>Salvar Notícia</span>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        `;
+
+        document.getElementById("newsFormsContainer").insertAdjacentHTML("beforeend", formHTML);
+
+        // inicializa editor do conteúdo principal (apenas esse)
+        const card = document.getElementById(`news-card-${formId}`);
+        const mainTextarea = card.querySelector("textarea[name='texto']");
+        if (mainTextarea) initTinyMCEOnElement(mainTextarea);
+
+        // cria primeiro tópico automaticamente
+        addTopic(formId);
+
+        // habilita drag & drop no container
+        const container = document.querySelector(`#topicos-container-${formId}`);
+        enableDragForContainer(container, formId);
+    });
+});
+
+// ====================== PRIMEIRO TÓPICO (CRIA) ======================
+// removido: criarTopicoInicial() usa addTopic(formId) now
+
+// ====================== REMOVER NOTÍCIA (CARD) ======================
+function removeNews(formId) {
+    if (!confirm("Tem certeza que deseja excluir esta notícia inteira?")) return;
+    const card = document.getElementById(`news-card-${formId}`);
+    if (card) {
+        // removendo editores TinyMCE associados dentro do card
+        card.querySelectorAll("textarea").forEach(t => {
+            if (t.id && tinymce.get(t.id)) tinymce.get(t.id).remove();
+        });
+        card.remove();
+    }
+}
+
+// ====================== SALVAR NOTÍCIA (API) ======================
+async function salvarNoticia(form) {
+    triggerTinySaveAll();
+    const fd = new FormData(form);
+
+    // anexa arquivos dos tópicos com nome esperado
+    form.querySelectorAll(".topico-file").forEach(input => {
+        const dataName = input.dataset.fileName;
+        if (input.files.length > 0) {
+            fd.append(dataName, input.files[0]);
+        }
+    });
+
+    try {
+        const response = await fetch("../apis/salvar_noticia.php", {
+            method: "POST",
+            body: fd
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+            alert(`Notícia "${result.titulo}" salva com sucesso!`);
+        } else {
+            alert("Erro: " + (result.message || "Erro desconhecido"));
+        }
+    } catch (err) {
+        alert("Erro ao enviar: " + err.message);
+    }
+}
+
+// delega clique no botão salvar (funciona para formulários dinâmicos)
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".save-btn");
+    if (!btn) return;
+    const form = btn.closest(".newsForm");
+    if (!form) return;
+    salvarNoticia(form);
+});

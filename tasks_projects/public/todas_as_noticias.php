@@ -47,7 +47,7 @@ $result_todas = $stmt_todas->fetchAll(PDO::FETCH_ASSOC);
         <div class="row row-cols-1 row-cols-md-3 g-4">
             <?php foreach ($result_todas as $row): ?>
             <div class="col">
-                <a href="<?= htmlspecialchars($row['link']) ?>" target="_blank" class="noticia-link">
+                <a href="noticia_gen.php?id=<?= $row['id'] ?>" style="text-decoration:none; color:inherit;">
                     <div class="card h-100 shadow-sm">
                         <img src="/tasks_projects/<?= htmlspecialchars($row['imagem']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['titulo']) ?>">
                         <div class="card-body">

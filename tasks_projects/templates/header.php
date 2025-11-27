@@ -9,9 +9,24 @@
     header img {
         max-height: 100px;
     }
+
+    /* Botão de voltar */
+    .btn-voltar {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    @media (max-width: 576px) {
+        .btn-voltar {
+            left: 10px;
+            top: 50%;
+        }
+    }
 </style>
 
 <!-- templates/header.php -->
-<header class="text-center py-3 bg-light shadow-sm">
-    <img src="/tasks_projects/public/img/logo-emparn.png" alt="Logo EMPARN" height="100">
+<header class="position-relative text-center py-3">
+    <img src="/tasks_projects/public/img/logo-emparn.png" alt="Logo EMPARN" class="mx-auto">
 </header>
