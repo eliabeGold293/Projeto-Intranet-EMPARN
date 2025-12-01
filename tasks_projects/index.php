@@ -23,6 +23,10 @@ require_once "../config/connection.php";
         transform: translateY(-2px);
         box-shadow: 0 8px 15px rgba(0,0,0,0.2);
     }
+
+    #titulo_cards_menores{
+        color: #fff;
+    }
 </style>
 <body>
     <!--Cabeçalho -->
@@ -47,7 +51,7 @@ require_once "../config/connection.php";
                 <a href="<?= htmlspecialchars($card['link']) ?>" target="_blank" style="text-decoration:none;">
                     <div class="card h-100 text-center shadow-sm" style="background:<?= htmlspecialchars($card['cor']) ?>; color:white;">
                         <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($card['titulo']) ?></h5>
+                            <h5 class="card-title"><span id="titulo_cards_menores"><?= htmlspecialchars($card['titulo']) ?></span></h5>
                         </div>
                     </div>
                 </a>

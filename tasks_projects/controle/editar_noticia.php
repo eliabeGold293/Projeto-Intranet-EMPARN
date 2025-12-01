@@ -237,11 +237,13 @@ const TINYMCE_COMMON = {
     menubar: true,
     language: "pt_BR",
 
-    plugins: "lists link image table code fullscreen media justify lineheight",
+    plugins: "lists link image table code fullscreen media justify lineheight removeformat paste",
+
+    paste_as_text: true,
 
     toolbar: `
         undo redo |
-        bold italic underline |
+        bold italic underline removeformat |
         alignleft aligncenter alignright alignjustify |
         numlist bullist |
         lineheight |
@@ -256,6 +258,17 @@ const TINYMCE_COMMON = {
     skin_url: "../tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
 
     content_css: "../tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
+
+    removeformat: [
+        {
+            selector: 'b,strong,em,i,u,span,font',
+            remove: 'all'
+        },
+        {
+            selector: '*',
+            attributes: ['style', 'class']
+        }
+    ]
 };
 
 tinymce.init({
@@ -473,8 +486,8 @@ async function salvarNoticia(form) {
         const json = await res.json();
         if (json.status === "success") {
             alert('Notícia salva com sucesso!');
-            // opcional: redirecionar para lista
-            // window.location.href = 'todas_as_noticias.php';
+            window.location.href = "../controle/get_noticias.php";
+
         } else {
             alert('Erro: ' + (json.message || 'erro desconhecido'));
         }

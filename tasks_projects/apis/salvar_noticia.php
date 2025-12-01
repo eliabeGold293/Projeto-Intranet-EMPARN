@@ -159,7 +159,6 @@ try {
         $stmt->execute(array_values($idsParaRemover));
     }
 
-
     // ===================================
     //  RETORNO JSON
     // ===================================

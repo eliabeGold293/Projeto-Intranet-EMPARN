@@ -29,19 +29,51 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
 
     .titulo-noticia { color: #198754; }
     .subtitulo-noticia { color: #6c757d; }
+    .meta { font-size: 0.9rem; color: #6c757d; margin-bottom: 1rem; }
 
-    .meta { 
-        font-size: 0.9rem; 
-        color: #6c757d; 
-        margin-bottom: 1rem; 
+    /* ====== WRAPPER COM FUNDO BORRADO ====== */
+    .smart-img-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        border-radius: .75rem;
+        overflow: hidden;
+        aspect-ratio: 16 / 9; /* atualizado via JS */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .imagem-principal, 
-    .imagem-topico {
-        width: 100%;
-        max-height: 420px;
-        object-fit: cover;
-        border-radius: .5rem;
+    /* Fundo borrado */
+    .smart-img-wrapper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        filter: blur(25px) brightness(0.8);
+        transform: scale(1.2);
+        z-index: 1;
+    }
+
+    /* Imagem nítida */
+    .smart-img-wrapper img {
+        position: relative;
+        z-index: 2;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 600px;
+        object-fit: contain; /* atualizado via JS */
+        transition: object-fit .25s ease;
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .smart-img-wrapper img {
+            max-height: 400px;
+        }
     }
 
     .fonte-imagem {
@@ -67,12 +99,8 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
     </button>
 </div>
 
-
 <div class="container pb-5">
 
-    <!-- =============================== -->
-    <!-- CARD PRINCIPAL DA NOTÍCIA       -->
-    <!-- =============================== -->
     <div class="card shadow-sm card-noticia mb-4">
         <div class="card-body">
 
@@ -88,7 +116,9 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
             </p>
 
             <?php if ($noticia['imagem']): ?>
-                <img src="../<?= htmlspecialchars($noticia['imagem']) ?>" class="imagem-principal mb-2">
+                <div class="smart-img-wrapper mb-2" style="--img:url('../<?= htmlspecialchars($noticia['imagem']) ?>')">
+                    <img src="../<?= htmlspecialchars($noticia['imagem']) ?>" class="imagem-principal">
+                </div>
 
                 <?php if ($noticia['fonte_imagem']): ?>
                     <p class="fonte-imagem">
@@ -98,16 +128,12 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
 
             <div class="mt-4" style="font-size: 1.1rem;">
-                <?= $noticia['texto'] ?> <!-- TinyMCE -->
+                <?= $noticia['texto'] ?>
             </div>
 
         </div>
     </div>
 
-
-    <!-- =============================== -->
-    <!-- TÓPICOS                         -->
-    <!-- =============================== -->
     <?php foreach ($topicos as $t): ?>
         <div class="card shadow-sm card-noticia mb-4">
             <div class="card-body">
@@ -117,7 +143,9 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
                 <?php endif; ?>
 
                 <?php if ($t['imagem']): ?>
-                    <img src="../<?= htmlspecialchars($t['imagem']) ?>" class="imagem-topico mb-2">
+                    <div class="smart-img-wrapper mb-2" style="--img:url('../<?= htmlspecialchars($t['imagem']) ?>')">
+                        <img src="../<?= htmlspecialchars($t['imagem']) ?>" class="imagem-topico">
+                    </div>
 
                     <?php if ($t['fonte_imagem']): ?>
                         <p class="fonte-imagem">
@@ -127,15 +155,37 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
                 <?php endif; ?>
 
                 <div class="mt-3">
-                    <?= $t['texto'] ?> <!-- TinyMCE HTML -->
+                    <?= $t['texto'] ?>
                 </div>
 
             </div>
         </div>
     <?php endforeach; ?>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.querySelectorAll(".smart-img-wrapper").forEach(wrapper => {
+    const img = wrapper.querySelector("img");
+
+    img.addEventListener("load", () => {
+
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const ratio = w / h;
+
+        wrapper.style.aspectRatio = ratio;
+        wrapper.style.setProperty("--img", `url('${img.src}')`);
+
+        if (ratio < 0.8) {
+            img.style.objectFit = "contain";
+        } else {
+            img.style.objectFit = "cover";
+        }
+    });
+});
+</script>
+
 </body>
 </html>

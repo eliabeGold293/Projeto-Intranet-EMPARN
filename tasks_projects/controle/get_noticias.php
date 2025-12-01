@@ -97,11 +97,13 @@ $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="col">
                         <div class="card h-100">
 
-                            <?php if ($n['imagem']): ?>
-                                <img src="/tasks_projects/<?= htmlspecialchars($n['imagem']) ?>" class="card-img-top">
-                            <?php else: ?>
-                                <img src="https://via.placeholder.com/600x400?text=Sem+Imagem" class="card-img-top">
-                            <?php endif; ?>
+                            <a href="../public/noticia_gen.php?id=<?=$n['id']?>" style="text-decoration:none; color:inherit;">
+                                <?php if ($n['imagem']): ?>
+                                    <img src="/tasks_projects/<?= htmlspecialchars($n['imagem']) ?>" class="card-img-top">
+                                <?php else: ?>
+                                    <img src="https://via.placeholder.com/600x400?text=Sem+Imagem" class="card-img-top">
+                                <?php endif; ?>
+                            </a>
 
                             <div class="card-body">
                                 <h5 class="card-title"><?= htmlspecialchars($n['titulo']) ?></h5>

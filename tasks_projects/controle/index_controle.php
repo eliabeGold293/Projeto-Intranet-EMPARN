@@ -22,7 +22,7 @@ require_once "../config/connection.php";
         .main-content {
             flex: 1;
             padding: 30px;
-            margin-left: 250px; /* espaço para o menu lateral */
+            margin-left: 250px;
         }
 
         @media (max-width: 768px) {
@@ -37,50 +37,70 @@ require_once "../config/connection.php";
         }
 
         h2 {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #0046a0;
-            margin-bottom: 20px;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #003b82;
+            margin-bottom: 25px;
         }
 
         .card-box {
             background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 35px;
+            border-left: 4px solid #0d6efd;
         }
 
         .btn-acoes {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
         footer {
-            margin-left: 250px;
+            width: 100%;
             background: #e9ecef;
             padding: 15px;
             text-align: center;
-            border-top: 1px solid #ccc;
+            border-top: 1px solid #d1d1d1;
             margin-top: 40px;
+            position: relative;
         }
 
         #listaAcoes {
             max-height: 500px;
             overflow-y: auto;
         }
+
+        /* Correção dos cards de estatísticas */
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 100%; /* deixa todos iguais */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .stat-card h6 {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
-    <!-- Menu reutilizável -->
     <?php include '../templates/gen_menu.php'; ?>
 
-    <!-- Conteúdo principal -->
     <main class="main-content">
         <h2><i class="bi bi-grid"></i> Painel de Controle</h2>
 
-        <!-- Gerenciar Cards -->
         <div class="card-box">
             <h5>Gerenciar Cards do Dashboard</h5>
             <div class="btn-acoes">
@@ -90,7 +110,6 @@ require_once "../config/connection.php";
             </div>
         </div>
 
-        <!-- Gerenciar Notícias -->
         <div class="card-box">
             <h5>Gerenciar Notícias</h5>
             <div class="btn-acoes">
@@ -100,53 +119,36 @@ require_once "../config/connection.php";
             </div>
         </div>
 
-        <!-- Estatísticas Rápidas -->
         <div class="card-box">
             <h5>Estatísticas Rápidas</h5>
-            <div class="row text-center">
+            <div class="row text-center g-3">
                 <div class="col-md-3">
-                    <div class="p-3 bg-success text-white rounded shadow-sm">
+                    <div class="stat-card bg-success">
                         <h6>Cards</h6>
-                        <p class="fs-4">
-                            <?php
-                            $totalCards = $pdo->query("SELECT COUNT(*) FROM dashboard")->fetchColumn();
-                            echo $totalCards;
-                            ?>
-                        </p>
+                        <p><?php echo $pdo->query("SELECT COUNT(*) FROM dashboard")->fetchColumn(); ?></p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-3 bg-primary text-white rounded shadow-sm">
+                    <div class="stat-card bg-primary">
                         <h6>Notícias</h6>
-                        <p class="fs-4">
-                            <?php
-                            $totalNoticias = $pdo->query("SELECT COUNT(*) FROM noticias")->fetchColumn();
-                            echo $totalNoticias;
-                            ?>
-                        </p>
+                        <p><?php echo $pdo->query("SELECT COUNT(*) FROM noticias")->fetchColumn(); ?></p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-3 bg-warning text-dark rounded shadow-sm">
+                    <div class="stat-card bg-warning text-dark">
                         <h6>Usuários</h6>
-                        <p class="fs-4">
-                            <?php
-                            $totalUsuarios = $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn();
-                            echo $totalUsuarios;
-                            ?>
-                        </p>
+                        <p><?php echo $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn(); ?></p>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="p-3 bg-dark text-white rounded shadow-sm">
+                    <div class="stat-card bg-dark">
                         <h6>Acessos Hoje</h6>
-                        <p class="fs-4">89</p> <!-- Exemplo fixo -->
+                        <p>89</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Últimas Ações -->
         <div class="card-box">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h5 class="mb-0">Últimas Ações</h5>
@@ -172,9 +174,7 @@ require_once "../config/connection.php";
 
             <ul class="list-group" id="listaAcoes">
                 <?php
-                $stmt = $pdo->query("SELECT descricao, acao, data_acao 
-                                    FROM log_acao 
-                                    ORDER BY data_acao DESC");
+                $stmt = $pdo->query("SELECT descricao, acao, data_acao FROM log_acao ORDER BY data_acao DESC");
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     echo "<li class='list-group-item acao-item' data-acao='{$row['acao']}'>
                             {$row['descricao']} 
@@ -197,26 +197,16 @@ require_once "../config/connection.php";
             const valor = ativo ? ativo.value : "TODOS";
 
             document.querySelectorAll('#listaAcoes .acao-item').forEach(item => {
-                if (valor === "TODOS" || item.dataset.acao === valor) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
+                item.style.display = (valor === "TODOS" || item.dataset.acao === valor) ? '' : 'none';
             });
         }
 
-        // Comportamento de rádio usando checkboxes
         document.querySelectorAll('.filtro-acao').forEach(chk => {
             chk.addEventListener('change', () => {
-                // Desmarca todos os outros
                 document.querySelectorAll('.filtro-acao').forEach(c => {
                     if (c !== chk) c.checked = false;
                 });
-
-                // Se o usuário desmarcar tudo, volta para "Todos"
-                if (!chk.checked) {
-                    document.getElementById('filtroTodos').checked = true;
-                }
+                if (!chk.checked) document.getElementById('filtroTodos').checked = true;
 
                 aplicarFiltro();
             });

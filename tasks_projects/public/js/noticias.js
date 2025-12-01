@@ -4,11 +4,13 @@ const TINYMCE_COMMON = {
     menubar: true,
     language: "pt_BR",
 
-    plugins: "lists link image table code fullscreen media justify lineheight",
+    plugins: "lists link image table code fullscreen media justify lineheight removeformat paste",
+
+    paste_as_text: true,
 
     toolbar: `
         undo redo |
-        bold italic underline |
+        bold italic underline removeformat |
         alignleft aligncenter alignright alignjustify |
         numlist bullist |
         lineheight |
@@ -23,6 +25,17 @@ const TINYMCE_COMMON = {
     skin_url: "../tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
 
     content_css: "../tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
+
+    removeformat: [
+        {
+            selector: 'b,strong,em,i,u,span,font',
+            remove: 'all'
+        },
+        {
+            selector: '*',
+            attributes: ['style', 'class']
+        }
+    ]
 };
 
 tinymce.init({
@@ -351,7 +364,7 @@ async function salvarNoticia(form) {
     triggerTinySaveAll();
     const fd = new FormData(form);
 
-    // anexa arquivos dos tópicos com nome esperado
+    // anexa arquivos dos tópicos
     form.querySelectorAll(".topico-file").forEach(input => {
         const dataName = input.dataset.fileName;
         if (input.files.length > 0) {
@@ -364,12 +377,18 @@ async function salvarNoticia(form) {
             method: "POST",
             body: fd
         });
+
         const result = await response.json();
+
         if (result.status === "success") {
             alert(`Notícia "${result.titulo}" salva com sucesso!`);
+
+            window.location.href = "../controle/get_noticias.php";
+
         } else {
             alert("Erro: " + (result.message || "Erro desconhecido"));
         }
+
     } catch (err) {
         alert("Erro ao enviar: " + err.message);
     }
