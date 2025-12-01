@@ -29,8 +29,10 @@ $topicos = $stmtT->fetchAll(PDO::FETCH_ASSOC);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-<script src="https://cdn.tiny.cloud/1/9d4u5hfzh4o32wm7its2j0pp4f0y03n88ysh73vfxn63ogiq/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/tinymce-i18n/langs/pt_BR.js"></script>
+<!-- TinyMCE -->
+<script src="../tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
+<script src="../tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
+
 <style>
     /* layout geral */
     body { background:#f5f7f9; font-family: "Segoe UI", Arial, sans-serif; }
@@ -229,22 +231,37 @@ $topicos = $stmtT->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-/* ====================== CONFIG TINYMCE (CONFIG COMUM) ====================== */
 const TINYMCE_COMMON = {
+    license_key: 'gpl',
     height: 350,
     menubar: true,
     language: "pt_BR",
-    plugins: "lists link image table code fullscreen media",
+
+    plugins: "lists link image table code fullscreen media justify lineheight",
+
     toolbar: `
         undo redo |
         bold italic underline |
-        alignleft aligncenter alignright |
+        alignleft aligncenter alignright alignjustify |
         numlist bullist |
+        lineheight |
         link image media table |
         fullscreen code
     `,
-    branding: false
+
+    branding: false,
+    promotion: false,
+
+    skin: "oxide",
+    skin_url: "../tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
+
+    content_css: "../tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
 };
+
+tinymce.init({
+    selector: "textarea#meuEditor",
+    ...TINYMCE_COMMON
+});
 
 function initTinyMCE() {
     document.querySelectorAll("textarea.editor").forEach(txt => {

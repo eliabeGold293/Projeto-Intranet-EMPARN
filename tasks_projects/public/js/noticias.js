@@ -1,19 +1,35 @@
-// ====================== CONFIG TINYMCE (CONFIG COMUM) ======================
 const TINYMCE_COMMON = {
+    license_key: 'gpl',
     height: 350,
     menubar: true,
     language: "pt_BR",
-    plugins: "lists link image table code fullscreen media",
+
+    plugins: "lists link image table code fullscreen media justify lineheight",
+
     toolbar: `
         undo redo |
         bold italic underline |
-        alignleft aligncenter alignright |
+        alignleft aligncenter alignright alignjustify |
         numlist bullist |
+        lineheight |
         link image media table |
         fullscreen code
     `,
-    branding: false
+
+    branding: false,
+    promotion: false,
+
+    skin: "oxide",
+    skin_url: "../tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
+
+    content_css: "../tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
 };
+
+tinymce.init({
+    selector: "textarea#meuEditor",
+    ...TINYMCE_COMMON
+});
+
 
 // Inicia TinyMCE em todos os textareas com a classe .editor já existentes
 function initTinyMCE() {
@@ -270,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Fonte da Imagem Principal:</label>
-                                <textarea name="fonte_imagem" class="form-control"></textarea>
+                                <input type="text" name="fonte_imagem" class="form-control" required>
                             </div>
                         </div>
 

@@ -9,8 +9,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <!-- TinyMCE -->
-    <script src="https://cdn.tiny.cloud/1/9d4u5hfzh4o32wm7its2j0pp4f0y03n88ysh73vfxn63ogiq/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tinymce-i18n/langs/pt_BR.js"></script>
+    <script src="../tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script src="../tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
+
 
     <style>
         body {
