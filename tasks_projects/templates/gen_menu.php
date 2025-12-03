@@ -91,8 +91,13 @@ $pagina = basename($_SERVER['PHP_SELF']);
             <li class="menu-section">Dashboard</li>
             <li><a href="gerenciar_dashboard.php" class="<?= $pagina === 'gerenciar_dashboard.php' ? 'active' : '' ?>"><i class="bi bi-clipboard-data"></i> Gerenciar Dashboard</a></li>
 
+            <li class="menu-section">Documentos</li>
+            <li><a href="../controle/documentos.php" class="<?= $pagina === '../controle/documentos.php' ? 'active' : '' ?>"><i class="bi bi-file-text"></i> Gerenciar Documentos</a></li>
+            
             <li class="menu-section">Site Público</li>
             <li><a href="../public/index.php" class="<?= $pagina === 'index.php' ? 'active' : '' ?>"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>
         </ul>
+        <br>
+        <br>
     </nav>
 </aside>

@@ -15,7 +15,7 @@ try {
     }
 
     // ===== Criar pasta de uploads =====
-    $pasta = __DIR__ . "/../uploads_noticias/";
+    $pasta = __DIR__ . "/../uploads/uploads_noticias/";
     if (!is_dir($pasta)) mkdir($pasta, 0777, true);
 
 
@@ -26,10 +26,9 @@ try {
 
     if (!empty($_FILES['imagem']['name'])) {
         $nome_imagem = time() . "_" . basename($_FILES['imagem']['name']);
-        $caminhoImagemPrincipal = "uploads_noticias/" . $nome_imagem;
+        $caminhoImagemPrincipal = "uploads/uploads_noticias/" . $nome_imagem;
         move_uploaded_file($_FILES['imagem']['tmp_name'], $pasta . $nome_imagem);
     }
-
 
     // ===========================================
     //  INSERIR OU ATUALIZAR NOTÍCIA
@@ -104,7 +103,7 @@ try {
 
         if (isset($_FILES[$campoArquivo]) && $_FILES[$campoArquivo]['error'] === 0) {
             $nomeImg = time() . "_" . basename($_FILES[$campoArquivo]['name']);
-            $caminhoImg = "uploads_noticias/" . $nomeImg;
+            $caminhoImg = "uploads/uploads_noticias/" . $nomeImg;
             move_uploaded_file($_FILES[$campoArquivo]['tmp_name'], $pasta . $nomeImg);
         }
 

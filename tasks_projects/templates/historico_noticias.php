@@ -21,7 +21,7 @@ $result_historico = $stmt_historico->fetchAll(PDO::FETCH_ASSOC);
 
                 <div class="card h-100 shadow-sm">
 
-                    <img src="/tasks_projects/<?= htmlspecialchars($row['imagem']) ?>" 
+                    <img src="/tasks_projects/uploads/<?= htmlspecialchars($row['imagem']) ?>" 
                          class="card-img-top"
                          alt="<?= htmlspecialchars($row['titulo']) ?>">
 

@@ -14,25 +14,34 @@ require_once "../config/connection.php";
     <style>
         body {
             background-color: #f4f6f8;
-            display: flex;
             margin: 0;
             font-family: 'Segoe UI', Arial, sans-serif;
         }
 
+        /* Container geral: menu + conteúdo */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
         .main-content {
             flex: 1;
-            padding: 30px;
+            padding: 40px 50px;
+
+            /* Mantém o menu lateral sem quebrar o layout */
             margin-left: 250px;
+
+            /* Impede estouro horizontal */
+            max-width: calc(100% - 250px);
+            width: 100%;
+            overflow-x: hidden;
         }
+
 
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
                 padding: 20px;
-            }
-
-            footer {
-                margin-left: 0;
             }
         }
 
@@ -50,6 +59,11 @@ require_once "../config/connection.php";
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             margin-bottom: 35px;
             border-left: 4px solid #0d6efd;
+
+            max-width: 1700px; 
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .btn-acoes {
@@ -65,7 +79,6 @@ require_once "../config/connection.php";
             text-align: center;
             border-top: 1px solid #d1d1d1;
             margin-top: 40px;
-            position: relative;
         }
 
         #listaAcoes {
@@ -73,27 +86,29 @@ require_once "../config/connection.php";
             overflow-y: auto;
         }
 
-        /* Correção dos cards de estatísticas */
         .stat-card {
             padding: 20px;
             border-radius: 10px;
             color: #fff;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            height: 100%; /* deixa todos iguais */
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
+
         .stat-card h6 {
             font-weight: 600;
             margin-bottom: 5px;
         }
+
         .stat-card p {
             font-size: 2rem;
             font-weight: bold;
             margin: 0;
         }
     </style>
+
 </head>
 <body>
     <?php include '../templates/gen_menu.php'; ?>

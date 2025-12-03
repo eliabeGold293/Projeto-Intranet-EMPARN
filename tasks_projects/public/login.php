@@ -1,32 +1,3 @@
-<?php
-require_once '../config/connection.php';
-session_start();
-
-// Verifica se o formulário foi enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
-    $senha = $_POST['senha'];
-
-    try {
-        // Consulta segura usando prepared statements (PDO)
-        $stmt = $pdo->prepare("SELECT * FROM usuario WHERE email = :email AND senha = :senha");
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->bindParam(':senha', $senha, PDO::PARAM_STR);
-        $stmt->execute();
-
-        if ($stmt->rowCount() === 1) {
-            $_SESSION['email'] = $email;
-            header("Location: dashboard.php"); // Redireciona para área restrita
-            exit();
-        } else {
-            $erro = "Usuário ou senha inválidos!";
-        }
-    } catch (PDOException $e) {
-        $erro = "Erro na consulta: " . $e->getMessage();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -50,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             width: 320px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* centraliza conteúdo interno */
+            align-items: center;
         }
         .login-box h2 {
             text-align: center;
@@ -61,15 +32,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center; /* centraliza inputs e botão */
+            align-items: center;
         }
         .login-box input {
-            width: 90%; /* deixa uma margem lateral */
+            width: 90%;
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
-            text-align: center; /* texto centralizado dentro do input */
+            text-align: center;
         }
         .login-box button {
             width: 95%;
@@ -96,12 +67,67 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="login-box">
         <h2>Login</h2>
-        <?php if (!empty($erro)) echo "<p class='erro'>$erro</p>"; ?>
-        <form method="POST" action="">
+        <p id="erro" class="erro"></p>
+        <form id="loginForm">
             <input type="text" name="email" placeholder="Email" required>
             <input type="password" name="senha" placeholder="Senha" required>
             <button type="submit">Entrar</button>
         </form>
     </div>
+
+    <script>
+    const form = document.getElementById('loginForm');
+    const erroBox = document.getElementById('erro');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault(); // impede envio padrão
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('../apis/auth.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Redireciona conforme grau_acesso
+                switch (result.grau_acesso) {
+                    case 1:
+                        window.location.href = 'index.php';
+                        break;
+                    case 2:
+                        window.location.href = 'index.php';
+                        break;
+                    case 3:
+                        window.location.href = 'index.php';
+                        break;
+                    case 4:
+                        window.location.href = 'index.php';
+                        break;
+                    default:
+                        erroBox.textContent = "Nível de acesso inválido.";
+                }
+            } else {
+                // Exibe mensagens de erro específicas
+                if (result.error === "credenciais") {
+                    erroBox.textContent = "Email ou senha inválidos.";
+                } else if (result.error === "servidor") {
+                    erroBox.textContent = "Erro interno no servidor.";
+                } else if (result.error === "metodo_invalido") {
+                    erroBox.textContent = "Método de requisição inválido.";
+                } else {
+                    erroBox.textContent = "Erro desconhecido.";
+                }
+            }
+        } catch (error) {
+            erroBox.textContent = "Erro de conexão com o servidor.";
+            console.error(error);
+        }
+    });
+</script>
+
 </body>
 </html>

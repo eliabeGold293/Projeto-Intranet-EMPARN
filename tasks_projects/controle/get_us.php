@@ -85,8 +85,7 @@ try {
         border-radius: 12px;
         padding: 28px;
         border: none;
-        max-width: 1300px;      /* AQUI AMPLIEI O CARD */
-        margin: 0 auto;
+        
         box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
 
@@ -153,7 +152,7 @@ try {
             <div class="row">
 
                 <!-- LISTA / TABELA -->
-                <div class="col-lg-8 mb-4">
+                <div class="col-lg-10 mb-4">
                     <div class="card-modern">
 
                         <div class="card-header-modern">

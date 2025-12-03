@@ -49,7 +49,7 @@ $result_todas = $stmt_todas->fetchAll(PDO::FETCH_ASSOC);
             <div class="col">
                 <a href="noticia_gen.php?id=<?= $row['id'] ?>" style="text-decoration:none; color:inherit;">
                     <div class="card h-100 shadow-sm">
-                        <img src="/tasks_projects/<?= htmlspecialchars($row['imagem']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['titulo']) ?>">
+                        <img src="/tasks_projects/uploads/<?= htmlspecialchars($row['imagem']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['titulo']) ?>">
                         <div class="card-body">
                             <h5 class="card-title"><?= htmlspecialchars($row['titulo']) ?></h5>
                             <p class="card-text"><?= htmlspecialchars($row['subtitulo']) ?></p>

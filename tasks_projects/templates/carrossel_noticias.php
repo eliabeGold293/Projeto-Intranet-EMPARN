@@ -61,7 +61,7 @@ $result_carrossel = $stmt_carrossel->fetchAll(PDO::FETCH_ASSOC);
                 <!-- LINK ATUALIZADO -->
                 <a href="noticia_gen.php?id=<?= $row['id'] ?>">
 
-                    <img src="/tasks_projects/<?= htmlspecialchars($row['imagem']) ?>" 
+                    <img src="/tasks_projects/uploads/<?= htmlspecialchars($row['imagem']) ?>" 
                         class="d-block w-100"
                         style="height: 400px; object-fit: cover;"
                         alt="Notícia">

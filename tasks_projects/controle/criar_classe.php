@@ -12,13 +12,13 @@
     <style>
         body {
             background-color: #f4f6f8;
-            display: flex;
             margin: 0;
+            display: flex;
         }
 
         .main-content {
             flex: 1;
-            padding: 30px;
+            padding: 25px 30px;
             margin-left: 250px;
         }
 
@@ -32,18 +32,17 @@
         .page-title {
             font-size: 28px;
             font-weight: 700;
-            color: #0046a0; /* azul igual ao Painel de Controle */
-            margin-bottom: 25px;
+            color: #0046a0;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-
         .card {
             border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.10);
         }
 
         .form-control {
@@ -53,8 +52,13 @@
 
         .btn-success {
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin-left: 8px;
         }
     </style>
 </head>
@@ -72,27 +76,29 @@
             Criar Classe
         </h2>
 
+        <!-- Caixa agora fica logo abaixo do título e alinhada à esquerda -->
+        <div class="col-lg-6 col-md-8 col-sm-12 p-0">
 
-        <div class="container" style="max-width: 650px;">
             <div class="card">
                 <div class="card-body p-4">
 
                     <form id="createClassForm" class="needs-validation" novalidate>
-                        
+
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Nome da Classe</label>
-                            <input type="text" name="nome" class="form-control" required>
+                            <label for="nome" class="form-label fw-semibold">Nome da Classe</label>
+                            <input type="text" name="nome" id="nome" class="form-control" placeholder="Ex: Administrador" required>
                             <div class="invalid-feedback">Informe o nome da classe.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Grau de Acesso (1 a 4)</label>
-                            <input type="number" name="grau_acesso" class="form-control" min="1" max="4" required>
+                            <label for="grau" class="form-label fw-semibold">Grau de Acesso (1 a 4)</label>
+                            <input type="number" name="grau_acesso" id="grau" class="form-control" min="1" max="4" placeholder="Ex: 3" required>
                             <div class="invalid-feedback">Informe um grau de acesso entre 1 e 4.</div>
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-check-circle-fill me-1"></i> Salvar Classe
+                        <button type="submit" class="btn btn-success w-100 d-flex justify-content-center align-items-center">
+                            <span>Salvar Classe</span>
+                            <div class="spinner-border spinner-border-sm loading-spinner" role="status"></div>
                         </button>
 
                     </form>
@@ -101,6 +107,7 @@
 
                 </div>
             </div>
+
         </div>
 
     </main>
@@ -110,51 +117,62 @@
     <script>
         // Validação Bootstrap
         (() => {
-            'use strict';
-            const forms = document.querySelectorAll('.needs-validation');
-            Array.from(forms).forEach(form => {
-                form.addEventListener('submit', event => {
+            "use strict";
+            const forms = document.querySelectorAll(".needs-validation");
+
+            forms.forEach(form => {
+                form.addEventListener("submit", event => {
                     if (!form.checkValidity()) {
                         event.preventDefault();
                         event.stopPropagation();
                     }
-                    form.classList.add('was-validated');
+                    form.classList.add("was-validated");
                 }, false);
             });
         })();
 
-        // Submissão AJAX
-        document.getElementById("createClassForm").addEventListener("submit", function(e) {
+        // Submissão AJAX moderna
+        const form = document.getElementById("createClassForm");
+        const messageDiv = document.getElementById("message");
+        const spinner = document.querySelector(".loading-spinner");
+
+        form.addEventListener("submit", async function(e) {
             e.preventDefault();
+            if (!form.checkValidity()) return;
 
-            if (!this.checkValidity()) return;
+            spinner.style.display = "inline-block";
 
-            const formData = new FormData(this);
+            const formData = new FormData(form);
 
-            fetch("../apis/criar_classe_us.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                const msgDiv = document.getElementById("message");
+            try {
+                const response = await fetch("../apis/criar_classe_us.php", {
+                    method: "POST",
+                    body: formData
+                });
 
-                if (data.toLowerCase().includes("sucesso")) {
-                    msgDiv.innerHTML = `
-                        <div class="alert alert-success">Classe criada com sucesso!</div>
-                    `;
-                    this.reset();
-                    this.classList.remove('was-validated');
-                } else {
-                    msgDiv.innerHTML = `
-                        <div class="alert alert-danger">Erro ao criar classe: ${data}</div>
-                    `;
+                const text = await response.text();
+                let isSuccess = text.toLowerCase().includes("sucesso");
+
+                messageDiv.innerHTML = `
+                    <div class="alert alert-${isSuccess ? "success" : "danger"}">
+                        ${isSuccess ? "Classe criada com sucesso!" : "Erro ao criar classe: " + text}
+                    </div>
+                `;
+
+                if (isSuccess) {
+                    form.reset();
+                    form.classList.remove("was-validated");
                 }
-            })
-            .catch(() => {
-                document.getElementById("message").innerHTML =
-                    `<div class="alert alert-danger">Erro ao criar classe.</div>`;
-            });
+
+                setTimeout(() => (messageDiv.innerHTML = ""), 3500);
+
+            } catch (error) {
+                messageDiv.innerHTML = `
+                    <div class="alert alert-danger">Erro inesperado ao criar classe.</div>
+                `;
+            } finally {
+                spinner.style.display = "none";
+            }
         });
     </script>
 
