@@ -240,9 +240,10 @@
 
 
                                 <button class="btn btn-sm btn-danger"
-                                        onclick="deleteTopicFromDatabase(<?= $id ?>)">
+                                        onclick="deleteTopicFromDatabase(<?= $topico['id'] ?>)">
                                     <i class="bi bi-trash text-white"></i>
                                 </button>
+
                             </td>
                         </tr>
                     <?php endforeach; ?>

@@ -96,16 +96,16 @@
                 // Redireciona conforme grau_acesso
                 switch (result.grau_acesso) {
                     case 1:
-                        window.location.href = 'index.php';
+                        window.location.href = 'home.php';
                         break;
                     case 2:
-                        window.location.href = 'index.php';
+                        window.location.href = 'home.php';
                         break;
                     case 3:
-                        window.location.href = 'index.php';
+                        window.location.href = 'home.php';
                         break;
                     case 4:
-                        window.location.href = 'index.php';
+                        window.location.href = 'home.php';
                         break;
                     default:
                         erroBox.textContent = "Nível de acesso inválido.";

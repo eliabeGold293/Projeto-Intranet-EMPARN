@@ -121,7 +121,7 @@ $topicos = $stmtT->fetchAll(PDO::FETCH_ASSOC);
                             <label class="form-label">Imagem Principal (substituir)</label>
                             <?php if ($noticia['imagem']): ?>
                                 <div class="mb-2">
-                                    <img src="../<?= htmlspecialchars($noticia['imagem']) ?>" class="img-preview mb-2" alt="Imagem principal">
+                                    <img src="/tasks_projects/uploads/<?= htmlspecialchars($noticia['imagem']) ?>" class="img-preview mb-2" alt="Imagem principal">
                                     <p class="small-muted mb-2">Atual: <?= htmlspecialchars($noticia['imagem']) ?></p>
                                 </div>
                             <?php endif; ?>

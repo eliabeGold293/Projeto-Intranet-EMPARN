@@ -1,6 +1,7 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
 require_once "../config/connection.php";
+session_start(); // para registrar no log quem fez a ação
 
 try {
 
@@ -14,11 +15,13 @@ try {
         exit;
     }
 
-    // 1 — Verificar se o tópico existe ANTES de tudo
-    $check = $pdo->prepare("SELECT id FROM documento_topico WHERE id = :id");
-    $check->execute([":id" => $id]);
+    // 1 — Obter nome do tópico (será usado no log)
+    $stmtNome = $pdo->prepare("SELECT nome FROM documento_topico WHERE id = :id");
+    $stmtNome->execute([":id" => $id]);
 
-    if ($check->rowCount() === 0) {
+    $topico = $stmtNome->fetch(PDO::FETCH_ASSOC);
+
+    if (!$topico) {
         echo json_encode([
             "status" => "error",
             "message" => "Tópico não encontrado."
@@ -35,11 +38,10 @@ try {
     $queryFiles->execute([":id" => $id]);
     $arquivos = $queryFiles->fetchAll(PDO::FETCH_ASSOC);
 
-    // 3 — Apagar arquivos físicos (se houver)
+    // 3 — Apagar arquivos físicos
     if (!empty($arquivos)) {
 
         foreach ($arquivos as $arq) {
-
             $relative = $arq['caminho_armazenado'];
             if (!$relative) continue;
 
@@ -52,31 +54,43 @@ try {
         }
 
         // 4 — Remover a pasta principal do tópico
-        $topicFolder = dirname($arquivos[0]['caminho_armazenado']); // Já validado acima
-
+        $topicFolder = dirname($arquivos[0]['caminho_armazenado']);
         $absoluteFolder = realpath(__DIR__ . "/../" . $topicFolder);
 
         if ($absoluteFolder && is_dir($absoluteFolder)) {
 
-            // Remover arquivos restantes
             foreach (glob($absoluteFolder . "/*") as $file) {
                 if (is_file($file)) unlink($file);
             }
 
-            // Remover pasta
             @rmdir($absoluteFolder);
         }
-
     }
-    // Caso NÃO haja arquivos → simplesmente segue adiante
 
-    // 5 — Excluir tópico do banco
+    // 5 — Excluir arquivos do banco
+    $delFiles = $pdo->prepare("DELETE FROM documento_arquivo WHERE topico_id = :id");
+    $delFiles->execute([":id" => $id]);
+
+    // 6 — Excluir tópico
     $delete = $pdo->prepare("DELETE FROM documento_topico WHERE id = :id");
     $delete->execute([":id" => $id]);
 
+    // 7 — Registrar log
+    $stmtLog = $pdo->prepare("
+        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+        VALUES (:usuario_id, 'documento_topico', 'EXCLUIR', :descricao)
+    ");
+
+    $descricao = "Tópico '{$topico['nome']}' excluído.";
+
+    $stmtLog->execute([
+        ":usuario_id" => $_SESSION['usuario_id'] ?? null,
+        ":descricao"  => $descricao
+    ]);
+
     echo json_encode([
         "status" => "success",
-        "message" => "Tópico removido com sucesso. (Arquivos e pastas inexistentes foram ignorados)"
+        "message" => "Tópico removido com sucesso."
     ]);
     exit;
 

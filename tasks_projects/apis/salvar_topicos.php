@@ -37,7 +37,9 @@ try {
         $nome = trim($meta["nome"] ?? "");
         $descricao = trim($meta["descricao"] ?? "");
 
-        if ($nome === "") continue;
+        if ($nome === "") {
+            continue;
+        }
 
         // -------------------------------------------------
         // 1) SALVA O TÓPICO NO BANCO
@@ -55,8 +57,19 @@ try {
         $topicoId = $stmt->fetchColumn();
         $savedTopicsIds[] = $topicoId;
 
+        // LOG simples — tópico criado
+        $descricaoLog = "Tópico '{$nome}' criado (ID $topicoId)";
+        $stmtLog = $pdo->prepare("
+            INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+            VALUES (:usuario_id, 'documento_topico', 'INSERIR', :descricao)
+        ");
+        $stmtLog->execute([
+            ":usuario_id" => 1, 
+            ":descricao"  => $descricaoLog
+        ]);
+
         // -------------------------------------------------
-        // 2) CRIAR PASTA (opcional)
+        // 2) CRIAR PASTA
         // -------------------------------------------------
         $topicFolder = $uploadBase . "topic_" . $topicoId . "/";
 
@@ -65,7 +78,7 @@ try {
         }
 
         // -------------------------------------------------
-        // 3) PROCESSA ARQUIVOS DO TÓPICO
+        // 3) PROCESSA ARQUIVOS
         // -------------------------------------------------
         $fieldName = "files_topic_" . $index;
 
@@ -84,7 +97,7 @@ try {
             $err  = $files["error"][$i];
 
             if ($err !== UPLOAD_ERR_OK) {
-                throw new Exception("Erro ao enviar arquivo $orig");
+                throw new Exception("Erro ao enviar arquivo: $orig");
             }
 
             if (!is_uploaded_file($tmp)) {
@@ -99,7 +112,7 @@ try {
                 throw new Exception("Falha ao mover arquivo: $orig");
             }
 
-            // caminho que vai para o banco
+            // caminho relativo que vai para o banco
             $caminhoRelativo = "uploads/doc/topic_{$topicoId}/{$unique}";
 
             // -------------------------------------------------
@@ -112,11 +125,22 @@ try {
             ");
 
             $stmtA->execute([
-                ":topico" => $topicoId,
-                ":nome" => $orig,
+                ":topico"  => $topicoId,
+                ":nome"    => $orig,
                 ":caminho" => $caminhoRelativo,
-                ":tipo" => $type,
+                ":tipo"    => $type,
                 ":tamanho" => $size
+            ]);
+
+            // LOG simples — arquivo enviado
+            $descricaoArquivo = "Arquivo '{$orig}' enviado (Tópico ID {$topicoId})";
+            $stmtLog = $pdo->prepare("
+                INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+                VALUES (:usuario_id, 'documento_arquivo', 'INSERIR', :descricao)
+            ");
+            $stmtLog->execute([
+                ":usuario_id" => 1,
+                ":descricao"  => $descricaoArquivo
             ]);
         }
     }

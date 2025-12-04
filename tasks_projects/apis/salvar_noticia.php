@@ -1,5 +1,6 @@
 <?php
 require_once "../config/connection.php";
+session_start(); // necessário para registrar usuario_id no log
 
 try {
     $idNoticia    = $_POST['id'] ?? null;
@@ -56,6 +57,10 @@ try {
             ':fonte_imagem' => $fonte_imagem,
             ':id' => $idNoticia
         ]);
+
+        $acao = "EDITAR";
+        $descricaoLog = "Notícia '{$titulo}' (ID {$idNoticia}) atualizada.";
+
     } else {
         // INSERT
         $sql = "INSERT INTO noticias (titulo, subtitulo, texto, imagem, autoria, link, fonte_imagem)
@@ -71,6 +76,9 @@ try {
             ':fonte_imagem' => $fonte_imagem
         ]);
         $idNoticia = $pdo->lastInsertId();
+
+        $acao = "CRIAR";
+        $descricaoLog = "Nova notícia criada: '{$titulo}' (ID {$idNoticia}).";
     }
 
 
@@ -157,6 +165,21 @@ try {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array_values($idsParaRemover));
     }
+
+    // ===========================================
+    //  REGISTRAR LOG DA AÇÃO
+    // ===========================================
+    $stmtLog = $pdo->prepare("
+        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+        VALUES (:usuario_id, 'noticia', 'INSERIR', :descricao)
+    ");
+
+    $stmtLog->execute([
+        ":usuario_id" => $_SESSION['usuario_id'] ?? null,
+        ":acao"       => $acao,
+        ":descricao"  => $descricaoLog
+    ]);
+
 
     // ===================================
     //  RETORNO JSON

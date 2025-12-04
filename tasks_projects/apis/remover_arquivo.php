@@ -43,6 +43,26 @@ try {
         unlink($realPath);
     }
 
+    /**
+     * ============================
+     *   LOG DE AÇÃO ADICIONADO
+     * ============================
+     */
+    $log = $pdo->prepare("
+        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+        VALUES (:usuario_id, :entidade, :acao, :descricao)
+    ");
+
+    $log->execute([
+        ":usuario_id" => $_SESSION["usuario_id"] ?? null,  // se não tiver sessão, grava NULL
+        ":entidade"   => "documento_arquivo",
+        ":acao"       => "EXCLUIR",
+        ":descricao"  => "Arquivo ID {$fileId} removido."
+    ]);
+    /**
+     * ============================
+     */
+
     $pdo->commit();
 
     echo json_encode([
@@ -61,3 +81,5 @@ try {
         "message" => $e->getMessage()
     ]);
 }
+
+?>

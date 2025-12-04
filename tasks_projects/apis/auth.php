@@ -29,33 +29,75 @@ try {
             $_SESSION['classe_nome']   = $usuario['classe_nome'];   // opcional
             $_SESSION['grau_acesso']   = $usuario['grau_acesso'];   // 1 a 4
 
-            // Retorna JSON de sucesso
+            // LOG SIMPLES — login OK
+            $stmtLog = $pdo->prepare("
+                INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+                VALUES (:usuario_id, 'auth', 'LOGIN', :descricao)
+            ");
+            $stmtLog->execute([
+                ":usuario_id" => $usuario['id'],
+                ":descricao"  => "Login realizado com sucesso pelo usuário '{$usuario['email']}'"
+            ]);
+
             echo json_encode([
                 "success" => true,
                 "grau_acesso" => $usuario['grau_acesso'],
                 "usuario_nome" => $usuario['nome']
             ]);
         } else {
-            // Login inválido
+
+            // LOG SIMPLES — falha no login
+            $stmtLog = $pdo->prepare("
+                INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+                VALUES (NULL, 'auth', 'FALHA_LOGIN', :descricao)
+            ");
+            $stmtLog->execute([
+                ":descricao" => "Tentativa de login inválida para email '{$email}'"
+            ]);
+
             echo json_encode([
                 "success" => false,
                 "error" => "credenciais"
             ]);
         }
     } else {
+
+        // LOG — método incorreto
+        $stmtLog = $pdo->prepare("
+            INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+            VALUES (NULL, 'auth', 'MÉTODO_INVÁLIDO', 'Tentativa de acesso com método HTTP diferente de POST')
+        ");
+        $stmtLog->execute();
+
         echo json_encode([
             "success" => false,
             "error" => "metodo_invalido"
         ]);
     }
 } catch (PDOException $e) {
-    error_log("Erro de banco: " . $e->getMessage());
+
+    $stmtLog = $pdo->prepare("
+        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+        VALUES (NULL, 'auth', 'ERRO_DB', :descricao)
+    ");
+    $stmtLog->execute([
+        ":descricao" => "Erro PDO: " . $e->getMessage()
+    ]);
+
     echo json_encode([
         "success" => false,
         "error" => "servidor"
     ]);
 } catch (Exception $e) {
-    error_log("Erro geral: " . $e->getMessage());
+
+    $stmtLog = $pdo->prepare("
+        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
+        VALUES (NULL, 'auth', 'ERRO', :descricao)
+    ");
+    $stmtLog->execute([
+        ":descricao" => "Erro geral: " . $e->getMessage()
+    ]);
+
     echo json_encode([
         "success" => false,
         "error" => "servidor"

@@ -95,7 +95,7 @@ $pagina = basename($_SERVER['PHP_SELF']);
             <li><a href="../controle/documentos.php" class="<?= $pagina === '../controle/documentos.php' ? 'active' : '' ?>"><i class="bi bi-file-text"></i> Gerenciar Documentos</a></li>
             
             <li class="menu-section">Site Público</li>
-            <li><a href="../public/index.php" class="<?= $pagina === 'index.php' ? 'active' : '' ?>"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>
+            <li><a href="../public/home.php" class="<?= $pagina === 'index.php' ? 'active' : '' ?>"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>
         </ul>
         <br>
         <br>
