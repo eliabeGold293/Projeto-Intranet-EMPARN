@@ -115,11 +115,7 @@ try {
 
                 <div class="row">
 
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Senha</label>
-                        <input type="password" name="senha" class="form-control" required>
-                        <div class="invalid-feedback">Informe uma senha.</div>
-                    </div>
+                    <!-- REMOVIDO O CAMPO SENHA -->
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Classe</label>
@@ -175,7 +171,6 @@ try {
             });
         })();
 
-        // Envio AJAX
         document.getElementById("userForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -187,27 +182,58 @@ try {
                 method: "POST",
                 body: formData
             })
-            .then(res => res.text())
-            .then(data => {
+            .then(async res => {
+                const raw = await res.text(); // pega a resposta crua
+
+                console.log("=== RESPOSTA CRUA DA API ===");
+                console.log(raw); // MOSTRA O QUE EU PRECISO ANALISAR
+
+                let json;
+
+                try {
+                    json = JSON.parse(raw);
+                } catch (e) {
+                    // JSON inválido → mostrar erro completo
+                    document.getElementById("message").innerHTML =
+                        `<div class="alert alert-danger">
+                            <strong>Erro inesperado:</strong><br>
+                            A API retornou um conteúdo inválido:<br><br>
+                            <pre>${raw}</pre>
+                        </div>`;
+                    throw e; // interrompe aqui
+                }
+
+                return json;
+            })
+            .then(json => {
                 const msgDiv = document.getElementById("message");
 
-                if (data.toLowerCase().includes("sucesso")) {
+                if (json.success) {
                     msgDiv.innerHTML =
-                        '<div class="alert alert-success"><i class="bi bi-check-circle"></i> Usuário criado com sucesso!</div>';
+                        `<div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i> ${json.message}
+                        </div>`;
 
                     this.reset();
                     this.classList.remove("was-validated");
+
                 } else {
                     msgDiv.innerHTML =
-                        '<div class="alert alert-danger"><i class="bi bi-x-circle"></i> Erro ao criar usuário: ' + data + '</div>';
+                        `<div class="alert alert-danger">
+                            <i class="bi bi-x-circle"></i> ${json.message}<br>
+                            <small>${json.error ?? ""}</small>
+                        </div>`;
                 }
             })
-            .catch(() => {
+            .catch((err) => {
                 document.getElementById("message").innerHTML =
-                    '<div class="alert alert-danger"><i class="bi bi-x-circle"></i> Erro inesperado.</div>';
+                    `<div class="alert alert-danger">
+                        <i class="bi bi-x-circle"></i> Erro inesperado: ${err}
+                    </div>`;
             });
 
         });
+
 
     </script>
 </body>

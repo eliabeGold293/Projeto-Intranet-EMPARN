@@ -12,7 +12,7 @@ try {
     $fonte_imagem = $_POST['fonte_imagem'] ?? null;
 
     if (!$titulo || !$autoria || !$texto) {
-        throw new Exception("Título, autoria e conteúdo são obrigatórios.");
+        throw new Exception("Preencha todos os campos do tópico de notícias por favor.");
     }
 
     // ===== Criar pasta de uploads =====
@@ -27,7 +27,7 @@ try {
 
     if (!empty($_FILES['imagem']['name'])) {
         $nome_imagem = time() . "_" . basename($_FILES['imagem']['name']);
-        $caminhoImagemPrincipal = "uploads/uploads_noticias/" . $nome_imagem;
+        $caminhoImagemPrincipal = "uploads_noticias/" . $nome_imagem;
         move_uploaded_file($_FILES['imagem']['tmp_name'], $pasta . $nome_imagem);
     }
 
@@ -111,7 +111,7 @@ try {
 
         if (isset($_FILES[$campoArquivo]) && $_FILES[$campoArquivo]['error'] === 0) {
             $nomeImg = time() . "_" . basename($_FILES[$campoArquivo]['name']);
-            $caminhoImg = "uploads/uploads_noticias/" . $nomeImg;
+            $caminhoImg = "uploads_noticias/" . $nomeImg;
             move_uploaded_file($_FILES[$campoArquivo]['tmp_name'], $pasta . $nomeImg);
         }
 
@@ -176,7 +176,6 @@ try {
 
     $stmtLog->execute([
         ":usuario_id" => $_SESSION['usuario_id'] ?? null,
-        ":acao"       => $acao,
         ":descricao"  => $descricaoLog
     ]);
 

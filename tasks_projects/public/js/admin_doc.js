@@ -34,7 +34,7 @@ function addTopic() {
         <div class="files-container mb-3"></div>
 
         <button type="button" class="btn btn-outline-primary btn-sm" onclick="addFile(${topicCount})">
-            <i class="bi bi-paperclip"></i> Adicionar Arquivo
+            <i class="bi bi-paperclip"></i> Adicionar Documento
         </button>
     `;
 

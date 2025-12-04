@@ -76,58 +76,66 @@
     </div>
 
     <script>
-    const form = document.getElementById('loginForm');
-    const erroBox = document.getElementById('erro');
+        const form = document.getElementById('loginForm');
+        const erroBox = document.getElementById('erro');
 
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault(); // impede envio padrão
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault(); // impede envio padrão
 
-        const formData = new FormData(form);
+            const formData = new FormData(form);
 
-        try {
-            const response = await fetch('../apis/auth.php', {
-                method: 'POST',
-                body: formData
-            });
+            try {
 
-            const result = await response.json();
+                const response = await fetch('../apis/auth.php', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            if (result.success) {
-                // Redireciona conforme grau_acesso
-                switch (result.grau_acesso) {
-                    case 1:
-                        window.location.href = 'home.php';
-                        break;
-                    case 2:
-                        window.location.href = 'home.php';
-                        break;
-                    case 3:
-                        window.location.href = 'home.php';
-                        break;
-                    case 4:
-                        window.location.href = 'home.php';
-                        break;
-                    default:
-                        erroBox.textContent = "Nível de acesso inválido.";
-                }
-            } else {
-                // Exibe mensagens de erro específicas
-                if (result.error === "credenciais") {
-                    erroBox.textContent = "Email ou senha inválidos.";
-                } else if (result.error === "servidor") {
-                    erroBox.textContent = "Erro interno no servidor.";
-                } else if (result.error === "metodo_invalido") {
-                    erroBox.textContent = "Método de requisição inválido.";
+                const result = await response.json();
+
+                if (result.success) {
+
+                    // Redireciona conforme grau_acesso
+                    switch (result.grau_acesso) {
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                            window.location.href = 'home.php';
+                            break;
+                        default:
+                            erroBox.textContent = "Nível de acesso inválido.";
+                    }
+
                 } else {
-                    erroBox.textContent = "Erro desconhecido.";
+
+                    if (result.error === "primeiro_acesso") {
+                        erroBox.innerHTML = `
+                            Este é seu primeiro acesso.<br>
+                            <a href="primeiro_acesso.php?email=${formData.get('email')}">
+                                Clique aqui para criar sua senha definitiva.
+                            </a>
+                        `;
+                        return;
+                    }
+
+                    if (result.error === "credenciais") {
+                        erroBox.textContent = "Email ou senha inválidos.";
+                    } else if (result.error === "servidor") {
+                        erroBox.textContent = "Erro interno no servidor.";
+                    } else if (result.error === "metodo_invalido") {
+                        erroBox.textContent = "Método de requisição inválido.";
+                    } else {
+                        erroBox.textContent = "Erro desconhecido.";
+                    }
                 }
+
+            } catch (error) {
+                erroBox.textContent = "Erro de conexão com o servidor.";
+                console.error(error);
             }
-        } catch (error) {
-            erroBox.textContent = "Erro de conexão com o servidor.";
-            console.error(error);
-        }
-    });
-</script>
+        });
+    </script>
 
 </body>
 </html>

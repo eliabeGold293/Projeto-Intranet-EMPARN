@@ -177,6 +177,7 @@ try {
                                         <th>Área</th>
                                         <th>Criado</th>
                                         <th>Modificado</th>
+                                        <th>Primeiro Acesso</th>
                                         <th style="width:120px;">Ações</th>
                                     </tr>
                                 </thead>
@@ -190,6 +191,11 @@ try {
                                             <td><?= htmlspecialchars($us["area_nome"]) ?></td>
                                             <td><?= (new DateTime($us["data_criacao"]))->format('d/m/Y H:i') ?></td>
                                             <td><?= (new DateTime($us["data_modificacao"]))->format('d/m/Y H:i') ?></td>
+                                            <?php if ($us['primeiro_acesso']): ?>
+                                                <td>Não Fez</td>
+                                            <?php else: ?>
+                                                <td>Feito</td>
+                                            <?php endif; ?>
                                             <td>
                                                 <button class="btn btn-warning btn-sm me-2"
                                                     onclick="showEditForm(
@@ -203,6 +209,7 @@ try {
                                                 <button class="btn btn-danger btn-sm"
                                                     onclick="deleteUser(<?= $us['id'] ?>)"><i class="bi bi-trash-fill"></i></button>
                                             </td>
+
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
