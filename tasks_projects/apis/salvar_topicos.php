@@ -57,17 +57,6 @@ try {
         $topicoId = $stmt->fetchColumn();
         $savedTopicsIds[] = $topicoId;
 
-        // LOG simples — tópico criado
-        $descricaoLog = "Tópico '{$nome}' criado (ID $topicoId)";
-        $stmtLog = $pdo->prepare("
-            INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
-            VALUES (:usuario_id, 'documento_topico', 'INSERIR', :descricao)
-        ");
-        $stmtLog->execute([
-            ":usuario_id" => 1, 
-            ":descricao"  => $descricaoLog
-        ]);
-
         // -------------------------------------------------
         // 2) CRIAR PASTA
         // -------------------------------------------------
@@ -132,16 +121,6 @@ try {
                 ":tamanho" => $size
             ]);
 
-            // LOG simples — arquivo enviado
-            $descricaoArquivo = "Arquivo '{$orig}' enviado (Tópico ID {$topicoId})";
-            $stmtLog = $pdo->prepare("
-                INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
-                VALUES (:usuario_id, 'documento_arquivo', 'INSERIR', :descricao)
-            ");
-            $stmtLog->execute([
-                ":usuario_id" => 1,
-                ":descricao"  => $descricaoArquivo
-            ]);
         }
     }
 

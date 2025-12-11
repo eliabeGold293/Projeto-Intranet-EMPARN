@@ -96,6 +96,11 @@ require_once "../config/connection.php";
             align-items: center;
         }
 
+        .user-avatar.dropdown-toggle::after {
+            display: none !important;
+        }
+
+        /* AVATAR DO USUÁRIO CORRIGIDO */
         .user-avatar {
             width: 42px;
             height: 42px;
@@ -109,16 +114,9 @@ require_once "../config/connection.php";
             font-size: 1.2rem !important;
             line-height: 42px !important;
             text-align: center !important;
-            position: relative;
-            z-index: 9999 !important;
+            border: 2px solid #ffffff; /* Borda branca elegante */
+            cursor: pointer;
         }
-
-        .user-avatar.dropdown-toggle::after {
-            display: none !important;
-        }
-
-        .user-avatar { border: 2px solid red !important; }
-
 
         /* CARDS DO PAINEL */
         .service-card {
@@ -163,6 +161,7 @@ require_once "../config/connection.php";
             background: #111;
             color: #ddd;
         }
+
     </style>
 </head>
 <body>
@@ -176,7 +175,7 @@ require_once "../config/connection.php";
         <div class="dropdown">
 
             <?php
-            $partesNome = explode(" ", trim($_SESSION["nome_usuario"]));
+            $partesNome = explode(" ", trim($_SESSION["usuario_nome"]));
             $iniciais = strtoupper($partesNome[0][0] . ($partesNome[1][0] ?? ''));
             ?>
 
@@ -188,18 +187,14 @@ require_once "../config/connection.php";
 
                 <!-- Cabeçalho -->
                 <div class="dropdown-item-title text-center mb-2">
-                    <?php echo $_SESSION["nome_usuario"]; ?>
+                    <?php echo $_SESSION["usuario_nome"]; ?>
                 </div>
 
                 <hr class="dropdown-divider">
 
                 <!-- Links simples com ícones -->
-                <a class="dropdown-item d-flex align-items-center" href="#">
+                <a class="dropdown-item d-flex align-items-center" href="perfil_us.php">
                     <i class="bi bi-person me-2"></i> Meu Perfil
-                </a>
-
-                <a class="dropdown-item d-flex align-items-center" href="#">
-                    <i class="bi bi-gear me-2"></i> Configurações
                 </a>
 
                 <a class="dropdown-item d-flex align-items-center" href="logout.php">
@@ -224,7 +219,7 @@ require_once "../config/connection.php";
                 <a href="documents_inst.php" class="text-decoration-none">
                     <div class="service-card" style="background:#0057d9;">
                         <i class="bi bi-folder2-open service-icon"></i>
-                        <div class="service-title">Documentos Institucionais</div>
+                        <div class="service-title">DOCUMENTOS INSTITUCIONAIS</div>
                     </div>
                 </a>
             </div>
@@ -234,7 +229,7 @@ require_once "../config/connection.php";
                 <a href="../controle/index_controle.php" class="text-decoration-none">
                     <div class="service-card" style="background:#d90429;">
                         <i class="bi bi-gear-fill service-icon"></i>
-                        <div class="service-title">Controle</div>
+                        <div class="service-title">MINHA ÁREA</div>
                     </div>
                 </a>
             </div>
@@ -278,43 +273,42 @@ require_once "../config/connection.php";
 
     <!-- SCRIPT PARA ÍCONES INTELIGENTES -->
     <script>
-    document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", () => {
 
-        const iconMap = [
-            { keywords: ["documento", "arquivo", "pdf", "doc"], icon: "bi-file-earmark-text" },
-            { keywords: ["controle", "administração", "gerenciar", "config"], icon: "bi-gear-fill" },
-            { keywords: ["relatório", "report"], icon: "bi-bar-chart-fill" },
-            { keywords: ["notícia", "informação"], icon: "bi-newspaper" },
-            { keywords: ["usuário", "perfil", "colaborador"], icon: "bi-person-circle" },
-            { keywords: ["financeiro", "dinheiro", "pagamento"], icon: "bi-cash-stack" },
-            { keywords: ["estatística", "dados", "analise"], icon: "bi-graph-up" },
-            { keywords: ["suporte", "ajuda"], icon: "bi-life-preserver" },
-            { keywords: ["setor", "departamento"], icon: "bi-diagram-3-fill" },
-            { keywords: ["formulário", "form"], icon: "bi-ui-checks-grid" },
-            { keywords: ["projeto", "project"], icon: "bi-kanban" },
-            { keywords: ["agenda", "calendário"], icon: "bi-calendar-event" },
-            { keywords: ["email", "mensagem", "comunicação"], icon: "bi-envelope-paper-fill" }
-        ];
+            const iconMap = [
+                { keywords: ["documento", "arquivo", "pdf", "doc"], icon: "bi-file-earmark-text" },
+                { keywords: ["controle", "administração", "gerenciar", "config"], icon: "bi-gear-fill" },
+                { keywords: ["relatório", "report"], icon: "bi-bar-chart-fill" },
+                { keywords: ["notícia", "informação"], icon: "bi-newspaper" },
+                { keywords: ["usuário", "perfil", "colaborador"], icon: "bi-person-circle" },
+                { keywords: ["financeiro", "dinheiro", "pagamento"], icon: "bi-cash-stack" },
+                { keywords: ["estatística", "dados", "analise"], icon: "bi-graph-up" },
+                { keywords: ["suporte", "ajuda"], icon: "bi-life-preserver" },
+                { keywords: ["setor", "departamento"], icon: "bi-diagram-3-fill" },
+                { keywords: ["formulário", "form"], icon: "bi-ui-checks-grid" },
+                { keywords: ["projeto", "project"], icon: "bi-kanban" },
+                { keywords: ["agenda", "calendário"], icon: "bi-calendar-event" },
+                { keywords: ["email", "mensagem", "comunicação"], icon: "bi-envelope-paper-fill" }
+            ];
 
-        const defaultIcon = "bi-grid-3x3-gap-fill";
+            const defaultIcon = "bi-grid-3x3-gap-fill";
 
-        document.querySelectorAll(".dynamic-icon").forEach(icon => {
-            const card = icon.closest(".service-card");
-            const title = card.querySelector(".service-title").innerText.toLowerCase();
+            document.querySelectorAll(".dynamic-icon").forEach(icon => {
+                const card = icon.closest(".service-card");
+                const title = card.querySelector(".service-title").innerText.toLowerCase();
 
-            let chosenIcon = defaultIcon;
-            for (const item of iconMap) {
-                if (item.keywords.some(k => title.includes(k))) {
-                    chosenIcon = item.icon;
-                    break;
+                let chosenIcon = defaultIcon;
+                for (const item of iconMap) {
+                    if (item.keywords.some(k => title.includes(k))) {
+                        chosenIcon = item.icon;
+                        break;
+                    }
                 }
-            }
 
-            icon.classList.add("bi", chosenIcon);
+                icon.classList.add("bi", chosenIcon);
+            });
+
         });
-
-    });
     </script>
-
 </body>
 </html>

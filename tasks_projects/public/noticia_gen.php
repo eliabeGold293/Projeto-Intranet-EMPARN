@@ -86,12 +86,19 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
     .card-noticia {
         border-radius: .75rem;
     }
+
+    /* Rodapé */
+    footer {
+        margin-top: 60px;
+        background: #111;
+        color: #ddd;
+    }
 </style>
 </head>
 
 <body>
 
-<?php include __DIR__ . '/../templates/header_emparn.php'; ?>
+<?php include __DIR__ . '/../templates/header.php'; ?>
 
 <div class="container my-3">
     <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
@@ -163,6 +170,9 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
     <?php endforeach; ?>
 </div>
 
+<footer class="text-center py-3">
+        <i class="bi bi-at"></i> <?= date('Y') ?> EMPARN — Todos os direitos reservados.
+    </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
