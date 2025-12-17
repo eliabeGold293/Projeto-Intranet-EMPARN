@@ -125,6 +125,10 @@ switch($arquivo){
     case 'criar-area-de-atuacao':
         include 'apis/criar_area.php';
         break;
+    
+    case 'cadastrar-us':
+        include 'apis/criar_us.php';
+        break;
 
     default:
         http_response_code(404);

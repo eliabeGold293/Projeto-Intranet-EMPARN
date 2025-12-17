@@ -178,7 +178,7 @@ try {
 
             const formData = new FormData(this);
 
-            fetch("../apis/criar_us.php", {
+            fetch("cadastrar-us", {
                 method: "POST",
                 body: formData
             })
