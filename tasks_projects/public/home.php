@@ -164,7 +164,6 @@ require_once __DIR__ . '/../config/connection.php';
         /* Limita texto em múltiplas linhas */
         .text-truncate-multiline {
             display: -webkit-box;
-            -webkit-line-clamp: 3; /* quantidade de linhas */
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
