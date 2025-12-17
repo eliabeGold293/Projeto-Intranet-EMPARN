@@ -7,7 +7,7 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 // ID do usuário logado
 $usuario_id = $_SESSION['usuario_id'];
@@ -163,7 +163,7 @@ $iniciais = strtoupper($partes[0][0] . ($partes[1][0] ?? ""));
 
             <!-- Botão de voltar -->
             <div class="text-center btn-back">
-                <a href="home.php" class="btn btn-primary px-4 py-2 rounded-pill">
+                <a href="home" class="btn btn-primary px-4 py-2 rounded-pill">
                     <i class="bi bi-arrow-left"></i> Voltar ao Painel
                 </a>
             </div>

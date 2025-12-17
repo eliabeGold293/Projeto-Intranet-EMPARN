@@ -19,7 +19,6 @@ try {
     $pasta = __DIR__ . "/../uploads/uploads_noticias/";
     if (!is_dir($pasta)) mkdir($pasta, 0777, true);
 
-
     // ===========================================
     //  UPLOAD IMAGEM PRINCIPAL
     // ===========================================
@@ -80,7 +79,6 @@ try {
         $acao = "CRIAR";
         $descricaoLog = "Nova notícia criada: '{$titulo}' (ID {$idNoticia}).";
     }
-
 
     // =====================================================
     //  TRATAMENTO DE TÓPICOS — (INSERIR / ATUALIZAR / REMOVER)
@@ -178,7 +176,6 @@ try {
         ":usuario_id" => $_SESSION['usuario_id'] ?? null,
         ":descricao"  => $descricaoLog
     ]);
-
 
     // ===================================
     //  RETORNO JSON

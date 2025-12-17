@@ -23,8 +23,9 @@ RewriteCond %{REQUEST_FILENAME} !-L
 RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
 
 # Quando ocorrer algum erro, redirecione o usuário.
-ErrorDocument 403 http://localhost/tasks_projects/public/403.php
-ErrorDocument 500 http://localhost/tasks_projects/public/500.php
+ErrorDocument 403 /tasks_projects/public/403.php
+
+ErrorDocument 500 /tasks_projects/public/500.php
 
 # Bolquear as opções de listar arquivos do diretório.
 Options -Indexes 
@@ -41,14 +42,7 @@ Options -Indexes
     Deny from all
 </FilesMatch>
 
-# Bloquear acesso a arquivos do diretorio pela url
-RewriteRule ^controle/ -[F]
-RewriteRule ^config/ -[F]
-RewriteRule ^apis/ -[F]
-RewriteRule ^templates/ -[F]
-RewriteRule ^tinymce_8.2.2/ -[F]
-RewriteRule ^uploads/ -[F]
-RewriteRule ^vendor/ -[F]
-
+RewriteRule ^apis/ - [F]
+RewriteRule ^public/ - [F]
 
 

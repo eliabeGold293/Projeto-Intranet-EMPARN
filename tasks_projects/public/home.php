@@ -15,7 +15,8 @@ if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
     exit;
 }
 
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -155,6 +156,20 @@ require_once "../config/connection.php";
             color: #333;
         }
 
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        /* Limita texto em múltiplas linhas */
+        .text-truncate-multiline {
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* quantidade de linhas */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+
         /* Rodapé */
         footer {
             margin-top: 60px;
@@ -193,11 +208,11 @@ require_once "../config/connection.php";
                 <hr class="dropdown-divider">
 
                 <!-- Links simples com ícones -->
-                <a class="dropdown-item d-flex align-items-center" href="perfil_us.php">
+                <a class="dropdown-item d-flex align-items-center" href="perfil-us">
                     <i class="bi bi-person me-2"></i> Meu Perfil
                 </a>
 
-                <a class="dropdown-item d-flex align-items-center" href="logout.php">
+                <a class="dropdown-item d-flex align-items-center" href="logout">
                     <i class="bi bi-box-arrow-right me-2"></i> Sair
                 </a>
             </div>
@@ -226,7 +241,7 @@ require_once "../config/connection.php";
 
             <!-- Card fixo 2 -->
             <div class="col">
-                <a href="../controle/index_controle.php" class="text-decoration-none">
+                <a href="controle" class="text-decoration-none">
                     <div class="service-card" style="background:#d90429;">
                         <i class="bi bi-gear-fill service-icon"></i>
                         <div class="service-title">MINHA ÁREA</div>
@@ -259,7 +274,7 @@ require_once "../config/connection.php";
 
     <!-- BOTÃO TODAS AS NOTÍCIAS -->
     <div class="container text-center mt-4 mb-5">
-        <a href="todas_as_noticias.php" class="btn btn-primary btn-lg px-4 py-2 shadow-lg rounded-pill">
+        <a href="todas-as-noticias" class="btn btn-primary btn-lg px-4 py-2 shadow-lg rounded-pill">
             <i class="bi bi-newspaper"></i> Ver todas as notícias
         </a>
     </div>

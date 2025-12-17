@@ -8,6 +8,9 @@
 <body>
     <h1>Erro 404</h1>
     <p>Página não encontrada.</p>
-    <a href="public/login.php">Tente realizar o login</a>
+    <?php 
+    echo "<a href='". URL ."login'>Tente realizar o login</a><br>";
+    echo "<a href='". URL ."home'> Ou tente acessar a home.</a>";
+    ?>
 </body>
 </html>

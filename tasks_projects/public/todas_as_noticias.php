@@ -1,5 +1,5 @@
 <?php
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 
@@ -47,7 +47,7 @@ $result_todas = $stmt_todas->fetchAll(PDO::FETCH_ASSOC);
         <div class="row row-cols-1 row-cols-md-3 g-4">
             <?php foreach ($result_todas as $row): ?>
             <div class="col">
-                <a href="noticia_gen.php?id=<?= $row['id'] ?>" style="text-decoration:none; color:inherit;">
+                <a href="noticia-gen?id=<?= $row['id'] ?>" style="text-decoration:none; color:inherit;">
                     <div class="card h-100 shadow-sm">
                         <img src="/tasks_projects/uploads/<?= htmlspecialchars($row['imagem']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['titulo']) ?>">
                         <div class="card-body">

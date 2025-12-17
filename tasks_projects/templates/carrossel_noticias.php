@@ -1,6 +1,6 @@
 <?php
 // carrossel_noticias.php
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 $sql_carrossel = "SELECT * FROM noticias ORDER BY data_publicacao DESC LIMIT 3";
 $stmt_carrossel = $pdo->query($sql_carrossel);
@@ -51,16 +51,14 @@ $result_carrossel = $stmt_carrossel->fetchAll(PDO::FETCH_ASSOC);
 <div class="container">
     <div id="noticiasCarrossel" class="carousel slide mt-4" data-bs-ride="carousel">
         <div class="carousel-inner">
-
             <?php
             $ativo = true;
             foreach ($result_carrossel as $row):
             ?>
+
             <div class="carousel-item <?= $ativo ? 'active' : '' ?>">
-
                 <!-- LINK ATUALIZADO -->
-                <a href="noticia_gen.php?id=<?= $row['id'] ?>">
-
+                <a href="noticia-gen?id=<?= $row['id'] ?>">
                     <img src="/tasks_projects/uploads/<?= htmlspecialchars($row['imagem']) ?>" 
                         class="d-block w-100"
                         style="height: 400px; object-fit: cover;"
@@ -70,12 +68,9 @@ $result_carrossel = $stmt_carrossel->fetchAll(PDO::FETCH_ASSOC);
                         <h5><?= htmlspecialchars($row['titulo']) ?></h5>
                         <p><?= htmlspecialchars($row['subtitulo']) ?></p>
                     </div>
-
                 </a>
             </div>
-
             <?php $ativo = false; endforeach; ?>
-
         </div>
 
         <button class="carousel-control-prev" type="button" data-bs-target="#noticiasCarrossel" data-bs-slide="prev">

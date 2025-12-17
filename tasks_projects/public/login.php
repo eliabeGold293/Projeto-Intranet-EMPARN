@@ -1,3 +1,8 @@
+<?php
+session_start();
+$erro = $_SESSION['erro_login'] ?? null;
+unset($_SESSION['erro_login']);
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -67,75 +72,15 @@
 <body>
     <div class="login-box">
         <h2>Login</h2>
-        <p id="erro" class="erro"></p>
-        <form id="loginForm">
+        <?php if ($erro): ?>
+            <p class="erro"><?= htmlspecialchars($erro) ?></p>
+        <?php endif; ?>
+
+        <form action="auth" method="post">
             <input type="text" name="email" placeholder="Email" required>
             <input type="password" name="senha" placeholder="Senha" required>
             <button type="submit">Entrar</button>
         </form>
     </div>
-
-    <script>
-        const form = document.getElementById('loginForm');
-        const erroBox = document.getElementById('erro');
-
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault(); // impede envio padrão
-
-            const formData = new FormData(form);
-
-            try {
-
-                const response = await fetch('../apis/auth.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-
-                    // Redireciona conforme grau_acesso
-                    switch (result.grau_acesso) {
-                        case 1:
-                        case 2:
-                        case 3:
-                        case 4:
-                            window.location.href = 'home.php';
-                            break;
-                        default:
-                            erroBox.textContent = "Nível de acesso inválido.";
-                    }
-
-                } else {
-
-                    if (result.error === "primeiro_acesso") {
-                        erroBox.innerHTML = `
-                            Este é seu primeiro acesso.<br>
-                            <a href="primeiro_acesso.php?email=${formData.get('email')}">
-                                Clique aqui para criar sua senha definitiva.
-                            </a>
-                        `;
-                        return;
-                    }
-
-                    if (result.error === "credenciais") {
-                        erroBox.textContent = "Email ou senha inválidos.";
-                    } else if (result.error === "servidor") {
-                        erroBox.textContent = "Erro interno no servidor.";
-                    } else if (result.error === "metodo_invalido") {
-                        erroBox.textContent = "Método de requisição inválido.";
-                    } else {
-                        erroBox.textContent = "Erro desconhecido.";
-                    }
-                }
-
-            } catch (error) {
-                erroBox.textContent = "Erro de conexão com o servidor.";
-                console.error(error);
-            }
-        });
-    </script>
-
 </body>
 </html>
