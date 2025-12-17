@@ -15,6 +15,7 @@ $arquivo = $url;
 
 switch($arquivo){
 
+    # Rotas de arquivos da pasta public
     case 'login':
         include 'public/login.php';
         break;
@@ -28,9 +29,11 @@ switch($arquivo){
         break;
     
     case 'noticia-gen':
+
         if (!isset($_GET['id'])) {
             die('ID da notícia não informado');
         }
+
         include __DIR__ . '/public/noticia_gen.php';
         break;
 
@@ -42,16 +45,85 @@ switch($arquivo){
         include 'public/todas_as_noticias.php';
         break;
 
-    case 'auth':
-        include 'apis/auth.php';
-        break;
-
     case 'perfil-us':
         include 'public/perfil_us.php';
         break;
 
-    case 'controle':
+    # Rotas de páginas de controle
+    case 'control':
         include 'controle/index_controle.php';
+        break;
+
+    case 'cadastrar-usuario':
+        include 'controle/cadastrar_us.php';
+        break;
+    
+    case 'listar-usuarios':
+        include 'controle/get_us.php';
+        break;
+
+    case 'criar-classe':
+        include 'controle/criar_classe.php';
+        break;
+
+    case 'listar-classes':
+        include 'controle/listar_classes.php';
+        break;
+    
+    case 'criar-nova-area':
+        include 'controle/criar_area.php';
+        break;
+    
+    case 'listar-areas-existentes':
+        include 'controle/listar_areas.php';
+        break;
+    
+    case 'cadastrar-noticias':
+        include 'controle/cadastro_noticias.php';
+        break;
+    
+    case 'noticias-existentes-no-sistema':
+        include 'controle/get_noticias.php';
+        break;
+    
+    case 'gerenciador-de-dashboards':
+        include 'controle/gerenciar_dashboard.php';
+        break;
+    
+    case 'gerenciar-documentos-institucionais':
+        include 'controle/documentos.php';
+        break;
+    
+    case 'editar-noticia':
+
+        if (!isset($_GET['id'])) {
+            die('ID da notícia não informado');
+        }
+
+        include 'controle/editar_noticia.php';
+        break;
+
+    # Rotas de apis
+
+    case 'auth':
+        include 'apis/auth.php';
+        break;
+
+    case 'deletar-noticia':
+
+        if (!isset($_GET['id'])) {
+            die('ID da notícia não informado');
+        }
+
+        include 'apis/deletar_noticias.php';
+        break;
+    
+    case 'salvar-noticia':
+        include 'apis/salvar_noticias.php';
+        break;
+    
+    case 'criar-area-de-atuacao':
+        include 'apis/criar_area.php';
         break;
 
     default:

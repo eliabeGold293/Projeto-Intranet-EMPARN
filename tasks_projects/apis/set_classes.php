@@ -1,5 +1,5 @@
 <?php 
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 $id          = isset($_POST['id']) ? (int) $_POST['id'] : 0;
 $nome        = $_POST['nome'] ?? null;

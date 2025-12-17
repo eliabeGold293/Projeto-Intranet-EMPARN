@@ -240,7 +240,7 @@ require_once __DIR__ . '/../config/connection.php';
 
             <!-- Card fixo 2 -->
             <div class="col">
-                <a href="controle" class="text-decoration-none">
+                <a href="control" class="text-decoration-none">
                     <div class="service-card" style="background:#d90429;">
                         <i class="bi bi-gear-fill service-icon"></i>
                         <div class="service-title">MINHA ÁREA</div>

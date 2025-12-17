@@ -1,5 +1,5 @@
 <?php
-require_once "../config/connection.php"; // $pdo está disponível
+require_once __DIR__ . '/../config/connection.php'; // $pdo está disponível
 
 header('Content-Type: application/json');
 

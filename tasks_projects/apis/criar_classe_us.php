@@ -1,5 +1,5 @@
 <?php 
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 $nome = $_POST['nome'] ?? null;
 $grau_acesso = isset($_POST['grau_acesso']) ? (int) $_POST['grau_acesso'] : 0;

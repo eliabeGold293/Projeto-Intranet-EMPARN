@@ -1,5 +1,5 @@
 <?php
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 try {
     $stmt = $pdo->prepare("
@@ -138,7 +138,7 @@ try {
 </head>
 <body>
 
-    <?php include '../templates/gen_menu.php'; ?>
+    <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
     <main class="main-content">
 

@@ -1,6 +1,5 @@
 <?php 
-require_once "../config/connection.php";
-include '../templates/gen_menu.php';
+require_once __DIR__ . '/../config/connection.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -74,7 +73,7 @@ include '../templates/gen_menu.php';
 </head>
 <body>
 
-<?php include '../templates/gen_menu.php'; ?>
+<?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
 <main class="main-content">
     <h2><i class="bi bi-bar-chart me-2"></i> Gerenciar Dashboard</h2>

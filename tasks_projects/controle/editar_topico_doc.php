@@ -1,6 +1,6 @@
 <?php
 // editar_topico.php
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 session_start();
 
 // --- Autenticação (ajuste conforme sua lógica) ---
@@ -118,7 +118,7 @@ foreach ($rows as $r) {
 </head>
 <body class="p-4">
 
-<?php include '../templates/gen_menu.php'; ?>
+<?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
 <main class="container">
     <div class="row justify-content-center">

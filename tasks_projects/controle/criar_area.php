@@ -78,7 +78,7 @@
 </head>
 <body>
 
-    <?php include '../templates/gen_menu.php'; ?>
+    <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
     <main class="main-content">
 

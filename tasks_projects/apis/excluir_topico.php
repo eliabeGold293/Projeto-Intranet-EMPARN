@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 session_start(); // para registrar no log quem fez a ação
 
 try {

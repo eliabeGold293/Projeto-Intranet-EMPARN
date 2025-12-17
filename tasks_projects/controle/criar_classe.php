@@ -66,7 +66,7 @@
 <body>
 
     <!-- Menu lateral -->
-    <?php include '../templates/gen_menu.php'; ?>
+    <<?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
     <!-- Conteúdo principal -->
     <main class="main-content">

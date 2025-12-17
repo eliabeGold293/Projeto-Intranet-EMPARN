@@ -1,5 +1,5 @@
 <?php
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 
@@ -68,7 +68,7 @@ $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
 
 <!-- MENU LATERAL -->
-<?php include '../templates/gen_menu.php'; ?>
+<?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
 <!-- CONTEÚDO PRINCIPAL -->
 <main class="main-content">
@@ -97,7 +97,7 @@ $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="col">
                         <div class="card h-100">
 
-                            <a href="../public/noticia_gen.php?id=<?=$n['id']?>" style="text-decoration:none; color:inherit;">
+                            <a href="noticia-gen?id=<?=$n['id']?>" style="text-decoration:none; color:inherit;">
                                 <?php if ($n['imagem']): ?>
                                     <img src="/tasks_projects/uploads/<?= htmlspecialchars($n['imagem']) ?>" class="card-img-top">
                                 <?php else: ?>
@@ -121,7 +121,7 @@ $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
 
                             <div class="card-footer d-flex justify-content-between">
-                                <a href="editar_noticia.php?id=<?= $n['id'] ?>" class="btn btn-warning btn-sm">
+                                <a href="editar-noticia?id=<?= $n['id'] ?>" class="btn btn-warning btn-sm">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
 
@@ -163,7 +163,7 @@ function deleteNoticia(id) {
         return;
     }
 
-    fetch("../apis/deletar_noticias.php?id=" + id)
+    fetch("deletar-noticia?id=" + id)
         .then(response => response.json())
         .then(data => {
             if (data.status === "success") {

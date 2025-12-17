@@ -1,6 +1,6 @@
 <?php
 // editar_noticia.php
-require_once "../config/connection.php";
+require_once __DIR__ . '/../config/connection.php';
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 if (!$id) {
@@ -77,7 +77,7 @@ $topicos = $stmtT->fetchAll(PDO::FETCH_ASSOC);
         <h3 class="mb-0">Editar Notícia — ID <?= $noticia['id'] ?></h3>
         <div class="d-flex gap-2">
             <a class="btn btn-danger"
-               href="../apis/deletar_noticias.php?id=<?= $noticia['id'] ?>"
+               href="deletar-noticia?id=<?= $noticia['id'] ?>"
                onclick="return confirm('Excluir essa notícia definitivamente?');">
                <i class="bi bi-trash"></i> Deletar notícia
             </a>
@@ -479,14 +479,14 @@ async function salvarNoticia(form) {
     });
 
     try {
-        const res = await fetch("../apis/salvar_noticia.php", {
+        const res = await fetch("salvar-noticia", {
             method: "POST",
             body: fd
         });
         const json = await res.json();
         if (json.status === "success") {
             alert('Notícia salva com sucesso!');
-            window.location.href = "../controle/get_noticias.php";
+            window.location.href = "noticias-existentes-no-sistema";
 
         } else {
             alert('Erro: ' + (json.message || 'erro desconhecido'));

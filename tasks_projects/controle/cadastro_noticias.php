@@ -44,8 +44,8 @@
 <body>
 
     <!-- Menu reutilizável -->
-    <?php include '../templates/gen_menu.php'; ?>
-    <?php require_once "../config/connection.php"; ?>
+    <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
+    <?php require_once __DIR__ . '/../config/connection.php';?>
 
     <!-- Conteúdo principal -->
     <main class="main-content">
