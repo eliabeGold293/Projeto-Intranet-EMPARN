@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const formData = new FormData(this);
 
-            fetch("../apis/set_us.php", {
+            fetch("atualizar-info-usuario", {
                 method: "POST",
                 body: formData
             })
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Função para excluir usuário
 function deleteUser(id) {
     if (confirm("Deseja realmente excluir o usuário?")) {
-        fetch("../apis/deletar_us.php", {
+        fetch("deletar-usuario", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: "id=" + encodeURIComponent(id)

@@ -373,7 +373,7 @@ async function salvarNoticia(form) {
     });
 
     try {
-        const response = await fetch("../apis/salvar_noticia.php", {
+        const response = await fetch("criar-nova-noticia", {
             method: "POST",
             body: fd
         });
@@ -383,7 +383,7 @@ async function salvarNoticia(form) {
         if (result.status === "success") {
             alert(`Notícia "${result.titulo}" salva com sucesso!`);
 
-            window.location.href = "../controle/get_noticias.php";
+            window.location.href = "view-noticias-existentes";
 
         } else {
             alert("Erro: " + (result.message || "Erro desconhecido"));

@@ -143,7 +143,7 @@
 
             const formData = new FormData(this);
 
-            fetch("../apis/criar_area.php", {
+            fetch("criar-area-usuario", {
                 method: "POST",
                 body: formData
             })

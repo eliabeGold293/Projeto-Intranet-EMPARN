@@ -263,7 +263,7 @@ if (editForm) {
 
         const formData = new FormData(editForm);
 
-        fetch("../apis/set_area.php", {
+        fetch("atualizar-area-usuario", {
             method: "POST",
             body: formData
         })
@@ -295,7 +295,7 @@ function deleteArea(id) {
     const formData = new FormData();
     formData.append("id", id);
 
-    fetch("../apis/deletar_area.php", {
+    fetch("deletar-area-usuario", {
         method: "POST",
         body: formData
     })

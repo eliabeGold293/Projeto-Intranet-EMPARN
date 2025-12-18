@@ -29,6 +29,7 @@ $sql = "
         u.nome,
         u.email,
         u.senha,
+        u.primeiro_acesso,
         c.nome AS classe_nome,
         c.grau_acesso
     FROM usuario u
@@ -71,11 +72,12 @@ if (!password_verify($senha, $usuario['senha'])) {
 }
 
 // LOGIN OK
-$_SESSION['usuario_id']    = $usuario['id'];
-$_SESSION['usuario_nome']  = $usuario['nome'];
-$_SESSION['usuario_email'] = $usuario['email'];
-$_SESSION['classe_nome']   = $usuario['classe_nome'];
-$_SESSION['grau_acesso']   = $usuario['grau_acesso'];
+$_SESSION['usuario_id']      = $usuario['id'];
+$_SESSION['usuario_nome']    = $usuario['nome'];
+$_SESSION['usuario_email']   = $usuario['email'];
+$_SESSION['classe_nome']     = $usuario['classe_nome'];
+$_SESSION['grau_acesso']     = $usuario['grau_acesso'];
+$_SESSION['primeiro_acesso'] = (bool) $usuario['primeiro_acesso'];
 
 // log de sucesso
 $pdo->prepare("
@@ -85,6 +87,10 @@ $pdo->prepare("
     ':usuario_id' => $usuario['id']
 ]);
 
-// redireciona
-header('Location: index.php?url=home');
+// redirecionamento inteligente
+if ($usuario['primeiro_acesso']) {
+    header('Location: index.php?url=primeiro-acesso');
+} else {
+    header('Location: index.php?url=home');
+}
 exit;

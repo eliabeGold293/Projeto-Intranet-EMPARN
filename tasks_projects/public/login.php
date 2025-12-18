@@ -1,7 +1,10 @@
 <?php
 session_start();
+
 $erro = $_SESSION['erro_login'] ?? null;
-unset($_SESSION['erro_login']);
+$info = $_SESSION['info_login'] ?? null;
+
+unset($_SESSION['erro_login'], $_SESSION['info_login']);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -67,20 +70,35 @@ unset($_SESSION['erro_login']);
             margin-bottom: 10px;
             width: 100%;
         }
+        .info {
+            color: #0c5460;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 10px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="login-box">
         <h2>Login</h2>
+
         <?php if ($erro): ?>
             <p class="erro"><?= htmlspecialchars($erro) ?></p>
         <?php endif; ?>
 
         <form action="auth" method="post">
-            <input type="text" name="email" placeholder="Email" required>
+            <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="senha" placeholder="Senha" required>
             <button type="submit">Entrar</button>
         </form>
+
+        <small style="margin-top:10px; color:#666; text-align:center;">
+            Caso seja seu primeiro acesso, você será direcionado para a configuração inicial.
+        </small>
     </div>
 </body>
 </html>

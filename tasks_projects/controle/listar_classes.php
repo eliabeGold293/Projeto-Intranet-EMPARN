@@ -246,7 +246,7 @@ try {
 
                 const formData = new FormData(this);
 
-                fetch("../apis/set_classes.php", {
+                fetch("atualizar-info-classe", {
                     method: "POST",
                     body: formData
                 })
@@ -273,7 +273,7 @@ try {
             }
 
             if (confirm("Deseja realmente excluir a classe?")) {
-                fetch("../apis/deletar_classes.php", {
+                fetch("deletar-classe-usuario", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: "id=" + encodeURIComponent(id)

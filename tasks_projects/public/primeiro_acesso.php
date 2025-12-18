@@ -213,7 +213,7 @@ $email = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
 
         const formData = new FormData(form);
 
-        const res = await fetch("../apis/primeiro_acesso_salvar.php", {
+        const res = await fetch("salvar-primeiro-acesso", {
             method: "POST",
             body: formData
         });
@@ -225,7 +225,7 @@ $email = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
             msg.textContent = json.message;
 
             setTimeout(() => {
-                window.location.href = "login.php";
+                window.location.href = "login";
             }, 1500);
 
         } else {

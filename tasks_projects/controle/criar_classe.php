@@ -145,7 +145,7 @@
             const formData = new FormData(form);
 
             try {
-                const response = await fetch("../apis/criar_classe_us.php", {
+                const response = await fetch("criar-classe-usuario-api", {
                     method: "POST",
                     body: formData
                 });

@@ -86,7 +86,7 @@ $pagina = basename($_SERVER['PHP_SELF']);
 
             <li class="menu-section">Notícias</li>
             <li><a href="cadastrar-noticias"><i class="bi bi-plus-circle"></i> Nova Notícia</a></li>
-            <li><a href="noticias-existentes-no-sistema"><i class="bi bi-eye"></i> Ver Notícias</a></li>
+            <li><a href="view-noticias-existentes"><i class="bi bi-eye"></i> Ver Notícias</a></li>
 
             <li class="menu-section">Dashboard</li>
             <li><a href="gerenciador-de-dashboards"><i class="bi bi-clipboard-data"></i> Gerenciar Dashboard</a></li>

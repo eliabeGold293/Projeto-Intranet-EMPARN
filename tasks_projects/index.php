@@ -50,6 +50,10 @@ switch($arquivo){
         break;
 
     # Rotas de páginas de controle
+    case 'view-noticias-existentes':
+        include 'controle/get_noticias.php';
+        break;
+
     case 'control':
         include 'controle/index_controle.php';
         break;
@@ -80,10 +84,6 @@ switch($arquivo){
     
     case 'cadastrar-noticias':
         include 'controle/cadastro_noticias.php';
-        break;
-    
-    case 'noticias-existentes-no-sistema':
-        include 'controle/get_noticias.php';
         break;
     
     case 'gerenciador-de-dashboards':
@@ -128,6 +128,46 @@ switch($arquivo){
     
     case 'cadastrar-us':
         include 'apis/criar_us.php';
+        break;
+    
+    case 'salvar-primeiro-acesso':
+        include 'apis/primeiro_acesso_salvar.php';
+        break;
+    
+    case 'deletar-usuario':
+        include 'apis/deletar_us.php';
+        break;
+    
+    case 'atualizar-info-usuario':
+        include 'apis/set_us.php';
+        break;
+    
+    case 'criar-classe-usuario-api':
+        include 'apis/criar_classe_us.php';
+        break;
+    
+    case 'atualizar-info-classe':
+        include 'apis/set_classes.php';
+        break;
+    
+    case 'deletar-classe-usuario':
+        include 'apis/deletar_classes.php';
+        break;
+    
+    case 'criar-area-usuario':
+        include 'apis/criar_area.php';
+        break;
+    
+    case 'atualizar-area-usuario':
+        include 'apis/set_area.php';
+        break;
+    
+    case 'deletar-area-usuario':
+        include 'apis/deletar_area.php';
+        break;
+    
+    case 'criar-nova-noticia':
+        include 'apis/salvar_noticia.php';
         break;
 
     default:
