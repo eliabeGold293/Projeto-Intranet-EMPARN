@@ -230,7 +230,7 @@ require_once __DIR__ . '/../config/connection.php';
 
             <!-- Card fixo 1 -->
             <div class="col">
-                <a href="documents_inst.php" class="text-decoration-none">
+                <a href="documentos-institucionais" class="text-decoration-none">
                     <div class="service-card" style="background:#0057d9;">
                         <i class="bi bi-folder2-open service-icon"></i>
                         <div class="service-title">DOCUMENTOS INSTITUCIONAIS</div>

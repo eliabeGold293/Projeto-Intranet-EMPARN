@@ -27,6 +27,10 @@ switch($arquivo){
     case 'logout':
         include 'public/logout.php';
         break;
+
+    case 'documentos-institucionais':
+        include 'public/documents_inst.php';
+        break;
     
     case 'noticia-gen':
 
