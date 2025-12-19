@@ -9,8 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <!-- TinyMCE -->
-    <script src="../tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
-    <script src="../tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
+    <script src="tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script src="tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
 
 
     <style>
@@ -93,9 +93,9 @@
             promotion: false,
 
             skin: "oxide",
-            skin_url: "../tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
+            skin_url: "tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
 
-            content_css: "../tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
+            content_css: "tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
 
             removeformat: [
                 {

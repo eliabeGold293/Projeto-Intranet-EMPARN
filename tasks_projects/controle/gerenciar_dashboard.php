@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData(form);
 
         try {
-            const response = await fetch("../apis/salvar_cards.php", {
+            const response = await fetch("adicionar-cards", {
                 method: "POST",
                 body: formData
             });
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function deletarCard(id) {
     if (!confirm("Deseja realmente excluir este card?")) return;
 
-    fetch("../apis/deletar_card.php?id=" + id)
+    fetch("deletar-cards?id=" + id)
         .then(res => res.json())
         .then(result => {
             if (result.status === "success") {

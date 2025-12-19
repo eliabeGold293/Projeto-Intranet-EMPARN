@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         try {
-            const res = await fetch("../apis/remover_arquivo.php", {
+            const res = await fetch("remover-arquivo-doc", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: "id=" + encodeURIComponent(fileId)
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const formData = new FormData(form);
 
             try {
-                const response = await fetch("../apis/salvar_edicao_topicos.php", {
+                const response = await fetch("salvar-edicao-documento", {
                     method: "POST",
                     body: formData
                 });

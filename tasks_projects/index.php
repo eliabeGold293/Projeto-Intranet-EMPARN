@@ -50,6 +50,14 @@ switch($arquivo){
         break;
 
     # Rotas de páginas de controle
+    case 'editar-topico-documento':
+
+        if (!isset($_GET['id'])) {
+            die('ID do topico não informado');
+        }
+        include 'controle/editar_topico_doc.php';
+        break;
+
     case 'view-noticias-existentes':
         include 'controle/get_noticias.php';
         break;
@@ -170,6 +178,35 @@ switch($arquivo){
         include 'apis/salvar_noticia.php';
         break;
 
+    case 'adicionar-cards':
+        include 'apis/salvar_cards.php';
+        break;
+
+    case 'deletar-cards':
+
+        if (!isset($_GET['id'])) {
+            die('ID do card não informado');
+        }
+
+        include 'apis/deletar_card.php';
+        break;
+    
+    case 'excluir-topico-documento':
+        include 'apis/excluir_topico.php';
+        break;
+    
+    case 'salvar-documento':
+        include 'apis/salvar_topicos.php';
+        break;
+
+    case 'salvar-edicao-documento':
+        include 'apis/salvar_edicao_topicos.php';
+        break;
+    
+    case 'remover-arquivo-doc':
+        include 'apis/remover_arquivo.php';
+        break;
+    
     default:
         http_response_code(404);
         echo 'Página não encontrada';
