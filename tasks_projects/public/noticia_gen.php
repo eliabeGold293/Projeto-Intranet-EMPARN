@@ -151,7 +151,7 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
 
                 <?php if ($t['imagem']): ?>
                     <div class="smart-img-wrapper mb-2" style="--img:url('../<?= htmlspecialchars($t['imagem']) ?>')">
-                        <img src="../<?= htmlspecialchars($t['imagem']) ?>" class="imagem-topico">
+                        <img src="/tasks_projects/uploads/<?= htmlspecialchars($t['imagem']) ?>" class="imagem-topico">
                     </div>
 
                     <?php if ($t['fonte_imagem']): ?>

@@ -131,7 +131,7 @@ switch($arquivo){
         break;
     
     case 'salvar-noticia':
-        include 'apis/salvar_noticias.php';
+        include 'apis/salvar_noticia.php';
         break;
     
     case 'criar-area-de-atuacao':
@@ -217,4 +217,3 @@ switch($arquivo){
         break;
 }
 
-?>

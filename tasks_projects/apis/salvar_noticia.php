@@ -103,14 +103,19 @@ try {
 
         if (!$textoT) continue;
 
-        // ----- 2. Upload da imagem do tópico -----
-        $campoArquivo = "topicos_{$index}_imagem";
         $caminhoImg = null;
 
-        if (isset($_FILES[$campoArquivo]) && $_FILES[$campoArquivo]['error'] === 0) {
-            $nomeImg = time() . "_" . basename($_FILES[$campoArquivo]['name']);
+        if (
+            isset($_FILES['topicos']['name'][$index]['imagem']) &&
+            $_FILES['topicos']['error'][$index]['imagem'] === 0
+        ) {
+            $nomeImg = time() . "_" . basename($_FILES['topicos']['name'][$index]['imagem']);
             $caminhoImg = "uploads_noticias/" . $nomeImg;
-            move_uploaded_file($_FILES[$campoArquivo]['tmp_name'], $pasta . $nomeImg);
+
+            move_uploaded_file(
+                $_FILES['topicos']['tmp_name'][$index]['imagem'],
+                $pasta . $nomeImg
+            );
         }
 
         // ----- 3. Atualizar se tiver ID -----
