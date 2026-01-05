@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../config/connection.php';
 session_start(); // necessário para registrar usuario_id no log
 
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, POST");
+header("Access-Control-Allow-Origin: *");
+
 try {
     $idNoticia    = $_POST['id'] ?? null;
     $titulo       = $_POST['titulo'] ?? null;
@@ -11,8 +15,8 @@ try {
     $texto        = $_POST['texto'] ?? null;
     $fonte_imagem = $_POST['fonte_imagem'] ?? null;
 
-    if (!$titulo || !$autoria || !$texto) {
-        throw new Exception("Preencha todos os campos do tópico de notícias por favor.");
+    if (!$titulo || !$subtitulo || !$autoria || !$texto || !$fonte_imagem) {
+        throw new Exception("Preencha todos os campos da notícia por favor.");
     }
 
     // ===== Criar pasta de uploads =====
