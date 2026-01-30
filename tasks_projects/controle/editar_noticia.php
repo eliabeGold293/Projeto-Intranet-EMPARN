@@ -70,9 +70,11 @@ body { background:#f5f7f9; }
 
 <!-- TOPO -->
 <div class="d-flex justify-content-between align-items-center mb-3">
+
     <h3>Editar Notícia</h3>
 
     <div class="d-flex gap-2">
+
         <button type="button" class="btn btn-success" onclick="salvar()">
             <i class="bi bi-save"></i> Salvar
         </button>
@@ -82,7 +84,9 @@ body { background:#f5f7f9; }
            onclick="return confirm('Tem certeza que deseja excluir esta notícia?')">
             <i class="bi bi-trash"></i> Excluir
         </a>
+
     </div>
+
 </div>
 
 <div class="card shadow-sm">
@@ -148,7 +152,7 @@ body { background:#f5f7f9; }
 <input type="hidden" name="topicos[<?= $i ?>][id]" value="<?= $t['id'] ?>">
 
 <div class="d-flex justify-content-between mb-3">
-<strong>Tópico <?= $i+1 ?></strong>
+<strong class="topico-titulo">Tópico</strong>
 <button type="button" class="btn btn-sm btn-outline-danger"
         onclick="confirmarRemocao(this)">Remover</button>
 </div>
@@ -166,6 +170,14 @@ body { background:#f5f7f9; }
 <div class="mb-2">
 <label class="form-label">Imagem do tópico</label>
 <input type="file" name="topicos[<?= $i ?>][imagem]" class="form-control">
+</div>
+
+<div class="mb-2">
+    <label class="form-label">Fonte da Imagem:</label>
+    <input type="text" id="fonte"
+    name="topicos[${index}][fonte_imagem]"
+    class="form-control"
+    required>
 </div>
 
 <div class="mb-2">
@@ -250,6 +262,7 @@ function initTinyMCE() {
 function confirmarRemocao(botao) {
     if (confirm('Deseja realmente remover este tópico?')) {
         botao.closest('.topico').remove();
+        atualizarNumeracaoTopicos();
     }
 }
 
@@ -263,7 +276,9 @@ function addTopico() {
         <input type="hidden" name="topicos[${i}][id]">
 
         <div class="d-flex justify-content-between mb-3">
-            <strong>Tópico ${i+1}</strong>
+
+            <strong class="topico-titulo">Tópico</strong>
+
             <button type="button" class="btn btn-sm btn-outline-danger"
                 onclick="confirmarRemocao(this)">Remover</button>
         </div>
@@ -279,12 +294,22 @@ function addTopico() {
         </div>
 
         <div class="mb-2">
+            <label class="form-label">Fonte da Imagem:</label>
+            <input type="text" id="fonte"
+                name="topicos[${i}][fonte_imagem]"
+                class="form-control"
+                required>
+        </div>
+
+        <div class="mb-2">
             <label class="form-label">Conteúdo do tópico</label>
             <textarea name="topicos[${i}][texto]" class="form-control editor"></textarea>
         </div>
     `;
     c.appendChild(d);
     initTinyMCE();
+    atualizarNumeracaoTopicos();
+
 }
 
 function salvar() {
@@ -302,7 +327,20 @@ function salvar() {
         });
 }
 
-document.addEventListener('DOMContentLoaded', initTinyMCE);
+function atualizarNumeracaoTopicos() {
+    document.querySelectorAll("#topicos .topico").forEach((topico, i) => {
+        const titulo = topico.querySelector(".topico-titulo");
+        if (titulo) {
+            titulo.textContent = `Tópico ${i + 1}`;
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTinyMCE();
+    atualizarNumeracaoTopicos();
+});
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

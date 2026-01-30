@@ -97,7 +97,6 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-
 <?php include __DIR__ . '/../templates/header.php'; ?>
 
 <div class="container my-3">
@@ -171,31 +170,10 @@ $topicos = $stmtTopicos->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <footer class="text-center py-3">
-        <i class="bi bi-at"></i> <?= date('Y') ?> EMPARN — Todos os direitos reservados.
-    </footer>
+    <i class="bi bi-at"></i> <?= date('Y') ?> EMPARN — Todos os direitos reservados.
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-document.querySelectorAll(".smart-img-wrapper").forEach(wrapper => {
-    const img = wrapper.querySelector("img");
-
-    img.addEventListener("load", () => {
-
-        const w = img.naturalWidth;
-        const h = img.naturalHeight;
-        const ratio = w / h;
-
-        wrapper.style.aspectRatio = ratio;
-        wrapper.style.setProperty("--img", `url('${img.src}')`);
-
-        if (ratio < 0.8) {
-            img.style.objectFit = "contain";
-        } else {
-            img.style.objectFit = "cover";
-        }
-    });
-});
-</script>
 
 </body>
 </html>

@@ -231,7 +231,7 @@
                 <input type="hidden" name="topicos[${index}][id]" value="">
 
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5>Tópico ${index + 1}</h5>
+                    <h5 class="topico-titulo">Tópico</h5>
                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTopico(this)">
                         <i class="bi bi-x-circle"></i> Remover
                     </button>
@@ -240,9 +240,9 @@
                 <div class="mb-3">
                     <label class="form-label">Imagem:</label>
                     <input type="file" id="file"
+                        name="topicos[${index}][imagem]"
                         class="form-control topico-file"
                         accept="image/*"
-                        data-file-name="topicos_${index}_imagem"
                         required>
                 </div>
 
@@ -274,6 +274,16 @@
 
             topicosContainer.appendChild(div);
             initTinyMCE();
+            atualizarNumeracaoTopicos();
+        }
+
+        function atualizarNumeracaoTopicos() {
+            document.querySelectorAll(".topicos-container > div").forEach((topico, i) => {
+                const titulo = topico.querySelector(".topico-titulo");
+                if (titulo) {
+                    titulo.textContent = `Tópico ${i + 1}`;
+                }
+            });
         }
 
         function removeNews() {
@@ -297,10 +307,14 @@
         }
 
         function removeTopico(btn){
-           if (confirm("Tem certeza que deseja remover o tópico?")) {
+
+            if (confirm("Tem certeza que deseja remover o tópico?")) {
+
                 btn.closest(".border").remove();
+                atualizarNumeracaoTopicos();
             }
         }
+
 
         async function salvarNoticia() {
 
@@ -308,16 +322,24 @@
 
                 const topicosContainer = document.getElementById("topicos-container");
 
-                if (topicosContainer.children.length > 0) {
-                    
-                    // campos tópicos
-                    const file = document.getElementById("file");
-                    const fonteImagem = document.getElementById("fonte");
-                    const tituloTopico = document.getElementById("titulo-topico");
-                    const textoTopico = document.getElementById("texto-topico");
+                // valida tópicos
+                const topicos = document.querySelectorAll(".topicos-container > div");
 
-                    if(file.files.length === 0 || fonteImagem == "" || tituloTopico == "" || textoTopico == ""){
-                        alert("Por favor preencha todos os campos do tópico.");
+                for (let i = 0; i < topicos.length; i++) {
+                    const topico = topicos[i];
+
+                    const imagem = topico.querySelector('input[type="file"]');
+                    const fonteImagem = topico.querySelector('input[name$="[fonte_imagem]"]');
+                    const titulo = topico.querySelector('input[name$="[titulo]"]');
+                    const texto = topico.querySelector('textarea[name$="[texto]"]');
+
+                    if (
+                        !imagem.files.length ||
+                        fonteImagem.value.trim() === "" ||
+                        titulo.value.trim() === "" ||
+                        texto.value.trim() === ""
+                    ) {
+                        alert(`Preencha TODOS os campos do(os) Tópico(os).`);
                         return;
                     }
                 }
