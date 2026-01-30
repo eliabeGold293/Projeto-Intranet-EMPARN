@@ -4,18 +4,14 @@ require_once __DIR__ . '/../config/connection.php';
 
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Método inválido.']);
-    exit;
-}
-
-if (empty($_SESSION['usuario_id']) || empty($_SESSION['primeiro_acesso'])) {
+if (empty($_SESSION['usuario_id'])) {
     echo json_encode(['success' => false, 'message' => 'Sessão inválida.']);
     exit;
 }
 
 $senha1 = trim($_POST['senha1'] ?? '');
 $senha2 = trim($_POST['senha2'] ?? '');
+$usuarioId = $_SESSION['usuario_id'];
 
 if ($senha1 === '' || $senha2 === '') {
     echo json_encode(['success' => false, 'message' => 'Preencha todos os campos.']);
@@ -40,7 +36,7 @@ $stmt = $pdo->prepare("
 
 $stmt->execute([
     ':senha' => $senhaHash,
-    ':id' => $_SESSION['usuario_id']
+    ':id' => $usuarioId
 ]);
 
 // Log

@@ -294,7 +294,6 @@
                 `;
 
             }
-            
         }
 
         function removeTopico(btn){

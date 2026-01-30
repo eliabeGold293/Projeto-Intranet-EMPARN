@@ -1,7 +1,9 @@
 <?php
-$email = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
-?>
+session_start();
 
+$_SESSION['usuario_id'];
+
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -175,7 +177,6 @@ $email = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
     </div>
 </div>
 
-
 <!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -197,6 +198,13 @@ $email = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
         if (senha1.value.trim() === "" || senha2.value.trim() === "") {
             msg.style.color = "red";
             msg.textContent = "Preencha todos os campos.";
+            return;
+        }
+
+        if (senha1.value.length < 5) {
+            senha1.classList.add("is-invalid");
+            msg.style.color = "red";
+            msg.textContent = "A senha deve ter pelo menos 5 caracteres.";
             return;
         }
 

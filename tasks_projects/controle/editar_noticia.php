@@ -132,7 +132,7 @@ body { background:#f5f7f9; }
 </div>
 
 <div class="mb-4">
-<label class="form-label">Link externo</label>
+<label class="form-label">Link externo (opcional)</label>
 <input type="text" name="link" class="form-control"
        value="<?= htmlspecialchars($noticia['link']) ?>">
 </div>
