@@ -15,6 +15,10 @@ $arquivo = $url;
 switch($arquivo){
 
     # Rotas de arquivos da pasta public
+    case 'view-projetos':
+        include 'public/view-projetos.php';
+        break;
+
     case 'login':
         include 'public/login.php';
         break;
@@ -53,6 +57,10 @@ switch($arquivo){
         break;
 
     # Rotas de páginas de controle
+    case 'ger-projetos-tarefas':
+        include 'controle/ger-projetos-tarefas.php';
+        break;
+
     case 'editar-topico-documento':
 
         if (!isset($_GET['id'])) {
