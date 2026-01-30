@@ -1,5 +1,5 @@
 <?php
-
+#session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -7,7 +7,6 @@ include_once 'config/config.php';
 //include_once 'apis/auth.php';
 
 $url = $_GET['url'] ?? 'login';
-//var_dump($url);
 
 // criar o caminho da página com o nome que está na primeira posição do array, criado acima e atribuir a extensão .php.
 $arquivo = $url;
@@ -213,7 +212,7 @@ switch($arquivo){
     
     default:
         http_response_code(404);
-        echo 'Página não encontrada';
+        include 'public/404.php';
         break;
 }
 

@@ -190,22 +190,59 @@ body { background:#f5f7f9; }
 </div>
 
 <script>
-const TINYMCE_CONFIG = {
+const TINYMCE_COMMON = {
     license_key: 'gpl',
-    language: 'pt_BR',
-    height: 300,
+    height: 350,
     menubar: true,
-    plugins: 'lists link image table code fullscreen',
-    toolbar: 'undo redo | bold italic | bullist numlist | link image | fullscreen code',
+    language: "pt_BR",
+
+    plugins: "lists link image table code fullscreen media justify lineheight removeformat paste",
+
+    paste_as_text: true,
+
+    toolbar: `
+        undo redo |
+        bold italic underline removeformat |
+        alignleft aligncenter alignright alignjustify |
+        numlist bullist |
+        lineheight |
+        link image media table |
+        fullscreen code
+    `,
+
     branding: false,
-    promotion: false
+    promotion: false,
+
+    skin: "oxide",
+    skin_url: "tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
+
+    content_css: "tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
+
+    removeformat: [
+        {
+            selector: 'b,strong,em,i,u,span,font',
+            remove: 'all'
+        },
+        {
+            selector: '*',
+            attributes: ['style', 'class']
+        }
+    ]
 };
 
+tinymce.init({
+    selector: "textarea#meuEditor",
+    ...TINYMCE_COMMON
+});
+
+// Inicia TinyMCE em todos os textareas com a classe .editor já existentes
 function initTinyMCE() {
-    document.querySelectorAll('textarea.editor').forEach(el => {
-        if (!el.id) el.id = 'mce_' + Math.random().toString(36).substr(2,9);
-        if (!tinymce.get(el.id)) {
-            tinymce.init({ ...TINYMCE_CONFIG, target: el });
+    // Evita inicializar novamente editores já inicializados
+    document.querySelectorAll("textarea.editor").forEach(txt => {
+        if (!tinymce.get(txt.id)) {
+            // se não tiver id, cria um
+            if (!txt.id) txt.id = "mce_" + Math.random().toString(36).slice(2, 9);
+            tinymce.init(Object.assign({}, TINYMCE_COMMON, { target: txt }));
         }
     });
 }
