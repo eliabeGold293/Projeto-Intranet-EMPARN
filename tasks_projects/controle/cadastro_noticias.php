@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +11,7 @@
     <!-- TinyMCE -->
     <script src="tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
-
-
+    
     <style>
         body {
             background-color: #f4f6f8;

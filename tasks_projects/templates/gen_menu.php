@@ -58,11 +58,6 @@ $pagina = basename($_SERVER['PHP_SELF']);
         font-weight: 500;
     }
 
-    .bi {
-        font-size: 1.2rem;
-        margin-right: 8px;
-        color: #0d6efd; /* azul bootstrap */
-    }
 </style>
 
 <aside class="sidebar">
