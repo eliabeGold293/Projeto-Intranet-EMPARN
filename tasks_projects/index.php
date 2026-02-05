@@ -15,6 +15,10 @@ $arquivo = $url;
 switch($arquivo){
 
     # Rotas de arquivos da pasta public
+    case 'teste':
+        include 'public/tests/teste.php';
+        break;
+
     case 'view-projetos':
         include 'public/view-projetos.php';
         break;
@@ -57,6 +61,7 @@ switch($arquivo){
         break;
 
     # Rotas de páginas de controle
+
     case 'ger-projetos-tarefas':
         include 'controle/ger-projetos-tarefas.php';
         break;
@@ -123,6 +128,14 @@ switch($arquivo){
         break;
 
     # Rotas de apis
+
+    case 'editar-projeto':
+        include 'apis/editar_projeto.php';
+        break;
+
+    case 'criar-projeto':
+        include 'apis/adicionar_projeto.php';
+        break;
 
     case 'auth':
         include 'apis/auth.php';
