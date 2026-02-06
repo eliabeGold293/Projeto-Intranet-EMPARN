@@ -15,238 +15,343 @@ $stmt = $pdo->query("
 ");
 
 $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
 
+$stmtUsuario = $pdo->query("
+    SELECT
+        id,
+        nome,
+        classe_id,
+        area_id
+    FROM usuario
+    ORDER BY nome
+");
+
+$usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Bootstrap -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<title>Gerenciamento de Projetos e Tarefas</title>
+    <title>Gerenciamento de Projetos e Tarefas</title>
 
-<style>
-    body, html {
-        margin: 0;
-        height: 100%;
-    }
+    <style>
+        body, html {
+            margin: 0;
+            height: 100%;
+        }
 
-    .pai{
-        display: flex;
-    }
+        .pai{
+            display: flex;
+        }
 
-    /* HEADER / FERRAMENTAS */
-    .ferramentas{
-        display: flex;
-        align-items: center;
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
-        width: 100%;
-        min-height: 80px;
-        flex-shrink: 0;
-    }
+        /* HEADER / FERRAMENTAS */
+        .ferramentas{
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            width: 100%;
+            min-height: 80px;
+            flex-shrink: 0;
+        }
 
-    .opcoes{
-        display: flex;
-        gap: 15px;
-        margin: 20px;
-    }
+        .opcoes{
+            display: flex;
+            gap: 15px;
+            margin: 20px;
+        }
 
-    /* SIDEBAR */
-    .sidebar {
-        width: 250px;
-        height: 100%;
-        background: #1e1e2f;
-        color: #fff;
-        padding: 20px;
-        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-        font-family: 'Segoe UI', Arial, sans-serif;
-        overflow-y: auto;
-    }
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            height: 100%;
+            background: #1e1e2f;
+            color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow-y: auto;
+        }
 
-    .sidebar h2 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 1.4rem;
-        color: #f8f9fa;
-    }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            color: #f8f9fa;
+        }
 
-    .sidebar .menu {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+        .sidebar .menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-    .sidebar .menu-section {
-        margin: 15px 0 5px;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        color: #20c997;
-        font-weight: bold;
-    }
+        .sidebar .menu-section {
+            margin: 15px 0 5px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #20c997;
+            font-weight: bold;
+        }
 
-    .sidebar .menu li a {
-        display: block;
-        padding: 10px 15px;
-        margin: 5px 0;
-        color: #adb5bd;
-        text-decoration: none;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
+        .sidebar .menu li a {
+            display: block;
+            padding: 10px 15px;
+            margin: 5px 0;
+            color: #adb5bd;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
 
-    .sidebar .menu li a:hover,
-    .sidebar .menu li a.active {
-        background: #2e2e4d;
-        color: #fff;
-        font-weight: 500;
-    }
+        .sidebar .menu li a:hover,
+        .sidebar .menu li a.active {
+            background: #2e2e4d;
+            color: #fff;
+            font-weight: 500;
+        }
 
-    /* CONTEÚDO */
-    .ferramentas-conteudos{
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        height: 100%;
-    }
+        /* CONTEÚDO */
+        .ferramentas-conteudos{
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            height: 100%;
+        }
 
-    .conteudo{
-        display: flex;
-        width: 100%;
-        background-color: #eef2f7;
-        padding: 20px;
-        gap: 20px;
-    }
+        .conteudo{
+            display: flex;
+            width: 100%;
+            background-color: #eef2f7;
+            padding: 20px;
+            gap: 20px;
+        }
 
-    .projetos,
-    .tarefas{
-        width: 80%;
-    }
+        .projetos,
+        .tarefas{
+            width: 80%;
+        }
 
-    #form-box {
-        position: fixed;
-        z-index: 9999;
+        #form-box {
+            position: fixed;
+            z-index: 9999;
 
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
 
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    }
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
 
-    .form-box {
-        max-width: 520px;
-        margin: 60px auto;
-        background: #ffffff;
-        border-radius: 14px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        padding: 28px;
-        position: relative;
-    }
+        .form-box {
+            max-width: 520px;
+            margin: 60px auto;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            padding: 28px;
+            position: relative;
+        }
 
-    .form-close {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        border: none;
-        background: transparent;
-        font-size: 20px;
-        color: #6c757d;
-        cursor: pointer;
-        transition: 0.2s;
-    }
+        .form-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-    .form-close:hover {
-        color: #dc3545;
-        transform: scale(1.1);
-    }
+        .form-close:hover {
+            color: #dc3545;
+            transform: scale(1.1);
+        }
 
-    .form-title {
-        font-weight: 600;
-        font-size: 18px;
-        margin-bottom: 20px;
-        color: #343a40;
-    }
+        .form-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #343a40;
+        }
 
-    .form-label {
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 6px;
-        color: #495057;
-    }
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #495057;
+        }
 
-    .form-control {
-        border-radius: 8px;
-        padding: 10px 12px;
-        font-size: 14px;
-        border: 1px solid #dee2e6;
-        transition: 0.2s;
-    }
+        .form-control {
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+            transition: 0.2s;
+        }
 
-    .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.25);
-    }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.25);
+        }
 
-    .datas {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
+        .datas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
 
-    .form-group {
-        margin-bottom: 16px;
-    }
+        .form-group {
+            margin-bottom: 16px;
+        }
 
-    .btn-projeto {
-        width: 100%;
-        margin-top: 10px;
-        padding: 12px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 15px;
-        background: #0d6efd;
-        border: none;
-        color: #fff;
-        transition: 0.2s;
-    }
+        .btn-projeto {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            background: #0d6efd;
+            border: none;
+            color: #fff;
+            transition: 0.2s;
+        }
 
-    .btn-projeto:hover {
-        background: #0b5ed7;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 12px rgba(13,110,253,0.25);
-    }
-    .menu-acoes{
-        position:absolute;
-        background:white;
-        border:1px solid #ddd;
-        border-radius:6px;
-        box-shadow:0 6px 12px rgba(0,0,0,.15);
-        padding:6px 0;
-        z-index:9999;
-    }
+        .btn-projeto:hover {
+            background: #0b5ed7;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(13,110,253,0.25);
+        }
+        .menu-acoes{
+            position:absolute;
+            background:white;
+            border:1px solid #ddd;
+            border-radius:6px;
+            box-shadow:0 6px 12px rgba(0,0,0,.15);
+            padding:6px 0;
+            z-index:9999;
+        }
 
-    .menu-acoes button{
-        display:block;
-        width:100%;
-        padding:8px 14px;
-        border:none;
-        background:none;
-        text-align:left;
-    }
+        .menu-acoes button{
+            display:block;
+            width:100%;
+            padding:8px 14px;
+            border:none;
+            background:none;
+            text-align:left;
+        }
 
-    .menu-acoes button:hover{
-        background:#f1f1f1;
-    }
+        .menu-acoes button:hover{
+            background:#f1f1f1;
+        }
 
-</style>
+        /* FUNDO ESCURO */
+        .overlay-usuarios {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(2px);
+            z-index: 9998;
+        }
+
+        /* CAIXA PRINCIPAL */
+        .modal-usuarios {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 900px;
+            max-width: 95%;
+            height: 520px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: system-ui;
+        }
+
+        /* CABEÇALHO */
+        .modal-header {
+            padding: 14px 18px;
+            background: #1e1e2f;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* CORPO */
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+        }
+
+        /* COLUNAS */
+        .coluna {
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .coluna h6 {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* BUSCA */
+        .busca-usuario {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        /* TABELAS */
+        .modal-usuarios table {
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .modal-usuarios th {
+            background: #f1f3f5;
+        }
+
+        .modal-usuarios td, th {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* BOTÕES */
+        .btn-add-user {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .nome-projeto {
+            color: green;
+            margin-left: 4px;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -381,6 +486,19 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     title="Editar status">
                                     <i class="bi bi-pencil"></i>
                                 </button>
+                            <?php else:?>
+                                <span class="valor"
+                                    data-id="<?= $p['id'] ?>"
+                                    data-campo="status"
+                                    style="color: <?= $p['status']=='Concluído'?'green':'red' ?>">
+                                    <?= htmlspecialchars($p['status']) ?>
+                                </span>
+                                <button
+                                    class="btn btn-sm btn-outline-primary ms-1"
+                                    onclick="editarCampo(<?= $p['id'] ?>, 'status')"
+                                    title="Editar status">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
                             <?php endif?>
                         </td>
 
@@ -412,8 +530,7 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td>
                             <button
                                 class="btn btn-sm btn-secondary"
-                                onclick="abrirMenu(event, <?= $p['id'] ?>)"
-                                title="Opções">
+                                onclick="abrirMenu(event, <?= $p['id'] ?>, '<?= htmlspecialchars($p['titulo'], ENT_QUOTES) ?>')">
                                 <i class="bi bi-gear"></i>
                             </button>
                         </td>
@@ -423,7 +540,6 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             </tbody>
             
-
             </table>
 
         </div>
@@ -435,6 +551,125 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
+
+    async function carregarUsuarios(projetoId){
+
+        const r = await fetch(`usuarios-projeto?id=${projetoId}`);
+        const dados = await r.json();
+
+        const lista = document.getElementById("listaUsuarios");
+        const projeto = document.getElementById("usuariosProjeto");
+
+        lista.innerHTML = "";
+        projeto.innerHTML = "";
+
+        dados.usuariosSistema.forEach(u => {
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${u.nome}</td>
+                <td>${u.classe ?? "-"}</td>
+                <td>${u.area ?? "-"}</td>
+                <td>
+                    <button class="btn btn-sm btn-success">Adicionar</button>
+                </td>
+            `;
+
+            tr.querySelector("button").onclick = () =>
+                addUsuarioProjeto(projetoId, u.id, u.nome);
+
+            lista.appendChild(tr);
+        });
+
+        dados.usuariosProjeto.forEach(u => {
+
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+            li.innerHTML = `
+                <span>${u.nome}</span>
+                <button class="btn btn-sm btn-danger">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+
+            li.querySelector("button").onclick = () =>
+                removerUsuarioProjeto(projetoId, u.id, u.nome);
+
+            projeto.appendChild(li);
+        });
+
+    }
+
+    async function addUsuarioProjeto(projetoId, usuarioId, nome){
+
+        const r = await fetch("add-usuario-projeto", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({
+                projeto_id: projetoId,
+                usuario_id: usuarioId,
+                papel_id: 1
+            })
+        });
+
+        const resp = await r.json();
+
+        if(resp.status !== "success"){
+            alert(resp.message);
+            return;
+        }
+
+        // evita duplicar se já existir
+        if(document.querySelector(`#usuariosProjeto tr[data-id="${usuarioId}"]`)){
+            return;
+        }
+
+        const lista = document.getElementById("usuariosProjeto");
+
+        const tr = document.createElement("tr");
+        tr.dataset.id = usuarioId; // <- chave importante
+
+        tr.innerHTML = `
+            <td>${nome}</td>
+            <td>
+                <button class="btn btn-sm btn-danger">
+                    <i class="bi bi-x"></i>
+                </button>
+            </td>
+        `;
+
+        tr.querySelector("button").onclick = () =>
+            removerUsuarioProjeto(projetoId, usuarioId, nome);
+
+        lista.appendChild(tr);
+
+        // sincroniza com o banco depois
+        setTimeout(() => carregarUsuarios(projetoId), 150);
+    }
+
+
+    async function removerUsuarioProjeto(projetoId, usuarioId, nome){
+
+        if (!confirm(`Remover ${nome} do projeto?`)) return;
+
+        const r = await fetch("remover-usuario-projeto", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                projeto_id: projetoId,
+                usuario_id: usuarioId
+            })
+        });
+
+        const resp = await r.json();
+
+        if (resp.status === "success") {
+            carregarUsuarios(projetoId); // recarrega lista
+        } else {
+            alert(resp.message);
+        }
+    }
 
     function AddProjeto(){
 
@@ -559,7 +794,7 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     }
 
-    function abrirMenu(event, id){
+    function abrirMenu(event, id, titulo){
 
         document.querySelectorAll(".menu-acoes").forEach(m => m.remove());
 
@@ -573,7 +808,7 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <button onclick="viewPanTarefa(${id})">
                 <i class="bi bi-list-check"></i> Gerenciar Tarefas
             </button>
-            <button onclick="viewPanUs(${id})">
+            <button onclick="viewPanUs(${id}, '${titulo}')">
                 <i class="bi bi-people"></i> Administrar Usuários
             </button>
         `;
@@ -603,11 +838,15 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (!span) return;
 
-        const valorAtual = span.innerText.trim();
+        const td = span.parentElement;
+        const botao = td.querySelector("button"); // botão lápis
 
+        if (botao) botao.style.display = "none";
+
+        const valorAtual = span.innerText.trim();
         let input;
 
-        // STATUS = SELECT
+        // STATUS
         if (campo === "status") {
 
             input = document.createElement("select");
@@ -623,23 +862,21 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             setTimeout(() => {
                 input.focus();
-                input.click();  
+                input.click();
             }, 50);
         }
 
-        // DATAS = DATE
+        // DATAS
         else if (campo === "data_inicio" || campo === "data_fim") {
 
             input = document.createElement("input");
             input.type = "date";
             input.className = "form-control form-control-sm";
 
-            // converte dd/mm/yyyy -> yyyy-mm-dd
             const partes = valorAtual.split("/");
             if (partes.length === 3) {
                 input.value = `${partes[2]}-${partes[1]}-${partes[0]}`;
             }
-
         }
 
         // TEXTO
@@ -684,15 +921,16 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         novoValor === "Concluído" ? "green" : "red";
                 }
 
-                // converte data de volta
                 if (campo.includes("data")) {
-                    const d = new Date(novoValor);
-                    novoValor =
-                        d.toLocaleDateString("pt-BR");
+                    const partes = novoValor.split("-");
+                    novoValor = `${partes[2]}/${partes[1]}/${partes[0]}`;
                 }
 
                 novoSpan.textContent = novoValor;
+
                 input.replaceWith(novoSpan);
+
+                if (botao) botao.style.display = "inline-block";
             });
         }
 
@@ -705,6 +943,82 @@ $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         });
     }
 
+    function viewPanUs(projetoId, projetoNome){
+
+        // remove se já existir
+        document.querySelector(".overlay-usuarios")?.remove();
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay-usuarios";
+
+        const modal = document.createElement("div");
+        modal.className = "modal-usuarios";
+
+        modal.innerHTML = `
+            <div class="modal-header">
+                Administrar usuários do projeto: ${projetoNome}
+                <button class="btn btn-sm btn-light" onclick="this.closest('.overlay-usuarios').remove()">✕</button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- COLUNA ESQUERDA -->
+                <div class="coluna">
+                    <h6>Usuários do sistema</h6>
+
+                    <input class="busca-usuario" placeholder="Buscar usuário..." oninput="filtrarUsuarios(this)">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Classe</th>
+                                <th>Area</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaUsuarios">
+                            <!-- usuários carregados via PHP -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- COLUNA DIREITA -->
+                <div class="coluna">
+                    <h6>Usuários no Projeto</h6>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuariosProjeto">
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener("click", e=>{
+            if(e.target === overlay) overlay.remove();
+        });
+
+        carregarUsuarios(projetoId);
+    }
+
+    function filtrarUsuarios(input){
+        const termo = input.value.toLowerCase();
+
+        document.querySelectorAll("#listaUsuarios tr").forEach(tr=>{
+            tr.style.display = tr.innerText.toLowerCase().includes(termo)
+                ? ""
+                : "none";
+        });
+    }
 </script>
 
 </body>

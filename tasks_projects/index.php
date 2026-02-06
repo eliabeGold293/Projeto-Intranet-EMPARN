@@ -129,6 +129,18 @@ switch($arquivo){
 
     # Rotas de apis
 
+    case 'remover-usuario-projeto':
+        include 'apis/remover-usuario-projeto.php';
+        break;
+
+    case 'usuarios-projeto':
+        include 'apis/listar-usuarios.php';
+        break;
+
+    case 'add-usuario-projeto':
+        include 'apis/add-usuario-projeto.php';
+        break;
+
     case 'editar-projeto':
         include 'apis/editar_projeto.php';
         break;
