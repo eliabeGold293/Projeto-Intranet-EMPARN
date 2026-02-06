@@ -806,10 +806,10 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                 <span style="color: red;"><i class="bi bi-trash"></i> Excluir Projeto</span>
             </button>
             <button onclick="viewPanTarefa(${id})">
-                <i class="bi bi-list-check"></i> Gerenciar Tarefas
+                <i class="bi bi-list-check"></i> Adicionar Tarefas ao Projeto
             </button>
             <button onclick="viewPanUs(${id}, '${titulo}')">
-                <i class="bi bi-people"></i> Administrar Usuários
+                <i class="bi bi-people"></i> Adicionar Usuários ao Projeto
             </button>
         `;
 
@@ -956,7 +956,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
 
         modal.innerHTML = `
             <div class="modal-header">
-                Administrar usuários do projeto: ${projetoNome}
+                Adicionar usuários do projeto: ${projetoNome}
                 <button class="btn btn-sm btn-light" onclick="this.closest('.overlay-usuarios').remove()">✕</button>
             </div>
 
