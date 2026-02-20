@@ -92,6 +92,9 @@ $pagina = basename($_SERVER['PHP_SELF']);
             <li class="menu-section">Projetos & Tarefas</li>
             <li><a href="ger-projetos-tarefas"><i class="bi bi-kanban-fill service-icon"></i>
             Gerenciar Projetos & Tarefas</a></li>
+
+            <li class="menu-section">Testes</li>
+            <li><a href="teste"><i class="bi bi-arrow-left-circle"></i> Testes</a></li>
             
             <li class="menu-section">Site Público</li>
             <li><a href="home"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>

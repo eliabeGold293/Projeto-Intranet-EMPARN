@@ -129,6 +129,22 @@ switch($arquivo){
 
     # Rotas de apis
 
+    case 'listar-tarefas':
+        include 'apis/listar-tarefas.php';
+        break;
+
+    case 'salvar-tarefa':
+        include 'apis/salvar-tarefa.php';
+        break;
+
+    case 'alterar-papel-usuario':
+        include 'apis/alter-papel-us.php';
+        break;
+
+    case 'deletar-projeto':
+        include 'apis/deletar-projeto.php';
+        break;
+
     case 'remover-usuario-projeto':
         include 'apis/remover-usuario-projeto.php';
         break;

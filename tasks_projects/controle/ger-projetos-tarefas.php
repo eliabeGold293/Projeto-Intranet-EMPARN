@@ -351,6 +351,95 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             margin-left: 4px;
         }
 
+        .overlay-tarefas{
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-tarefas{
+            background: #fff;
+            width: 1000px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .modal-header{
+            display:flex;
+            justify-content: space-between;
+            align-items:center;
+            font-weight:bold;
+            font-size:18px;
+            margin-bottom:15px;
+        }
+
+        .container-tarefas{
+            display: flex;
+            gap: 30px;
+        }
+
+        .col-form{
+            width: 40%;
+            border-right: 1px solid #eee;
+            padding-right: 20px;
+        }
+
+        .col-lista{
+            width: 60%;
+        }
+
+        .campo{
+            margin-bottom: 15px;
+        }
+
+        .linha-dupla{
+            display: flex;
+            gap: 15px;
+        }
+
+        .linha-dupla .campo{
+            flex: 1;
+        }
+
+        .invalido{
+            border: 1px solid red !important;
+        }
+
+        .btn-opcoes{
+            background:none;
+            border:none;
+            font-size:18px;
+            cursor:pointer;
+        }
+
+        .menu-opcoes{
+            display:none;
+            position:absolute;
+            right:0;
+            background:#fff;
+            border:1px solid #ddd;
+            border-radius:6px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+            z-index:10;
+            min-width:120px;
+        }
+
+        .menu-opcoes div{
+            padding:8px 12px;
+            cursor:pointer;
+        }
+
+        .menu-opcoes div:hover{
+            background:#f2f2f2;
+        }
+
     </style>
 </head>
 
@@ -583,22 +672,62 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
 
         dados.usuariosProjeto.forEach(u => {
 
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
+            const tr = document.createElement("tr");
 
-            li.innerHTML = `
-                <span>${u.nome}</span>
-                <button class="btn btn-sm btn-danger">
-                    <i class="bi bi-x"></i>
-                </button>
+            // monta select de papeis
+            let selectHTML = `<select class="form-select form-select-sm">`;
+
+            dados.papeis.forEach(p => {
+                selectHTML += `
+                    <option value="${p.id}" ${p.id == u.papel_id ? "selected" : ""}>
+                        ${p.nome}
+                    </option>
+                `;
+            });
+
+            selectHTML += `</select>`;
+
+            tr.innerHTML = `
+                <td>${u.nome}</td>
+                <td>${selectHTML}</td>
+                <td>
+                    <button class="btn btn-sm btn-danger">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </td>
             `;
 
-            li.querySelector("button").onclick = () =>
+            // mudança de papel
+            tr.querySelector("select").onchange = function() {
+                alterarPapelUsuario(projetoId, u.id, this.value);
+            };
+
+            // remover usuário
+            tr.querySelector("button").onclick = () =>
                 removerUsuarioProjeto(projetoId, u.id, u.nome);
 
-            projeto.appendChild(li);
+            projeto.appendChild(tr);
         });
 
+    }
+
+    async function alterarPapelUsuario(projetoId, usuarioId, papelId){
+
+        const r = await fetch("alterar-papel-usuario", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                projeto_id: projetoId,
+                usuario_id: usuarioId,
+                papel_id: papelId
+            })
+        });
+
+        const resp = await r.json();
+
+        if(resp.status !== "success"){
+            alert(resp.message);
+        }
     }
 
     async function addUsuarioProjeto(projetoId, usuarioId, nome){
@@ -648,6 +777,36 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         setTimeout(() => carregarUsuarios(projetoId), 150);
     }
 
+    async function dellProjeto(projetoId) {
+
+        if(!confirm("tem certeza que deseja deletar este projeto?")){
+            return;
+        }
+
+        try {
+
+            const response = await fetch('deletar-projeto', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                projeto_id: projetoId
+            })
+            });
+
+            const resp = await response.json();
+
+            if (resp.status === "success") {
+                alert("Projeto deletado com sucesso!");
+                location.reload();
+            } else if (resp.status === "error") {
+                alert("Não foi possível deletar o projeto");
+            }
+
+        } catch (erro) {
+            console.error(erro);
+            alert("Erro ao conectar com a API");
+        }
+    }
 
     async function removerUsuarioProjeto(projetoId, usuarioId, nome){
 
@@ -802,14 +961,14 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         menu.className = "menu-acoes";
 
         menu.innerHTML = `
-            <button onclick="excluirProjeto(${id})">
+            <button onclick="dellProjeto(${id})">
                 <span style="color: red;"><i class="bi bi-trash"></i> Excluir Projeto</span>
             </button>
-            <button onclick="viewPanTarefa(${id})">
-                <i class="bi bi-list-check"></i> Adicionar Tarefas ao Projeto
+            <button onclick="viewPanTarefas(${id})">
+                <i class="bi bi-list-check"></i> Administrar as Tarefas do Projeto
             </button>
             <button onclick="viewPanUs(${id}, '${titulo}')">
-                <i class="bi bi-people"></i> Adicionar Usuários ao Projeto
+                <i class="bi bi-people"></i> Administrar Usuários do Projeto
             </button>
         `;
 
@@ -822,6 +981,261 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         document.addEventListener("click", () => menu.remove(), { once: true });
 
         event.stopPropagation();
+    }
+
+    function viewPanTarefas(projetoId){
+
+        document.querySelector(".overlay-tarefas")?.remove();
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay-tarefas";
+
+        const modal = document.createElement("div");
+        modal.className = "modal-tarefas";
+
+        modal.innerHTML = `
+            <div class="modal-header">
+                <span>Administrar Tarefas do Projeto</span>
+                <button class="btn btn-sm btn-light"
+                    onclick="this.closest('.overlay-tarefas').remove()">✕</button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="container-tarefas">
+
+                    <!-- FORM -->
+                    <div class="col-form">
+
+                        <h6>Nova Tarefa</h6>
+
+                        <div class="campo">
+                            <label>Título *</label>
+                            <input type="text" id="tituloTarefa" 
+                                class="form-control obrigatorio">
+                        </div>
+
+                        <div class="campo">
+                            <label>Descrição *</label>
+                            <textarea id="descricaoTarefa" 
+                                class="form-control obrigatorio"></textarea>
+                        </div>
+
+                        <div class="linha-dupla">
+                            <div class="campo">
+                                <label>Status *</label>
+                                <select id="statusTarefa" 
+                                    class="form-control obrigatorio">
+                                    <option value="">Selecione</option>
+                                    <option value="Em andamento">Em andamento</option>
+                                    <option value="Concluído">Concluído</option>
+                                </select>
+                            </div>
+
+                            <div class="campo">
+                                <label>Prazo *</label>
+                                <input type="date" id="prazoTarefa" 
+                                    class="form-control obrigatorio">
+                            </div>
+                        </div>
+
+                        <div class="campo">
+                            <label>Arquivo (opcional)</label>
+                            <input type="file" id="arquivoTarefa" 
+                                class="form-control">
+                        </div>
+
+                        <button id="btnSalvarTarefa"
+                            class="btn btn-primary"
+                            disabled
+                            onclick="salvarTarefa(${projetoId})">
+                            Salvar Tarefa
+                        </button>
+
+                    </div>
+
+                    <!-- LISTA -->
+                    <div class="col-lista">
+
+                        <h6>Lista de Tarefas</h6>
+
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Status</th>
+                                    <th>Prazo</th>
+                                    <th>Arquivo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaTarefas"></tbody>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener("click", e=>{
+            if(e.target === overlay) overlay.remove();
+        });
+
+        ativarValidacaoFormulario();
+        carregarTarefas(projetoId);
+    }
+
+    function ativarValidacaoFormulario(){
+
+        const campos = document.querySelectorAll(".obrigatorio");
+        const botao = document.getElementById("btnSalvarTarefa");
+
+        function validar(){
+
+            let valido = true;
+
+            campos.forEach(campo => {
+
+                if(!campo.value.trim()){
+                    campo.classList.add("invalido");
+                    valido = false;
+                }else{
+                    campo.classList.remove("invalido");
+                }
+
+            });
+
+            botao.disabled = !valido;
+        }
+
+        campos.forEach(campo=>{
+            campo.addEventListener("input", validar);
+            campo.addEventListener("change", validar);
+        });
+    }
+
+    function salvarTarefa(projetoId){
+
+        const titulo = document.getElementById("tituloTarefa").value.trim();
+        const descricao = document.getElementById("descricaoTarefa").value.trim();
+        const status = document.getElementById("statusTarefa").value;
+        const prazo = document.getElementById("prazoTarefa").value;
+        const arquivoInput = document.getElementById("arquivoTarefa");
+
+        if(!titulo){
+            alert("O título é obrigatório.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("projeto_id", projetoId);
+        formData.append("titulo", titulo);
+        formData.append("descricao", descricao);
+        formData.append("status", status);
+        formData.append("prazo", prazo);
+
+        if(arquivoInput.files.length > 0){
+            formData.append("arquivo", arquivoInput.files[0]);
+        }
+
+        fetch("salvar-tarefa", {
+            method: "POST",
+            body: formData
+        })
+        .then(r => r.json())
+        .then(resp => {
+            if(resp.status === "success"){
+                carregarTarefas(projetoId);
+                limparFormularioTarefa();
+                alert("Tarefa salva com sucesso!");
+            }else{
+                alert(resp.message);
+            }
+        });
+    }
+
+    function formatarData(data){
+
+        if(!data) return "-";
+
+        const partes = data.split("-");
+
+        if(partes.length !== 3) return data;
+
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    function carregarTarefas(projetoId){
+
+        fetch(`listar-tarefas?projeto_id=${projetoId}`)
+        .then(r => r.json())
+        .then(lista => {
+
+            const tbody = document.getElementById("listaTarefas");
+            tbody.innerHTML = "";
+
+            lista.forEach(tarefa => {
+
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${tarefa.titulo}</td>
+
+                    <td style="color:${tarefa.status === 'Concluído' ? 'green' : 'red'}">
+                        ${tarefa.status}
+                    </td>
+
+                    <td>${formatarData(tarefa.prazo)}</td>
+
+                    <td>
+                        ${tarefa.arquivo 
+                            ? `<a href="${tarefa.arquivo}" target="_blank">Ver</a>` 
+                            : "-"}
+                    </td>
+
+                    <td style="position:relative;">
+                        <button class="btn-opcoes" 
+                            onclick="toggleMenuTarefa(${tarefa.id})">
+                            ⋮
+                        </button>
+
+                        <div class="menu-opcoes" id="menu-${tarefa.id}">
+                            <div onclick="editarTarefa(${tarefa.id}, ${projetoId})">
+                                ✏ Editar
+                            </div>
+                            <div onclick="excluirTarefa(${tarefa.id}, ${projetoId})">
+                                🗑 Excluir
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        });
+    }
+
+    function limparFormularioTarefa(){
+        document.getElementById("tituloTarefa").value = "";
+        document.getElementById("descricaoTarefa").value = "";
+        document.getElementById("prazoTarefa").value = "";
+        document.getElementById("arquivoTarefa").value = "";
+    }
+
+    function toggleMenuTarefa(id){
+
+        document.querySelectorAll(".menu-opcoes")
+            .forEach(menu => menu.style.display = "none");
+
+        const menu = document.getElementById(`menu-${id}`);
+
+        if(menu){
+            menu.style.display = "block";
+        }
     }
 
     function excluirProjeto(id){

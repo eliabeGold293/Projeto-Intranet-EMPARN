@@ -1,151 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<title>Painel Flutuante</title>
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  margin: 0;
+  height: 200vh; /* só pra simular página grande */
+}
 
-    <title>Ala de Testes</title>
+/* Painel flutuante */
+.painel {
+  position: fixed;
+  top: 40px;
+  right: 40px;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-    <style>
-        body {
-            background: #f4f6f9;
-            font-family: "Segoe UI", Tahoma, sans-serif;
-        }
+/* Caixa interna */
+.box {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+}
 
-        .form-box {
-            max-width: 520px;
-            margin: 60px auto;
-            background: #ffffff;
-            border-radius: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            padding: 28px;
-            position: relative;
-        }
+.box h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #374151;
+}
 
-        .form-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            border: none;
-            background: transparent;
-            font-size: 20px;
-            color: #6c757d;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+/* Lista de usuários */
+.usuario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 6px;
+}
 
-        .form-close:hover {
-            color: #dc3545;
-            transform: scale(1.1);
-        }
+.usuario span {
+  font-size: 13px;
+  color: #111827;
+}
 
-        .form-title {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #343a40;
-        }
+select {
+  font-size: 12px;
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+}
 
-        .form-label {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: #495057;
-        }
+/* Botão */
+.botao {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-        .form-control {
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 14px;
-            border: 1px solid #dee2e6;
-            transition: 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.25);
-        }
-
-        .datas {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .btn-projeto {
-            width: 100%;
-            margin-top: 10px;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-            background: #0d6efd;
-            border: none;
-            color: #fff;
-            transition: 0.2s;
-        }
-
-        .btn-projeto:hover {
-            background: #0b5ed7;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 12px rgba(13,110,253,0.25);
-        }
-    </style>
-
+.botao:hover {
+  background: #1e40af;
+}
+</style>
 </head>
 
 <body>
 
-    <div class="form-box">
+<div class="painel">
 
-        <button class="form-close">
-            <i class="bi bi-x-lg"></i>
-        </button>
+  <div class="box">
+    <h3>Usuários no projeto</h3>
 
-        <form action="">
-
-            <div class="form-title">
-                Cadastro de Projeto
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="titulo">Título do Projeto</label>
-                <input type="text" id="titulo" class="form-control">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="descricao">Descrição do Projeto</label>
-                <input type="text" id="descricao" class="form-control">
-            </div>
-
-            <div class="datas">
-                <div class="form-group">
-                    <label class="form-label" for="data_inicio">Data de Início</label>
-                    <input type="date" id="data_inicio" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="data_fim">Data Final</label>
-                    <input type="date" id="data_fim" class="form-control">
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-projeto">
-                <i class="bi bi-plus-circle me-2"></i>
-                Adicionar Projeto
-            </button>
-
-        </form>
+    <div class="usuario">
+      <span>Ana</span>
+      <select>
+        <option>Responsável</option>
+        <option>Revisor</option>
+        <option>Acompanhando</option>
+      </select>
     </div>
+
+    <div class="usuario">
+      <span>Carlos</span>
+      <select>
+        <option>Responsável</option>
+        <option>Revisor</option>
+        <option>Acompanhando</option>
+      </select>
+    </div>
+
+    <div class="usuario">
+      <span>Julia</span>
+      <select>
+        <option>Responsável</option>
+        <option>Revisor</option>
+        <option>Acompanhando</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="box">
+    <button class="botao">+ Adicionar tarefa</button>
+  </div>
+
+</div>
 
 </body>
 </html>

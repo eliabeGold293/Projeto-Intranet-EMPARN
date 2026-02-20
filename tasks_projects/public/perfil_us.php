@@ -37,6 +37,27 @@ if (!$usuario) {
 // Criar iniciais
 $partes = explode(" ", $usuario["nome"]);
 $iniciais = strtoupper($partes[0][0] . ($partes[1][0] ?? ""));
+
+// ----- BUSCAR PROJETOS DO USUÁRIO -----
+
+$sqlProjetos = "
+    SELECT 
+        p.id,
+        p.titulo AS projeto,
+        pp.nome AS papel
+    FROM projeto_usuario pu
+    INNER JOIN projeto p ON p.id = pu.projeto_id
+    INNER JOIN papel_projeto pp ON pp.id = pu.papel_id
+    WHERE pu.usuario_id = :usuario_id
+    ORDER BY p.titulo
+";
+
+$stmtProjetos = $pdo->prepare($sqlProjetos);
+$stmtProjetos->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
+$stmtProjetos->execute();
+
+$projetosUsuario = $stmtProjetos->fetchAll(PDO::FETCH_ASSOC);
+$totalProjetos = count($projetosUsuario);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -161,6 +182,47 @@ $iniciais = strtoupper($partes[0][0] . ($partes[1][0] ?? ""));
                 </div>
             </div>
 
+            <div class="divider"></div>
+
+            <div>
+                <h5 class="mb-3">
+                    Projetos que participa (<?= $totalProjetos ?>)
+                </h5>
+
+                <?php if ($totalProjetos > 0): ?>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Título do Projeto</th>
+                                    <th>Papel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($projetosUsuario as $proj): ?>
+                                    <tr>
+                                        <td>
+                                            <?= htmlspecialchars($proj["projeto"]) ?>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">
+                                                <?= htmlspecialchars($proj["papel"]) ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                <?php else: ?>
+                    <p class="text-muted">
+                        Este usuário ainda não participa de nenhum projeto.
+                    </p>
+                <?php endif; ?>
+            </div>
+
             <!-- Botão de voltar -->
             <div class="text-center btn-back">
                 <a href="home" class="btn btn-primary px-4 py-2 rounded-pill">
@@ -170,6 +232,9 @@ $iniciais = strtoupper($partes[0][0] . ($partes[1][0] ?? ""));
         </div>
 
     </div>
+    <br>
+    <br>
+    <br>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
