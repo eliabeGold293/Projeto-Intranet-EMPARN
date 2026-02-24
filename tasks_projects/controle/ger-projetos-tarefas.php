@@ -386,7 +386,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .col-form{
-            width: 40%;
+            width: 400px;
             border-right: 1px solid #eee;
             padding-right: 20px;
         }
@@ -438,6 +438,110 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
 
         .menu-opcoes div:hover{
             background:#f2f2f2;
+        }
+
+        .btn-opcoes{
+            background:none;
+            border:none;
+            font-size:18px;
+            cursor:pointer;
+        }
+
+        .menu-opcoes{
+            display:none;
+            position:absolute;
+            right:0;
+            background:#fff;
+            border:1px solid #ddd;
+            border-radius:6px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+            z-index:10;
+            min-width:120px;
+        }
+
+        .menu-opcoes div{
+            padding:8px 12px;
+            cursor:pointer;
+        }
+
+        .menu-opcoes div:hover{
+            background:#f2f2f2;
+        }
+
+        /* OVERLAY */
+        .overlay-editar-tarefa{
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000; /* maior que o painel principal */
+        }
+
+        /* MODAL */
+        .modal-editar-tarefa{
+            background: #fff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            animation: aparecerModal 0.2s ease-out;
+        }
+
+        /* Animação suave */
+        @keyframes aparecerModal{
+            from{
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            to{
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .td-acoes {
+            position: relative;
+        }
+
+        .menu-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .menu-btn {
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+        }
+
+        .menu-opcoes {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            min-width: 120px;
+            display: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .menu-opcoes div {
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .menu-opcoes div:hover {
+            background: #f1f1f1;
+        }
+
+        .menu-wrapper:hover .menu-opcoes {
+            display: block;
         }
 
     </style>
@@ -1197,18 +1301,13 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                             : "-"}
                     </td>
 
-                    <td style="position:relative;">
-                        <button class="btn-opcoes" 
-                            onclick="toggleMenuTarefa(${tarefa.id})">
-                            ⋮
-                        </button>
+                    <td class="td-acoes">
+                        <div class="menu-wrapper">
+                            <span class="menu-btn">⋮</span>
 
-                        <div class="menu-opcoes" id="menu-${tarefa.id}">
-                            <div onclick="editarTarefa(${tarefa.id}, ${projetoId})">
-                                ✏ Editar
-                            </div>
-                            <div onclick="excluirTarefa(${tarefa.id}, ${projetoId})">
-                                🗑 Excluir
+                            <div class="menu-opcoes">
+                                <div onclick="editarTarefa(${tarefa.id}, ${projetoId})">Editar</div>
+                                <div onclick="excluirTarefa(${tarefa.id})">Excluir</div>
                             </div>
                         </div>
                     </td>
@@ -1433,6 +1532,158 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                 : "none";
         });
     }
+
+    
+
+    function toggleMenuTarefa(id){
+
+        document.querySelectorAll(".menu-opcoes")
+            .forEach(menu => menu.style.display = "none");
+
+        const menu = document.getElementById(`menu-${id}`);
+
+        if(menu){
+            menu.style.display = "block";
+        }
+    }
+
+    function excluirTarefa(id, projetoId){
+
+        if(!confirm("Deseja realmente excluir esta tarefa?")) return;
+
+        fetch("excluir-tarefa", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id })
+        })
+        .then(r => r.json())
+        .then(resp => {
+
+            if(resp.status === "success"){
+                carregarTarefas(projetoId);
+            }else{
+                alert(resp.message);
+            }
+
+        });
+    }
+
+    function editarTarefa(id, projetoId){
+
+        fetch(`buscar-tarefa?id=${id}`)
+        .then(r => r.json())
+        .then(tarefa => {
+
+            document.querySelector(".overlay-editar-tarefa")?.remove();
+
+            const overlay = document.createElement("div");
+            overlay.className = "overlay-editar-tarefa";
+
+            const modal = document.createElement("div");
+            modal.className = "modal-editar-tarefa";
+
+            modal.innerHTML = `
+                <div class="modal-header">
+                    Editar Tarefa
+                    <button onclick="this.closest('.overlay-editar-tarefa').remove()">✕</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="campo">
+                        <label>Título *</label>
+                        <input type="text" id="editTitulo" 
+                            value="${tarefa.titulo}" class="form-control">
+                    </div>
+
+                    <div class="campo">
+                        <label>Descrição *</label>
+                        <textarea id="editDescricao" 
+                            class="form-control">${tarefa.descricao ?? ''}</textarea>
+                    </div>
+
+                    <div class="linha-dupla">
+
+                        <div class="campo">
+                            <label>Status *</label>
+                            <select id="editStatus" class="form-control">
+                                <option value="Em andamento" 
+                                    ${tarefa.status === 'Em andamento' ? 'selected' : ''}>
+                                    Em andamento
+                                </option>
+                                <option value="Concluído"
+                                    ${tarefa.status === 'Concluído' ? 'selected' : ''}>
+                                    Concluído
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="campo">
+                            <label>Prazo *</label>
+                            <input type="date" id="editPrazo"
+                                value="${tarefa.prazo ?? ''}"
+                                class="form-control">
+                        </div>
+
+                    </div>
+
+                    <div class="campo">
+                        <label>Substituir Arquivo (opcional)</label>
+                        <input type="file" id="editArquivo" 
+                            class="form-control">
+                    </div>
+
+                    <button class="btn btn-primary"
+                        onclick="salvarEdicaoTarefa(${id}, ${projetoId})">
+                        Salvar Alterações
+                    </button>
+
+                </div>
+            `;
+
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener("click", e=>{
+                if(e.target === overlay) overlay.remove();
+            });
+
+        });
+    }
+
+    function salvarEdicaoTarefa(id, projetoId){
+
+        const formData = new FormData();
+
+        formData.append("id", id);
+        formData.append("titulo", document.getElementById("editTitulo").value);
+        formData.append("descricao", document.getElementById("editDescricao").value);
+        formData.append("status", document.getElementById("editStatus").value);
+        formData.append("prazo", document.getElementById("editPrazo").value);
+
+        const arquivoInput = document.getElementById("editArquivo");
+
+        if(arquivoInput.files.length > 0){
+            formData.append("arquivo", arquivoInput.files[0]);
+        }
+
+        fetch("editar-tarefa", {
+            method: "POST",
+            body: formData
+        })
+        .then(r => r.json())
+        .then(resp => {
+
+            if(resp.status === "success"){
+                document.querySelector(".overlay-editar-tarefa").remove();
+                carregarTarefas(projetoId);
+            }else{
+                alert(resp.message);
+            }
+
+        });
+    }
+
 </script>
 
 </body>

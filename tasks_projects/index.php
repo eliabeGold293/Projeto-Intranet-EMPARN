@@ -129,6 +129,18 @@ switch($arquivo){
 
     # Rotas de apis
 
+    case 'buscar-tarefa':
+        include 'apis/buscar-tarefa.php';
+        break;
+
+    case 'editar-tarefa':
+        include 'apis/editar-tarefa.php';
+        break;
+
+    case 'excluir-tarefa':
+        include 'apis/excluir-tarefa.php';
+        break;
+
     case 'listar-tarefas':
         include 'apis/listar-tarefas.php';
         break;
