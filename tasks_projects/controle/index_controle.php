@@ -33,29 +33,11 @@ require_once __DIR__ . '/../config/connection.php';
     <h2><i class="bi bi-grid"></i> Painel de Controle</h2>
 
     <div class="card-box">
-        <h5>Gerenciar Cards do Dashboard</h5>
-        <div class="btn-acoes">
-            <a href="gerenciar_dashboard.php" class="btn btn-primary">Abrir Gerenciador</a>
-            <a href="../apis/salvar_cards.php" class="btn btn-success">API de Criação</a>
-            <a href="../apis/deletar_card.php?id=1" class="btn btn-danger">API de Exclusão (Exemplo)</a>
-        </div>
-    </div>
-
-    <div class="card-box">
-        <h5>Gerenciar Notícias</h5>
-        <div class="btn-acoes">
-            <a href="gerenciar_noticias.php" class="btn btn-primary">Abrir Gerenciador</a>
-            <a href="../apis/salvar_noticia.php" class="btn btn-success">API de Criação</a>
-            <a href="../apis/deletar_noticia.php?id=1" class="btn btn-danger">API de Exclusão (Exemplo)</a>
-        </div>
-    </div>
-
-    <div class="card-box">
         <h5>Estatísticas Rápidas</h5>
         <div class="row text-center g-3">
-            <div class="col-md-3"><div class="stat-card bg-success"><h6>Cards</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM dashboard")->fetchColumn(); ?></p></div></div>
-            <div class="col-md-3"><div class="stat-card bg-primary"><h6>Notícias</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM noticias")->fetchColumn(); ?></p></div></div>
-            <div class="col-md-3"><div class="stat-card bg-warning text-dark"><h6>Usuários</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn(); ?></p></div></div>
+            <div class="col-md-3"><div class="stat-card bg-success"><h6> Nº de Cards</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM dashboard")->fetchColumn(); ?></p></div></div>
+            <div class="col-md-3"><div class="stat-card bg-primary"><h6>Nº de Notícias</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM noticias")->fetchColumn(); ?></p></div></div>
+            <div class="col-md-3"><div class="stat-card bg-warning text-dark"><h6>Nº Usuários</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn(); ?></p></div></div>
             <div class="col-md-3"><div class="stat-card bg-dark"><h6>Acessos Hoje</h6><p>89</p></div></div>
         </div>
     </div>
