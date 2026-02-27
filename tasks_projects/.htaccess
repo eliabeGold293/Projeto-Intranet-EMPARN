@@ -42,8 +42,16 @@ Options -Indexes
     Deny from all
 </FilesMatch>
 
-RewriteRule ^apis/ - [F]
-RewriteRule ^public/ - [F]
+# Bloquear pastas sensíveis
+RewriteRule ^(apis|config|controle|vendor|templates|tinymce_8\.2\.2)(/.*)?$ - [F,L]
+
+# Bloquear listagem de uploads
+Options -Indexes
+
+# Bloquear execução de PHP em uploads
+RewriteRule ^uploads/.*\.php$ - [F,L]
+
+
 
 
 

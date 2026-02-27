@@ -28,5 +28,5 @@
 
 <!-- templates/header.php -->
 <header class="position-relative text-center py-3">
-    <img src="/tasks_projects/public/img/logo-emparn.png" alt="Logo EMPARN" class="mx-auto">
+    <img src="<?= URL ?>public/img/logo-emparn.png" alt="Logo EMPARN" class="mx-auto">
 </header>

@@ -10,8 +10,8 @@ header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
 
 // Se não estiver logado → volta para login
 if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
-    #header("Location: login.php");
-    echo 'Não há usuário logado';
+    header("Location: login.php");
+    # echo 'Não há usuário logado';
     exit;
 }
 

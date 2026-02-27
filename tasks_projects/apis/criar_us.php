@@ -90,11 +90,12 @@ try {
         $mail->setFrom('SEU_EMAIL@gmail.com', 'Sistema');
         $mail->addAddress($email, $nome);
         $mail->isHTML(true);
-        $mail->Subject = 'Acesso ao Sistema';
+        $mail->Subject = 'Acesso ao Sistema Emparn';
         $mail->Body = "
             Olá {$nome},<br><br>
-            Sua conta foi criada.<br><br>
-            <b>Senha:</b> {$senhaTemporaria}
+            <b>Sua conta foi criado no sistema de gerenciamento de tarefas da EMPARN.</b> <br><br>
+            <b>Senha:</b> {$senhaTemporaria}<br>
+            <b>Email:</b> {$email}<br>
         ";
 
         $mail->send();
