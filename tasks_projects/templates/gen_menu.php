@@ -94,7 +94,7 @@ $pagina = basename($_SERVER['PHP_SELF']);
             Gerenciar Projetos & Tarefas</a></li>
             
             <li class="menu-section">Site Público</li>
-            <li><a href="home"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>
+            <li><a href="home"><i class="bi bi-globe"></i> Voltar ao Site</a></li>
             
         </ul>
         <br>

@@ -10,19 +10,10 @@
         max-height: 100px;
     }
 
-    /* Botão de voltar */
-    .btn-voltar {
-        position: absolute;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    @media (max-width: 576px) {
-        .btn-voltar {
-            left: 10px;
-            top: 50%;
-        }
+    header{
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>
 

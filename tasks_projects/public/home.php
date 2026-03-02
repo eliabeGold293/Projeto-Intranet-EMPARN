@@ -258,6 +258,16 @@ require_once __DIR__ . '/../config/connection.php';
                 </a>
             </div>
 
+            <!-- Card fixo 3 -->
+            <div class="col">
+                <a href="uploads-usuarios" class="text-decoration-none">
+                    <div class="service-card" style="background:#d90429;">
+                        <i class="bi bi-upload service-icon"></i>
+                        <div class="service-title">UPLOAD DE ARQUIVOS</div>
+                    </div>
+                </a>
+            </div>
+
             <!-- Cards vindos do banco -->
             <?php
             $sql_cards = "SELECT * FROM dashboard ORDER BY id DESC";

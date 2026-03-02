@@ -21,7 +21,7 @@ try {
 
     $arquivoPath = null;
 
-    // 📎 Upload opcional
+    // Upload opcional
     if (isset($_FILES['arquivo']) && $_FILES['arquivo']['error'] === UPLOAD_ERR_OK) {
 
         $pasta = "uploads/tarefas/";
