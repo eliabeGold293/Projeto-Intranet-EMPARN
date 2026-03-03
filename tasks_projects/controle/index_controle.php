@@ -23,6 +23,23 @@ require_once __DIR__ . '/../config/connection.php';
         .stat-card { padding: 20px; border-radius: 10px; color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; justify-content: center; }
         .stat-card h6 { font-weight: 600; margin-bottom: 5px; }
         .stat-card p { font-size: 2rem; font-weight: bold; margin: 0; }
+
+         .btn-circle-actions {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -30,7 +47,32 @@ require_once __DIR__ . '/../config/connection.php';
 <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
 <main class="main-content">
-    <h2><i class="bi bi-grid"></i> Painel de Controle</h2>
+
+    <div class="dashboard-header mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-grid"></i> Painel de Controle
+        </h2>
+
+        <div class="dropdown">
+            <button class="btn btn-primary btn-circle-actions"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    title="Ações">
+                <i class="bi bi-gear-fill"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+
+                <li>
+                    <a class="dropdown-item" href="relatorio-acesso">
+                        <i class="bi bi-bar-chart-line me-2"></i>
+                        Gerar relatório de acessos
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
 
     <div class="card-box">
         <h5>Estatísticas Rápidas</h5>
@@ -38,7 +80,30 @@ require_once __DIR__ . '/../config/connection.php';
             <div class="col-md-3"><div class="stat-card bg-success"><h6> Nº de Cards</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM dashboard")->fetchColumn(); ?></p></div></div>
             <div class="col-md-3"><div class="stat-card bg-primary"><h6>Nº de Notícias</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM noticias")->fetchColumn(); ?></p></div></div>
             <div class="col-md-3"><div class="stat-card bg-warning text-dark"><h6>Nº Usuários</h6><p><?php echo $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn(); ?></p></div></div>
-            <div class="col-md-3"><div class="stat-card bg-dark"><h6>Acessos Hoje</h6><p>89</p></div></div>
+            <?php
+            $timezone = new DateTimeZone('America/Sao_Paulo');
+            $hoje = (new DateTime('now', $timezone))->format('Y-m-d');
+
+            $stmtAcesso = $pdo->prepare("
+                SELECT SUM(quantidade_login)
+                FROM login_contador
+                WHERE data_login = :data_login
+            ");
+
+            $stmtAcesso->execute([
+                ':data_login' => $hoje
+            ]);
+
+            $acessosHoje = $stmtAcesso->fetchColumn();
+            $acessosHoje = $acessosHoje ?: 0;
+            ?>
+
+            <div class="col-md-3">
+                <div class="stat-card bg-dark">
+                    <h6>Acessos Hoje</h6>
+                    <p><?= htmlspecialchars($acessosHoje) ?></p>
+                </div>
+            </div>
         </div>
     </div>
 

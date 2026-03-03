@@ -66,6 +66,10 @@ switch($arquivo){
 
     # Rotas de páginas de controle
 
+    case 'relatorio-acesso':
+        include 'controle/relatorio-acesso.php';
+        break;
+
     case 'ger-projetos-tarefas':
         include 'controle/ger-projetos-tarefas.php';
         break;

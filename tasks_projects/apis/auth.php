@@ -27,12 +27,35 @@ if ($usuario && password_verify($senha, $usuario['senha'])) {
     $_SESSION['grau_acesso'] = $usuario['grau_acesso'] ?? null;
     $_SESSION['usuario_nome'] = $usuario['nome'] ?? null;
 
-    // Primeiro acesso?
+    // ======= CONTABILIZAR LOGIN DIÁRIO (UPSERT - PRO SOLUTION) =======
+
+    $timezone = new DateTimeZone('America/Sao_Paulo');
+    $dataAtual = new DateTime('now', $timezone);
+    $hoje = $dataAtual->format('Y-m-d');
+
+    $usuarioId = $usuario['id'];
+
+    $sqlLog = "
+    INSERT INTO login_contador (usuario_id, data_login, quantidade_login)
+    VALUES (:usuario_id, :data_login, 1)
+
+    ON CONFLICT (usuario_id, data_login)
+    DO UPDATE SET
+        quantidade_login = login_contador.quantidade_login + 1
+    ";
+
+    $stmtLog = $pdo->prepare($sqlLog);
+
+    $stmtLog->execute([
+        ':usuario_id' => $usuarioId,
+        ':data_login' => $hoje
+    ]);
+
+    // ======= Primeiro acesso? =======
     if ((int)$usuario['primeiro_acesso'] === 1) {
         $_SESSION['primeiro_acesso'] = true;
         header('Location: primeiro-acesso');
     } else {
-        // Limpar flag de primeiro acesso se existir
         unset($_SESSION['primeiro_acesso']);
         header('Location: home');
     }
