@@ -4,6 +4,21 @@ require_once __DIR__ . '/../config/connection.php';
 
 $usuarioLogado = $_SESSION['usuario_id'] ?? null;
 
+$grauAcesso = 0;
+
+if ($usuarioLogado) {
+
+    $stmtPermissao = $pdo->prepare("
+        SELECT cu.grau_acesso
+        FROM usuario u
+        INNER JOIN classe_usuario cu ON cu.id = u.classe_id
+        WHERE u.id = ?
+    ");
+
+    $stmtPermissao->execute([$usuarioLogado]);
+    $grauAcesso = (int) $stmtPermissao->fetchColumn();
+}
+
 $stmt = $pdo->prepare("
     SELECT au.*, u.nome 
     FROM arquivo_usuario au
@@ -79,9 +94,11 @@ body { margin: 0; }
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Uploads do Servidor</h2>
-        <button onclick="AbrirFormEnvio()" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Adicionar Arquivo
-        </button>
+        <?php if ($grauAcesso >= 2): ?>
+            <button onclick="AbrirFormEnvio()" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Adicionar Arquivo
+            </button>
+        <?php endif; ?>
     </div>
 
     <div class="card shadow-sm">
@@ -93,7 +110,7 @@ body { margin: 0; }
                 <table class="table table-striped table-hover align-middle">
                     <thead class="table-dark">
                         <tr>
-                            <th>Nome</th>
+                            <th>Arquivo</th>
                             <th>Descrição</th>
                             <th>Enviado por</th>
                             <th>Data</th>
@@ -133,8 +150,8 @@ body { margin: 0; }
                                            target="_blank">
                                            <i class="bi bi-download"></i>
                                         </a>
-
-                                        <?php if ($usuarioLogado && $usuarioLogado == $arquivo['usuario_id']): ?>
+                            
+                                        <?php if ($usuarioLogado && $usuarioLogado == $arquivo['usuario_id'] && $grauAcesso >= 2): ?>
     
                                             <!-- EDITAR -->
                                             <button class="btn btn-sm btn-warning"
@@ -175,138 +192,138 @@ body { margin: 0; }
 
 <script>
 
-function AbrirFormEnvio(){
+    function AbrirFormEnvio(){
 
-    const caixaEnvioDoc = document.createElement('div');
-    caixaEnvioDoc.id = "caixaEnvio";
-    caixaEnvioDoc.className = "caixa-flutuante";
+        const caixaEnvioDoc = document.createElement('div');
+        caixaEnvioDoc.id = "caixaEnvio";
+        caixaEnvioDoc.className = "caixa-flutuante";
 
-    caixaEnvioDoc.innerHTML = `
-        <button class="btn-fechar" onclick="fecharCaixa()">&times;</button>
-        <h5 class="mb-3">Enviar Novo Documento</h5>
+        caixaEnvioDoc.innerHTML = `
+            <button class="btn-fechar" onclick="fecharCaixa()">&times;</button>
+            <h5 class="mb-3">Enviar Novo Documento</h5>
 
-        <form method="POST" enctype="multipart/form-data" action="enviar-arquivo-us" class="d-flex flex-column gap-3">
+            <form method="POST" enctype="multipart/form-data" action="enviar-arquivo-us" class="d-flex flex-column gap-3">
 
-            <div>
-                <label class="form-label">Selecione o arquivo</label>
-                <input type="file" class="form-control" name="arquivo" id="arquivo" required>
-            </div>
+                <div>
+                    <label class="form-label">Selecione o arquivo</label>
+                    <input type="file" class="form-control" name="arquivo" id="arquivo" required>
+                </div>
 
-            <div>
-                <label class="form-label">Descrição (opcional)</label>
-                <textarea 
-                    name="descricao" 
-                    class="form-control" 
-                    rows="3"
-                    placeholder="Digite uma descrição para este arquivo..."
-                ></textarea>
-            </div>
+                <div>
+                    <label class="form-label">Descrição (opcional)</label>
+                    <textarea 
+                        name="descricao" 
+                        class="form-control" 
+                        rows="3"
+                        placeholder="Digite uma descrição para este arquivo..."
+                    ></textarea>
+                </div>
 
-            <button type="submit" class="btn btn-primary" id="btn-enviar" style="display:none;">
-                <i class="bi bi-upload"></i> Enviar
-            </button>
+                <button type="submit" class="btn btn-primary" id="btn-enviar" style="display:none;">
+                    <i class="bi bi-upload"></i> Enviar
+                </button>
 
-        </form>
-    `;
+            </form>
+        `;
 
-    document.body.appendChild(caixaEnvioDoc);
+        document.body.appendChild(caixaEnvioDoc);
 
-    const inputArquivo = document.getElementById("arquivo");
-    const botaoEnviar = document.getElementById("btn-enviar");
+        const inputArquivo = document.getElementById("arquivo");
+        const botaoEnviar = document.getElementById("btn-enviar");
 
-    inputArquivo.addEventListener("change", function() {
-        botaoEnviar.style.display =
-            inputArquivo.files.length > 0 ? "block" : "none";
-    });
-}
-
-function fecharCaixa(){
-    const caixa = document.getElementById("caixaEnvio");
-    if(caixa) caixa.remove();
-}
-
-function abrirEdicao(id, descricaoAtual){
-
-    const caixa = document.createElement('div');
-    caixa.id = "caixaEnvio";
-    caixa.className = "caixa-flutuante";
-
-    caixa.innerHTML = `
-        <button class="btn-fechar" onclick="fecharCaixa()">&times;</button>
-        <h5 class="mb-3">Editar Documento</h5>
-
-        <form method="POST" enctype="multipart/form-data" action="editar-arquivo-us" class="d-flex flex-column gap-3">
-
-            <input type="hidden" name="id" value="${id}">
-
-            <div>
-                <label class="form-label">Descrição</label>
-                <textarea name="descricao" class="form-control" rows="3">${descricaoAtual}</textarea>
-            </div>
-
-            <div>
-                <label class="form-label">Substituir arquivo (opcional)</label>
-                <input type="file" class="form-control" name="arquivo">
-            </div>
-
-            <button type="submit" class="btn btn-warning">
-                <i class="bi bi-check-circle"></i> Atualizar
-            </button>
-
-        </form>
-    `;
-
-    document.body.appendChild(caixa);
-}
-
-function confirmarExclusao(id){
-
-    if(confirm("Tem certeza que deseja excluir este arquivo? Essa ação não pode ser desfeita.")){
-
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = "excluir-arquivo-us";
-
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = "id";
-        input.value = id;
-
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
+        inputArquivo.addEventListener("change", function() {
+            botaoEnviar.style.display =
+                inputArquivo.files.length > 0 ? "block" : "none";
+        });
     }
-}
 
-function abrirDescricao(nomeArquivo, descricao){
+    function fecharCaixa(){
+        const caixa = document.getElementById("caixaEnvio");
+        if(caixa) caixa.remove();
+    }
 
-    const caixa = document.createElement('div');
-    caixa.id = "caixaEnvio";
-    caixa.className = "caixa-flutuante";
+    function abrirEdicao(id, descricaoAtual){
 
-    caixa.innerHTML = `
-        <button class="btn-fechar" onclick="fecharCaixa()">&times;</button>
+        const caixa = document.createElement('div');
+        caixa.id = "caixaEnvio";
+        caixa.className = "caixa-flutuante";
 
-        <div class="mb-3">
-            <h5 class="mb-1">
-                <i class="bi bi-file-earmark-text"></i> ${nomeArquivo}
-            </h5>
-            <small class="text-muted">Descrição do arquivo</small>
-        </div>
+        caixa.innerHTML = `
+            <button class="btn-fechar" onclick="fecharCaixa()">&times;</button>
+            <h5 class="mb-3">Editar Documento</h5>
 
-        <div class="border rounded p-3 bg-light" style="max-height:200px; overflow:auto;">
-            ${descricao.replace(/\n/g, "<br>")}
-        </div>
+            <form method="POST" enctype="multipart/form-data" action="editar-arquivo-us" class="d-flex flex-column gap-3">
 
-        <div class="text-end mt-3">
-            <button class="btn btn-secondary btn-sm" onclick="fecharCaixa()">
-                Fechar
-            </button>
-        </div>
-    `;
+                <input type="hidden" name="id" value="${id}">
 
-    document.body.appendChild(caixa);
-}
+                <div>
+                    <label class="form-label">Descrição</label>
+                    <textarea name="descricao" class="form-control" rows="3">${descricaoAtual}</textarea>
+                </div>
+
+                <div>
+                    <label class="form-label">Substituir arquivo (opcional)</label>
+                    <input type="file" class="form-control" name="arquivo">
+                </div>
+
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-check-circle"></i> Atualizar
+                </button>
+
+            </form>
+        `;
+
+        document.body.appendChild(caixa);
+    }
+
+    function confirmarExclusao(id){
+
+        if(confirm("Tem certeza que deseja excluir este arquivo? Essa ação não pode ser desfeita.")){
+
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "excluir-arquivo-us";
+
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "id";
+            input.value = id;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function abrirDescricao(nomeArquivo, descricao){
+
+        const caixa = document.createElement('div');
+        caixa.id = "caixaEnvio";
+        caixa.className = "caixa-flutuante";
+
+        caixa.innerHTML = `
+            <button class="btn-fechar" onclick="fecharCaixa()">&times;</button>
+
+            <div class="mb-3">
+                <h5 class="mb-1">
+                    <i class="bi bi-file-earmark-text"></i> ${nomeArquivo}
+                </h5>
+                <small class="text-muted">Descrição do arquivo</small>
+            </div>
+
+            <div class="border rounded p-3 bg-light" style="max-height:200px; overflow:auto;">
+                ${descricao.replace(/\n/g, "<br>")}
+            </div>
+
+            <div class="text-end mt-3">
+                <button class="btn btn-secondary btn-sm" onclick="fecharCaixa()">
+                    Fechar
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(caixa);
+    }
 </script>
 
 </body>

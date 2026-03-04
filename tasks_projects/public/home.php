@@ -243,7 +243,7 @@ require_once __DIR__ . '/../config/connection.php';
                 <a href="control" class="text-decoration-none">
                     <div class="service-card" style="background:#d90429;">
                         <i class="bi bi-gear-fill service-icon"></i>
-                        <div class="service-title">MINHA ÁREA</div>
+                        <div class="service-title">ÁREA DE CONTROLE</div>
                     </div>
                 </a>
             </div>

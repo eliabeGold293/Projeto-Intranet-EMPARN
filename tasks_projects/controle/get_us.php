@@ -245,8 +245,12 @@ try {
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Senha (opcional)</label>
-                                <input type="password" name="senha" id="edit_senha" class="form-control">
+                                <label class="form-label">Mudar Senha? (Opicional)</label>
+                                <select name="password" id="edit_senha" class="form-select">
+                                    <option value="">Selecione</option>
+                                    <option value="nao">Não</option>
+                                    <option value="sim">SIm</option>
+                                </select>
                             </div>
 
                             <div class="mb-3">
@@ -268,7 +272,15 @@ try {
                             </div>
 
                             <button type="submit" class="btn btn-success">
-                                Salvar Alterações
+                                
+                                <span id="btnText">
+                                    <i class="bi bi-save"></i> Salvar Alterações
+                                </span>
+
+                                <span id="btnLoading" class="d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    Salvando...
+                                </span>
                             </button>
 
                         </form>
@@ -304,7 +316,6 @@ try {
         document.getElementById("edit_id").value = id;
         document.getElementById("edit_nome").value = nome;
         document.getElementById("edit_email").value = email;
-        document.getElementById("edit_senha").value = "";
         document.getElementById("edit_classe").value = classe;
         document.getElementById("edit_area").value = area;
     }

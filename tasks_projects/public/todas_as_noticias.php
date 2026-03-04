@@ -22,6 +22,7 @@ $result_todas = $stmt_todas->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <title>Todas as Notícias - EMPARN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <style>
     .card-img-top {
@@ -36,7 +37,13 @@ $result_todas = $stmt_todas->fetchAll(PDO::FETCH_ASSOC);
 </style>
 <body>
     <?php include __DIR__ . '/../templates/header.php'; ?>
+    
     <div class="container mt-5 mb-3">
+        <div class="mb-3">
+            <a href="javascript:history.back();" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
         <form method="GET" class="d-flex justify-content-center">
             <input type="text" name="q" class="form-control w-50 me-2" placeholder="Pesquisar notícias..." value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>">
             <button type="submit" class="btn btn-primary shadow-sm">Buscar</button>

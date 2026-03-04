@@ -9,11 +9,34 @@ try {
         throw new Exception("Usuário não autenticado.");
     }
 
+    $usuario_id = $_SESSION['usuario_id'];
+
+    /* ==============================
+        VERIFICAÇÃO DE PERMISSÃO
+       ============================== */
+
+    $stmtPermissao = $pdo->prepare("
+        SELECT cu.grau_acesso
+        FROM usuario u
+        INNER JOIN classe_usuario cu ON cu.id = u.classe_id
+        WHERE u.id = ?
+    ");
+
+    $stmtPermissao->execute([$usuario_id]);
+    $grauAcesso = (int) $stmtPermissao->fetchColumn();
+
+    if ($grauAcesso < 2) {
+        throw new Exception("Você não tem permissão para enviar arquivos.");
+    }
+
+    /* ==============================
+        VALIDAÇÃO DO ARQUIVO
+       ============================== */
+
     if (!isset($_FILES['arquivo']) || $_FILES['arquivo']['error'] !== UPLOAD_ERR_OK) {
         throw new Exception("Erro no envio do arquivo.");
     }
 
-    $usuario_id = $_SESSION['usuario_id'];
     $arquivo = $_FILES['arquivo'];
     $descricao = $_POST['descricao'] ?? null;
 
