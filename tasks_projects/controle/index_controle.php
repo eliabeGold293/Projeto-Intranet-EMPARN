@@ -66,7 +66,7 @@ require_once __DIR__ . '/../config/connection.php';
                 <li>
                     <a class="dropdown-item" href="relatorio-acesso">
                         <i class="bi bi-bar-chart-line me-2"></i>
-                        Gerar relatório de acessos
+                        Relatórios de acesso
                     </a>
                 </li>
 

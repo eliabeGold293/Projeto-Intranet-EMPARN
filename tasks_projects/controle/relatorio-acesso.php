@@ -1,227 +1,246 @@
 <?php
 require_once __DIR__ . '/../config/connection.php';
 
-$acao = $_GET['acao'] ?? null;
+$ano = $_GET['ano'] ?? date("Y");
+$usuarioFiltro = $_GET['usuario'] ?? '';
+$areaFiltro = $_GET['area'] ?? '';
+$dataInicio = $_GET['data_inicio'] ?? '';
+$dataFim = $_GET['data_fim'] ?? '';
 
-/*
-=============================
-TOTAIS PARA OS CARDS
-=============================
-*/
+$where = " WHERE 1=1 ";
+$params = [];
 
-$totalDia = $pdo->query("
-SELECT COALESCE(SUM(quantidade_login),0)
-FROM login_contador
-WHERE DATE(data_login) = CURRENT_DATE
-")->fetchColumn();
-
-$totalSemana = $pdo->query("
-SELECT COALESCE(SUM(quantidade_login),0)
-FROM login_contador
-WHERE DATE_TRUNC('week', data_login) = DATE_TRUNC('week', CURRENT_DATE)
-")->fetchColumn();
-
-$totalMes = $pdo->query("
-SELECT COALESCE(SUM(quantidade_login),0)
-FROM login_contador
-WHERE DATE_TRUNC('month', data_login) = DATE_TRUNC('month', CURRENT_DATE)
-")->fetchColumn();
-
-$totalAno = $pdo->query("
-SELECT COALESCE(SUM(quantidade_login),0)
-FROM login_contador
-WHERE DATE_TRUNC('year', data_login) = DATE_TRUNC('year', CURRENT_DATE)
-")->fetchColumn();
-
-/*
-=============================
-RELATÓRIO DIÁRIO
-=============================
-*/
-
-$stmtDia = $pdo->prepare("
-SELECT
-    u.nome,
-    u.email,
-    l.data_login,
-    l.quantidade_login
-FROM login_contador l
-LEFT JOIN usuario u ON u.id = l.usuario_id
-WHERE DATE(l.data_login) = CURRENT_DATE
-ORDER BY u.nome
-");
-
-$stmtDia->execute();
-$dadosDia = $stmtDia->fetchAll(PDO::FETCH_ASSOC);
-
-/*
-=============================
-RELATÓRIO SEMANAL
-=============================
-*/
-
-$inicioSemana = date('Y-m-d', strtotime('monday this week'));
-$fimSemana = date('Y-m-d', strtotime('sunday this week'));
-
-$stmt = $pdo->prepare("
-SELECT
-    u.nome,
-    l.data_login,
-    l.quantidade_login
-FROM login_contador l
-LEFT JOIN usuario u ON u.id = l.usuario_id
-WHERE l.data_login BETWEEN :inicio AND :fim
-ORDER BY u.nome, l.data_login
-");
-
-$stmt->execute([
-    ':inicio' => $inicioSemana,
-    ':fim' => $fimSemana
-]);
-
-$dados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$usuarios = [];
-
-foreach ($dados as $d) {
-
-    $nome = $d['nome'] ?? 'Usuário removido';
-    $data = $d['data_login'];
-    $acessos = $d['quantidade_login'];
-
-    $usuarios[$nome][$data] = $acessos;
+if ($ano) {
+    $where .= " AND EXTRACT(YEAR FROM lc.data_login) = :ano ";
+    $params[':ano'] = $ano;
 }
 
-$tituloSemana = date('F Y', strtotime($inicioSemana));
-
-$dias = [];
-
-$nomesDias = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
-
-for ($i = 0; $i < 7; $i++) {
-
-    $data = date('Y-m-d', strtotime("$inicioSemana +$i days"));
-
-    $dias[] = [
-        'data' => $data,
-        'label' => $nomesDias[$i],
-        'data_formatada' => date('d/m', strtotime($data))
-    ];
+if (!empty($usuarioFiltro)) {
+    $where .= " AND u.id = :usuario ";
+    $params[':usuario'] = $usuarioFiltro;
 }
 
-/*
-=============================
-RELATÓRIO MENSAL
-=============================
-*/
-
-$stmtMes = $pdo->prepare("
-SELECT
-    u.nome,
-    u.email,
-    l.data_login,
-    l.quantidade_login
-FROM login_contador l
-LEFT JOIN usuario u ON u.id = l.usuario_id
-WHERE DATE_TRUNC('month', l.data_login) = DATE_TRUNC('month', CURRENT_DATE)
-ORDER BY l.data_login DESC
-");
-
-$stmtMes->execute();
-$dadosMes = $stmtMes->fetchAll(PDO::FETCH_ASSOC);
-
-/*
-=============================
-RELATÓRIO ANUAL
-=============================
-*/
-
-$mesSelecionado = $_GET['mes'] ?? date('m');
-
-/* usuários selecionados no filtro */
-
-$usuarioSelecionado = $_GET['usuario'] ?? null;
-
-/* lista de usuários para o filtro */
-
-$stmtUsuarios = $pdo->query("
-SELECT id, nome, email
-FROM usuario
-ORDER BY email
-");
-
-$listaUsuarios = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
-
-$dadosUsuariosFiltro = [];
-
-if (!empty($usuarioSelecionado)) {
-
-    $stmtFiltroUsuarios = $pdo->prepare("
-        SELECT
-            u.nome,
-            u.email,
-            l.data_login,
-            l.quantidade_login
-        FROM login_contador l
-        LEFT JOIN usuario u ON u.id = l.usuario_id
-        WHERE u.email = :email
-        ORDER BY l.data_login DESC
-    ");
-
-    $stmtFiltroUsuarios->execute([
-        ':email' => $usuarioSelecionado
-    ]);
-
-    $dadosUsuariosFiltro = $stmtFiltroUsuarios->fetchAll(PDO::FETCH_ASSOC);
+if (!empty($areaFiltro)) {
+    $where .= " AND u.area_id = :area ";
+    $params[':area'] = $areaFiltro;
 }
 
-/* dados por mês */
+if (!empty($dataInicio)) {
+    $where .= " AND lc.data_login >= :inicio ";
+    $params[':inicio'] = $dataInicio;
+}
 
-$stmtAno = $pdo->prepare("
-SELECT
-    u.nome,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=1 THEN l.quantidade_login ELSE 0 END) AS jan,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=2 THEN l.quantidade_login ELSE 0 END) AS fev,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=3 THEN l.quantidade_login ELSE 0 END) AS mar,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=4 THEN l.quantidade_login ELSE 0 END) AS abr,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=5 THEN l.quantidade_login ELSE 0 END) AS mai,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=6 THEN l.quantidade_login ELSE 0 END) AS jun,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=7 THEN l.quantidade_login ELSE 0 END) AS jul,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=8 THEN l.quantidade_login ELSE 0 END) AS ago,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=9 THEN l.quantidade_login ELSE 0 END) AS set,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=10 THEN l.quantidade_login ELSE 0 END) AS out,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=11 THEN l.quantidade_login ELSE 0 END) AS nov,
-    SUM(CASE WHEN EXTRACT(MONTH FROM l.data_login)=12 THEN l.quantidade_login ELSE 0 END) AS dez
-FROM login_contador l
-LEFT JOIN usuario u ON u.id = l.usuario_id
-WHERE DATE_TRUNC('year', l.data_login) = DATE_TRUNC('year', CURRENT_DATE)
+if (!empty($dataFim)) {
+    $where .= " AND lc.data_login <= :fim ";
+    $params[':fim'] = $dataFim;
+}
+
+if ($usuarioFiltro) {
+    $where .= " AND u.id = :usuario ";
+    $params[':usuario'] = $usuarioFiltro;
+}
+
+if ($areaFiltro) {
+    $where .= " AND u.area_id = :area ";
+    $params[':area'] = $areaFiltro;
+}
+
+if ($dataInicio) {
+    $where .= " AND lc.data_login >= :inicio ";
+    $params[':inicio'] = $dataInicio;
+}
+
+if ($dataFim) {
+    $where .= " AND lc.data_login <= :fim ";
+    $params[':fim'] = $dataFim;
+}
+
+/* =======================
+CARDS DASHBOARD
+=======================*/
+
+$sqlAno = "SELECT SUM(quantidade_login) total FROM login_contador 
+WHERE EXTRACT(YEAR FROM data_login)=:ano";
+
+$stmt = $pdo->prepare($sqlAno);
+$stmt->execute([':ano' => $ano]);
+$totalAno = $stmt->fetchColumn() ?? 0;
+
+
+$sqlMes = "SELECT SUM(quantidade_login)
+FROM login_contador
+WHERE DATE_TRUNC('month',data_login)=DATE_TRUNC('month',CURRENT_DATE)";
+$totalMes = $pdo->query($sqlMes)->fetchColumn() ?? 0;
+
+
+$sqlUsuariosAtivos = "
+SELECT COUNT(DISTINCT usuario_id)
+FROM login_contador
+WHERE EXTRACT(YEAR FROM data_login)=:ano";
+$stmt = $pdo->prepare($sqlUsuariosAtivos);
+$stmt->execute([':ano' => $ano]);
+$usuariosAtivos = $stmt->fetchColumn();
+
+
+$mediaDiaria = $totalAno > 0 ? round($totalAno / 365, 2) : 0;
+
+
+/* =======================
+ACESSOS POR MÊS
+=======================*/
+
+$sqlMeses = "
+SELECT 
+EXTRACT(MONTH FROM data_login) mes,
+SUM(quantidade_login) acessos
+FROM login_contador
+WHERE EXTRACT(YEAR FROM data_login)=:ano
+GROUP BY mes
+ORDER BY mes";
+
+$stmt = $pdo->prepare($sqlMeses);
+$stmt->execute([':ano' => $ano]);
+$dadosMeses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$labelsMes = [];
+$dadosMes = [];
+
+$nomesMeses = [
+    1 => 'Janeiro',
+    2 => 'Fevereiro',
+    3 => 'Março',
+    4 => 'Abril',
+    5 => 'Maio',
+    6 => 'Junho',
+    7 => 'Julho',
+    8 => 'Agosto',
+    9 => 'Setembro',
+    10 => 'Outubro',
+    11 => 'Novembro',
+    12 => 'Dezembro'
+];
+
+foreach ($dadosMeses as $m) {
+
+    $mesNumero = (int)$m['mes'];
+
+    $labelsMes[] = $nomesMeses[$mesNumero];
+
+    $dadosMes[] = $m['acessos'];
+}
+
+
+/* =======================
+ACESSOS POR DIA
+=======================*/
+
+$sqlDias = "
+SELECT DATE(data_login) dia,
+SUM(quantidade_login) acessos
+FROM login_contador
+WHERE EXTRACT(YEAR FROM data_login)=:ano
+GROUP BY dia
+ORDER BY dia";
+
+$stmt = $pdo->prepare($sqlDias);
+$stmt->execute([':ano' => $ano]);
+$dias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$labelsDia = [];
+$dadosDia = [];
+
+foreach ($dias as $d) {
+    $labelsDia[] = date('d/m/Y', strtotime($d['dia']));
+    $dadosDia[] = $d['acessos'];
+}
+
+
+/* =======================
+ACESSOS POR USUÁRIO
+=======================*/
+
+$sqlUsuarios = "
+SELECT 
+u.nome,
+SUM(lc.quantidade_login) total
+FROM login_contador lc
+JOIN usuario u ON u.id=lc.usuario_id
+$where
 GROUP BY u.nome
-ORDER BY u.nome
-");
+ORDER BY total DESC";
 
-$stmtAno->execute();
-$dadosAno = $stmtAno->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->prepare($sqlUsuarios);
+$stmt->execute($params);
+$usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/* dados filtrados por mês */
+$semResultados = count($usuarios) === 0;
 
-$stmtMesFiltro = $pdo->prepare("
+
+/* =======================
+LISTA USUARIOS
+=======================*/
+
+$listaUsuarios = $pdo->query("SELECT id,nome FROM usuario ORDER BY nome")->fetchAll();
+$areas = $pdo->query("SELECT id,nome FROM area_atuacao")->fetchAll();
+
+$sqlExport = "
 SELECT
-    u.nome,
-    u.email,
-    l.data_login,
-    l.quantidade_login
-FROM login_contador l
-LEFT JOIN usuario u ON u.id = l.usuario_id
-WHERE DATE_TRUNC('year', l.data_login)=DATE_TRUNC('year', CURRENT_DATE)
-AND EXTRACT(MONTH FROM l.data_login)=:mes
-ORDER BY l.data_login
-");
+u.id AS usuario_id,
+u.nome AS usuario,
+u.email AS email,
+a.nome AS area,
+DATE(lc.data_login) AS data_acesso,
+SUM(lc.quantidade_login) AS quantidade_acessos
+FROM login_contador lc
+JOIN usuario u ON u.id = lc.usuario_id
+LEFT JOIN area_atuacao a ON a.id = u.area_id
+$where
+GROUP BY u.id,u.nome,u.email,a.nome,data_acesso
+ORDER BY data_acesso DESC
+";
 
-$stmtMesFiltro->execute([
-    ':mes' => $mesSelecionado
-]);
+$stmt = $pdo->prepare($sqlExport);
+$stmt->execute($params);
+$dadosExport = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$dadosMesFiltro = $stmtMesFiltro->fetchAll(PDO::FETCH_ASSOC);
+$nomeUsuarioFiltro = 'Todos';
+
+if ($usuarioFiltro) {
+    foreach ($listaUsuarios as $u) {
+        if ($u['id'] == $usuarioFiltro) {
+            $nomeUsuarioFiltro = $u['nome'];
+        }
+    }
+}
+
+$nomeAreaFiltro = 'Todas';
+
+if ($areaFiltro) {
+    foreach ($areas as $a) {
+        if ($a['id'] == $areaFiltro) {
+            $nomeAreaFiltro = $a['nome'];
+        }
+    }
+}
+
+$mesesNomes = [
+    1 => 'Janeiro',
+    2 => 'Fevereiro',
+    3 => 'Março',
+    4 => 'Abril',
+    5 => 'Maio',
+    6 => 'Junho',
+    7 => 'Julho',
+    8 => 'Agosto',
+    9 => 'Setembro',
+    10 => 'Outubro',
+    11 => 'Novembro',
+    12 => 'Dezembro'
+];
+
+$mesEmissao = $mesesNomes[(int)date('n')];
+$dataEmissao = date('d/m/Y H:i');
+$anoRelatorio = $ano;
 ?>
 
 <!DOCTYPE html>
@@ -230,32 +249,26 @@ $dadosMesFiltro = $stmtMesFiltro->fetchAll(PDO::FETCH_ASSOC);
 <head>
 
     <meta charset="UTF-8">
-    <title>Relatório de Acessos</title>
+    <title>Dashboard de Acessos</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body {
-            background: #f3f5f9;
-            font-family: Segoe UI;
+            background: #f4f6f9;
         }
 
         .card-dashboard {
-            cursor: pointer;
-            transition: .2s;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         }
 
-        .card-dashboard:hover {
-            transform: scale(1.03);
-        }
-
-        .tabela-scroll {
-
-            max-height: 350px;
-            overflow-y: auto;
-            overflow-x: auto;
-
+        .metric {
+            font-size: 28px;
+            font-weight: 700;
         }
     </style>
 
@@ -263,117 +276,125 @@ $dadosMesFiltro = $stmtMesFiltro->fetchAll(PDO::FETCH_ASSOC);
 
 <body>
 
-    <div class="container mt-4">
+    <div class="container-fluid mt-4">
 
-        <div class="mb-3">
-            <a href="javascript:history.back();" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Voltar
-            </a>
-        </div>
+        <?php if ($semResultados) { ?>
 
-        <h3 class="mb-4">Relatório de Acessos</h3>
+            <div class="alert alert-warning mt-3">
 
-        <!-- =========================
-CARDS
-========================= -->
+                ⚠️ Não foi possível encontrar dados com os filtros selecionados.
 
-        <div class="row g-3 mb-5">
+            </div>
 
-            <div class="col-md-3">
-                <div class="card card-dashboard text-center">
-                    <div class="card-body">
-                        <h6>Acessos Hoje</h6>
-                        <h2><?= $totalDia ?></h2>
-                    </div>
-                </div>
+        <?php } ?>
+
+        <h3 class="mb-4">📊 Dashboard de Acessos</h3>
+
+        <form class="row g-2 mb-4">
+
+            <div class="col-md-2">
+                <select name="ano" class="form-select">
+                    <?php
+                    for ($i = date("Y"); $i >= date("Y") - 5; $i--) {
+                        $sel = $i == $ano ? 'selected' : '';
+                        echo "<option $sel>$i</option>";
+                    }
+                    ?>
+                </select>
             </div>
 
             <div class="col-md-3">
-                <div class="card card-dashboard text-center bg-primary text-white">
-                    <div class="card-body">
-                        <h6>Acessos da Semana</h6>
-                        <h2><?= $totalSemana ?></h2>
-                    </div>
+                <select name="usuario" class="form-select">
+                    <option value="">Todos usuários</option>
+                    <?php
+                    foreach ($listaUsuarios as $u) {
+                        $sel = $usuarioFiltro == $u['id'] ? 'selected' : '';
+                        echo "<option value='{$u['id']}' $sel>{$u['nome']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select name="area" class="form-select">
+                    <option value="">Todas áreas</option>
+                    <?php
+                    foreach ($areas as $a) {
+                        $sel = $areaFiltro == $a['id'] ? 'selected' : '';
+                        echo "<option value='{$a['id']}' $sel>{$a['nome']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input type="date" name="data_inicio" class="form-control" value="<?= $dataInicio ?>">
+            </div>
+
+            <div class="col-md-2">
+                <input type="date" name="data_fim" class="form-control" value="<?= $dataFim ?>">
+            </div>
+
+            <div class="col-md-2 mt-2">
+                <button class="btn btn-primary w-100">Filtrar</button>
+            </div>
+
+        </form>
+
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+                <div class="card card-dashboard p-3">
+                    <div>Acessos no ano</div>
+                    <div class="metric"><?= $totalAno ?></div>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card card-dashboard text-center">
-                    <div class="card-body">
-                        <h6>Acessos do Mês</h6>
-                        <h2><?= $totalMes ?></h2>
-                    </div>
+                <div class="card card-dashboard p-3">
+                    <div>Acessos este mês</div>
+                    <div class="metric"><?= $totalMes ?></div>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card card-dashboard text-center">
-                    <div class="card-body">
-                        <h6>Acessos do Ano</h6>
-                        <h2><?= $totalAno ?></h2>
-                    </div>
+                <div class="card card-dashboard p-3">
+                    <div>Usuários ativos</div>
+                    <div class="metric"><?= $usuariosAtivos ?></div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card card-dashboard p-3">
+                    <div>Média diária</div>
+                    <div class="metric"><?= $mediaDiaria ?></div>
                 </div>
             </div>
 
         </div>
 
-        <!-- =========================
-RELATÓRIO DIÁRIO
-========================= -->
 
-        <div class="card mb-5" id="relatorio-anual">
+        <div class="row">
 
-            <div class="card-body">
+            <div class="col-md-6">
 
-                <h4 class="mb-4">Relatório Diário</h4>
+                <div class="card card-dashboard p-4">
 
-                <div class="card bg-success text-white mb-3" style="width:220px">
+                    <h5>Acessos por mês</h5>
 
-                    <div class="card-body text-center">
-
-                        Total de acessos hoje
-
-                        <h3><?= $totalDia ?></h3>
-
-                    </div>
+                    <canvas id="graficoMes"></canvas>
 
                 </div>
 
-                <div class="table-responsive">
+            </div>
 
-                    <table class="table table-bordered">
+            <div class="col-md-6">
 
-                        <thead class="table-dark">
+                <div class="card card-dashboard p-4">
 
-                            <tr>
-                                <th>Nome</th>
-                                <th>Email</th>
-                                <th>Acessos no dia</th>
-                                <th>Hora do acesso</th>
-                            </tr>
+                    <h5>Acessos por dia</h5>
 
-                        </thead>
-
-                        <tbody>
-
-                            <?php foreach ($dadosDia as $d): ?>
-
-                                <tr>
-
-                                    <td><?= $d['nome'] ?></td>
-                                    <td><?= $d['email'] ?></td>
-                                    <td class="text-center"><?= $d['quantidade_login'] ?></td>
-                                    <td class="text-center">
-                                        <?= date('H:i:s', strtotime($d['data_login'])) ?>
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        </tbody>
-
-                    </table>
+                    <canvas id="graficoDia"></canvas>
 
                 </div>
 
@@ -381,417 +402,397 @@ RELATÓRIO DIÁRIO
 
         </div>
 
-        <!-- =========================
-RELATÓRIO SEMANAL
-========================= -->
 
-        <div class="card mb-5">
+        <div class="card card-dashboard p-4 mt-4">
 
-            <div class="card-body">
+            <h5>Ranking de usuários</h5>
 
-                <h4 class="mb-4">
+            <table class="table table-striped">
 
-                    Relatório Semanal — <?= ucfirst($tituloSemana) ?>
+                <thead>
+                    <tr>
+                        <th>Posição</th>
+                        <th>Usuário</th>
+                        <th>Acessos</th>
+                    </tr>
+                </thead>
 
-                </h4>
+                <tbody>
 
-                <div class="mb-3">
+                    <?php
+                    $posicao = 1;
 
-                    <div class="card bg-success text-white" style="width:200px">
+                    foreach ($usuarios as $u) {
+                    ?>
 
-                        <div class="card-body text-center">
+                        <tr>
 
-                            Acessos da semana
-
-                            <h3><?= $totalSemana ?></h3>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="table-responsive">
-
-                    <table class="table table-bordered">
-
-                        <thead class="table-dark">
-
-                            <tr>
-
-                                <th>Usuário</th>
-
-                                <?php foreach ($dias as $d): ?>
-
-                                    <th class="text-center">
-
-                                        <?= $d['label'] ?><br>
-
-                                        <small><?= $d['data_formatada'] ?></small>
-
-                                    </th>
-
-                                <?php endforeach; ?>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            <?php foreach ($usuarios as $nome => $dadosUsuario): ?>
-
-                                <tr>
-
-                                    <td><?= $nome ?></td>
-
-                                    <?php foreach ($dias as $d): ?>
-
-                                        <td class="text-center">
-
-                                            <?= $dadosUsuario[$d['data']] ?? '-' ?>
-
-                                        </td>
-
-                                    <?php endforeach; ?>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- =========================
-RELATÓRIO MENSAL
-========================= -->
-
-        <div class="card mb-5">
-
-            <div class="card-body">
-
-                <h4 class="mb-4">Relatório Mensal</h4>
-
-                <div class="card bg-primary text-white mb-3" style="width:220px">
-
-                    <div class="card-body text-center">
-
-                        Total de acessos no mês
-
-                        <h3><?= $totalMes ?></h3>
-
-                    </div>
-
-                </div>
-
-                <div class="table-responsive">
-
-                    <table class="table table-bordered">
-
-                        <thead class="table-dark">
-
-                            <tr>
-
-                                <th>Nome</th>
-                                <th>Email</th>
-                                <th>Data do acesso</th>
-                                <th>Quantidade</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            <?php foreach ($dadosMes as $d): ?>
-
-                                <tr>
-
-                                    <td><?= $d['nome'] ?></td>
-                                    <td><?= $d['email'] ?></td>
-                                    <td><?= date('d/m/Y', strtotime($d['data_login'])) ?></td>
-                                    <td class="text-center"><?= $d['quantidade_login'] ?></td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- =========================
-RELATÓRIO ANUAL
-========================= -->
-
-        <div class="card mb-5">
-
-            <div class="card-body">
-
-                <h4 class="mb-4">Relatório Anual</h4>
-
-                <div class="card bg-dark text-white mb-3" style="width:220px">
-
-                    <div class="card-body text-center">
-
-                        Total de acessos no ano
-
-                        <h3><?= $totalAno ?></h3>
-
-                    </div>
-
-                </div>
-
-                <div class="table-responsive mb-4 tabela-scroll">
-
-                    <table class="table table-bordered">
-
-                        <thead class="table-dark">
-
-                            <tr>
-
-                                <th>Usuário</th>
-                                <th>Jan</th>
-                                <th>Fev</th>
-                                <th>Mar</th>
-                                <th>Abr</th>
-                                <th>Mai</th>
-                                <th>Jun</th>
-                                <th>Jul</th>
-                                <th>Ago</th>
-                                <th>Set</th>
-                                <th>Out</th>
-                                <th>Nov</th>
-                                <th>Dez</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            <?php foreach ($dadosAno as $d): ?>
-
-                                <tr>
-
-                                    <td><?= $d['nome'] ?></td>
-                                    <td><?= $d['jan'] ?></td>
-                                    <td><?= $d['fev'] ?></td>
-                                    <td><?= $d['mar'] ?></td>
-                                    <td><?= $d['abr'] ?></td>
-                                    <td><?= $d['mai'] ?></td>
-                                    <td><?= $d['jun'] ?></td>
-                                    <td><?= $d['jul'] ?></td>
-                                    <td><?= $d['ago'] ?></td>
-                                    <td><?= $d['set'] ?></td>
-                                    <td><?= $d['out'] ?></td>
-                                    <td><?= $d['nov'] ?></td>
-                                    <td><?= $d['dez'] ?></td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-                <div class="card mb-4 border-primary">
-
-                    <div class="card-header bg-primary text-white">
-
-                        <b>Filtros do relatório</b>
-
-                    </div>
-
-                    <div class="card-body">
-
-                        <!-- FILTRO MÊS -->
-
-                        <form method="GET" action="#relatorio-anual" class="mb-3">
-
-                            <label class="form-label"><b>Filtrar mês</b></label>
-
-                            <select name="mes" class="form-select" onchange="this.form.submit()">
-
+                            <td>
                                 <?php
-
-                                $meses = [
-                                    1 => "Janeiro",
-                                    2 => "Fevereiro",
-                                    3 => "Março",
-                                    4 => "Abril",
-                                    5 => "Maio",
-                                    6 => "Junho",
-                                    7 => "Julho",
-                                    8 => "Agosto",
-                                    9 => "Setembro",
-                                    10 => "Outubro",
-                                    11 => "Novembro",
-                                    12 => "Dezembro"
-                                ];
-
-                                foreach ($meses as $num => $nome) {
-
-                                    $selected = ($num == $mesSelecionado) ? 'selected' : '';
-
-                                    echo "<option value='$num' $selected>$nome</option>";
-                                }
-
+                                if ($posicao == 1) echo "🥇";
+                                elseif ($posicao == 2) echo "🥈";
+                                elseif ($posicao == 3) echo "🥉";
+                                else echo $posicao;
                                 ?>
+                            </td>
 
-                            </select>
+                            <td><?= $u['nome'] ?></td>
 
-                        </form>
+                            <td><?= $u['total'] ?></td>
 
-                        <h5 class="mt-4">Filtrar usuários</h5>
+                        </tr>
 
-                        <form method="GET" action="#relatorio-anual" class="mb-4">
+                    <?php
+                        $posicao++;
+                    }
+                    ?>
 
-<label class="form-label"><b>Selecionar usuário</b></label>
+                </tbody>
 
-<select name="usuario" class="form-select" onchange="this.form.submit()">
+            </table>
 
-<option value="">Selecione um usuário</option>
+            <button onclick="exportExcel()" class="btn btn-success">Exportar Excel</button>
+            <button onclick="exportPDF()" class="btn btn-danger">Exportar PDF</button>
 
-<?php foreach ($listaUsuarios as $u): ?>
+        </div>
 
-<option value="<?= $u['email'] ?>"
-<?= (isset($_GET['usuario']) && $_GET['usuario'] == $u['email']) ? 'selected' : '' ?>>
+    </div>
 
-<?= $u['email'] ?>
+    <div id="tabelaExportacao" style="display:none">
 
-</option>
+        <table border="1">
 
-<?php endforeach; ?>
+            <tr>
+                <th>ID_Usuario</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Area</th>
+                <th>Data_Acesso</th>
+                <th>Quantidade_Acessos</th>
+            </tr>
+            <?php foreach ($dadosExport as $d) { ?>
 
-</select>
+                <tr>
 
-</form>
+                    <td><?= $d['usuario_id'] ?></td>
+                    <td><?= $d['usuario'] ?></td>
+                    <td><?= $d['email'] ?></td>
+                    <td><?= $d['area'] ?></td>
+                    <td><?= $d['data_acesso'] ?></td>
+                    <td><?= $d['quantidade_acessos'] ?></td>
 
-                        <?php if (!empty($dadosUsuariosFiltro)): ?>
+                </tr>
 
-                            <div class="card mt-4">
+            <?php } ?>
 
-                                <div class="card-body">
+        </table>
 
-                                    <h5 class="mb-3">Resultado do filtro de usuários</h5>
+    </div>
 
-                                    <div class="table-responsive tabela-scroll">
+    <div id="relatorioPDF" style="display:none">
 
-                                        <table class="table table-bordered">
+        <h2>Relatório de Acessos ao Sistema</h2>
 
-                                            <thead class="table-dark">
+        <p style="text-align:center">
+            Relatório analítico de utilização da plataforma
+        </p>
 
-                                                <tr>
+        <h4>Informações do relatório</h4>
 
-                                                    <th>Nome</th>
-                                                    <th>Email</th>
-                                                    <th>Data</th>
-                                                    <th>Acessos</th>
+        <table border="1" cellpadding="6">
 
-                                                </tr>
+            <tr>
+                <td><b>Período analisado</b></td>
+                <td>Ano de <?= $anoRelatorio ?></td>
+            </tr>
 
-                                            </thead>
+            <tr>
+                <td><b>Mês de emissão</b></td>
+                <td><?= $mesEmissao ?></td>
+            </tr>
 
-                                            <tbody>
+            <tr>
+                <td><b>Data de emissão</b></td>
+                <td><?= $dataEmissao ?></td>
+            </tr>
 
-                                                <?php foreach ($dadosUsuariosFiltro as $d): ?>
+        </table>
 
-                                                    <tr>
+        <br>
 
-                                                        <td><?= $d['nome'] ?></td>
-                                                        <td><?= $d['email'] ?></td>
-                                                        <td><?= date('d/m/Y', strtotime($d['data_login'])) ?></td>
-                                                        <td class="text-center"><?= $d['quantidade_login'] ?></td>
+        <hr>
 
-                                                    </tr>
+        <h4>Filtros aplicados</h4>
 
-                                                <?php endforeach; ?>
+        <table border="1" cellpadding="6">
 
-                                            </tbody>
+            <tr>
+                <td><b>Ano</b></td>
+                <td><?= $ano ?></td>
+            </tr>
 
-                                        </table>
+            <tr>
+                <td><b>Usuário</b></td>
+                <td><?= $nomeUsuarioFiltro ?></td>
+            </tr>
 
-                                    </div>
+            <tr>
+                <td><b>Área</b></td>
+                <td><?= $nomeAreaFiltro ?></td>
+            </tr>
 
-                                </div>
+            <tr>
+                <td><b>Data inicial</b></td>
+                <td><?= $dataInicio ?: 'Não informado' ?></td>
+            </tr>
 
-                            </div>
+            <tr>
+                <td><b>Data final</b></td>
+                <td><?= $dataFim ?: 'Não informado' ?></td>
+            </tr>
 
-                        <?php endif; ?>
+        </table>
 
-                        <!-- TABELA FILTRO -->
+        <br>
 
-                        <div class="table-responsive">
+        <h4>Resumo de acessos</h4>
 
-                            <table class="table table-bordered">
+        <table border="1" cellpadding="6">
 
-                                <thead class="table-dark">
+            <tr>
+                <th>Total acessos no ano</th>
+                <th>Acessos este mês</th>
+                <th>Usuários ativos</th>
+                <th>Média diária</th>
+            </tr>
 
-                                    <tr>
+            <tr>
+                <td><?= $totalAno ?></td>
+                <td><?= $totalMes ?></td>
+                <td><?= $usuariosAtivos ?></td>
+                <td><?= $mediaDiaria ?></td>
+            </tr>
 
-                                        <th>Nome</th>
-                                        <th>Email</th>
-                                        <th>Data</th>
-                                        <th>Acessos</th>
+        </table>
 
-                                    </tr>
+        <br>
 
-                                </thead>
+        <h4>Acessos por mês</h4>
 
-                                <tbody>
+        <table border="1" cellpadding="6">
 
-                                    <?php foreach ($dadosMesFiltro as $d): ?>
+            <tr>
+                <th>Mês</th>
+                <th>Quantidade de acessos</th>
+            </tr>
 
-                                        <tr>
+            <?php
+            foreach ($dadosMeses as $m) {
+            ?>
 
-                                            <td><?= $d['nome'] ?></td>
-                                            <td><?= $d['email'] ?></td>
-                                            <td><?= date('d/m/Y', strtotime($d['data_login'])) ?></td>
-                                            <td class="text-center"><?= $d['quantidade_login'] ?></td>
+                <tr>
+                    <td><?= $nomesMeses[(int)$m['mes']] ?? '' ?></td>
+                    <td><?= $m['acessos'] ?? '' ?></td>
+                </tr>
 
-                                        </tr>
+            <?php } ?>
 
-                                    <?php endforeach; ?>
+        </table>
 
-                                </tbody>
+        <br>
 
-                            </table>
+        <h4>Ranking de usuários</h4>
 
-                        </div>
+        <table border="1" cellpadding="6">
 
-                    </div>
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Usuário</th>
+                    <th>Acessos</th>
+                </tr>
+            </thead>
 
-                </div>
+            <tbody>
 
-            </div>
+                <?php
+                $posicao = 1;
 
-            <script>
-                if (window.location.hash) {
+                foreach ($usuarios as $u) {
+                ?>
 
-                    document.querySelector(window.location.hash)
-                        .scrollIntoView({
-                            behavior: "smooth"
-                        });
+                    <tr>
 
+                        <td><b><?= $posicao ?></b></td>
+
+                        <td><?= $u['nome'] ?></td>
+
+                        <td><?= $u['total'] ?></td>
+
+                    </tr>
+
+                <?php
+                    $posicao++;
                 }
-            </script>
+                ?>
+
+            </tbody>
+        </table>
+
+    </div>
+
+
+    <script>
+        new Chart(document.getElementById('graficoMes'), {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($labelsMes) ?>,
+                datasets: [{
+                    label: 'Quantidade de acessos',
+                    data: <?= json_encode($dadosMes) ?>,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Mês do ano'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de acessos'
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('graficoDia'), {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($labelsDia) ?>,
+                datasets: [{
+                    label: 'Quantidade de acessos',
+                    data: <?= json_encode($dadosDia) ?>,
+                    tension: 0.3,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Dia'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de acessos'
+                        }
+                    }
+                }
+            }
+        });
+
+        function exportExcel() {
+
+            let tabela = document.getElementById("tabelaExportacao").outerHTML;
+
+            let html = `
+                <html>
+                <head>
+                <meta charset="UTF-8">
+                </head>
+                <body>
+                ${tabela}
+                </body>
+                </html>
+            `;
+
+            let url = 'data:application/vnd.ms-excel,' + encodeURIComponent(html);
+
+            let link = document.createElement('a');
+
+            link.href = url;
+
+            link.download = "dados_acessos.xls";
+
+            link.click();
+
+        }
+
+        function exportPDF() {
+
+            let conteudo = document.getElementById("relatorioPDF").innerHTML;
+
+            let janela = window.open('', '', 'width=900,height=700');
+
+            janela.document.write(`
+
+                <html>
+                <head>
+                <title>Relatório de Acessos</title>
+
+                <style>
+
+                body{
+                font-family:Arial;
+                padding:30px;
+                }
+
+                h2{
+                text-align:center;
+                }
+
+                table{
+                width:100%;
+                border-collapse:collapse;
+                margin-top:10px;
+                }
+
+                th,td{
+                border:1px solid black;
+                padding:8px;
+                text-align:left;
+                }
+
+                </style>
+
+                </head>
+
+                <body>
+
+                ${conteudo}
+
+                </body>
+                </html>
+            `);
+
+            janela.document.close();
+            janela.print();
+
+        }
+    </script>
 
 </body>
 
