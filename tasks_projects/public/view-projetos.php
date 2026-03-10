@@ -64,6 +64,15 @@ $modaisTarefa = [];
 </head>
 
 <body>
+    <?php if (isset($_SESSION['alerta'])): ?>
+
+        <div id="alerta-sistema" class="alert alert-<?= $_SESSION['alerta']['tipo'] ?> alert-dismissible fade show" role="alert">
+            <?= $_SESSION['alerta']['mensagem'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+    <?php unset($_SESSION['alerta']);
+    endif; ?>
 
     <?php include __DIR__ . '/../templates/header.php'; ?>
 
@@ -200,6 +209,7 @@ $modaisTarefa = [];
                                                     <th>Prazo</th>
                                                     <th>Arquivo</th>
                                                     <th>Informação</th>
+                                                    <th>Prorrogar</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -235,29 +245,62 @@ $modaisTarefa = [];
                                                                 <i class="bi bi-info-circle"></i>
                                                             </button>
                                                         </td>
+
+                                                        <td>
+                                                            <button class="btn btn-sm btn-warning"
+                                                                onclick="abrirModalProrrogar(<?= $t['id'] ?>)">
+                                                                <i class="bi bi-clock-history"></i> Prorrogar
+                                                            </button>
+                                                        </td>
                                                     </tr>
 
                                                     <?php
                                                     $modaisTarefa[] = '
-                                                    <div class="modal fade" id="modalTarefa' . $t['id'] . '" tabindex="-1">
+                                                        <div class="modal fade" id="modalProrrogar' . $t['id'] . '" tabindex="-1">
                                                         <div class="modal-dialog modal-dialog-centered">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header bg-secondary text-white">
-                                                                    <h5 class="modal-title">
-                                                                        <i class="bi bi-card-text"></i> ' . htmlspecialchars($t['titulo']) . '
-                                                                    </h5>
-                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <div class="p-3 rounded bg-light border">' .
-                                                        (!empty($t['descricao'])
-                                                            ? nl2br(htmlspecialchars($t['descricao']))
-                                                            : '<span class="text-muted">Sem descrição cadastrada.</span>')
-                                                        . '</div>
-                                                                </div>
-                                                            </div>
+                                                        <div class="modal-content">
+
+                                                        <div class="modal-header bg-warning">
+                                                        <h5 class="modal-title">
+                                                        <i class="bi bi-clock"></i> Prorrogar prazo
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
-                                                    </div>';
+
+                                                        <form method="POST" action="prorrogar-tarefa">
+
+                                                        <div class="modal-body">
+
+                                                        <input type="hidden" name="tarefa_id" value="' . $t['id'] . '">
+
+                                                        <label class="form-label">Novo prazo</label>
+
+                                                        <input type="date" 
+                                                        name="novo_prazo" 
+                                                        class="form-control" 
+                                                        required>
+
+                                                        </div>
+
+                                                        <div class="modal-footer">
+
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                        Cancelar
+                                                        </button>
+
+                                                        <button type="submit" class="btn btn-warning">
+                                                        Salvar novo prazo
+                                                        </button>
+
+                                                        <a href="prorrogar-tarefa">Clique aqui</a>
+
+                                                        </div>
+
+                                                        </form>
+
+                                                        </div>
+                                                        </div>
+                                                        </div>';
                                                     ?>
 
                                                 <?php endforeach; ?>
@@ -303,7 +346,32 @@ $modaisTarefa = [];
                 modalProjeto.removeAttribute('aria-hidden');
             }
         }
+
+        function abrirModalProrrogar(id) {
+
+            const modalElement = document.getElementById('modalProrrogar' + id);
+
+            const modal = new bootstrap.Modal(modalElement);
+
+            modal.show();
+        }
+
+
+        setTimeout(function() {
+
+            let alerta = document.getElementById("alerta-sistema");
+
+            if (alerta) {
+
+                let bsAlert = new bootstrap.Alert(alerta);
+                bsAlert.close();
+
+            }
+
+        }, 2500);
+
     </script>
 
 </body>
+
 </html>

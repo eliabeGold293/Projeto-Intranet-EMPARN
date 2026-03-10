@@ -137,6 +137,10 @@ switch($arquivo){
 
     # Rotas de apis
 
+    case 'prorrogar-tarefa':
+        include 'apis/prorrogar-tarefa.php';
+        break;
+
     case 'excluir-arquivo-us':
         include 'apis/excluir-arquivo-us.php';
         break;

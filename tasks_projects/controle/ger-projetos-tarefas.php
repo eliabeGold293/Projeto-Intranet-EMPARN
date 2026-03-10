@@ -31,6 +31,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,17 +43,18 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
     <title>Gerenciamento de Projetos e Tarefas</title>
 
     <style>
-        body, html {
+        body,
+        html {
             margin: 0;
             height: 100%;
         }
 
-        .pai{
+        .pai {
             display: flex;
         }
 
         /* HEADER / FERRAMENTAS */
-        .ferramentas{
+        .ferramentas {
             display: flex;
             align-items: center;
             background-color: #f8f9fa;
@@ -62,7 +64,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             flex-shrink: 0;
         }
 
-        .opcoes{
+        .opcoes {
             display: flex;
             gap: 15px;
             margin: 20px;
@@ -75,7 +77,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             background: #1e1e2f;
             color: #fff;
             padding: 20px;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
             font-family: 'Segoe UI', Arial, sans-serif;
             overflow-y: auto;
         }
@@ -119,14 +121,14 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         }
 
         /* CONTEÚDO */
-        .ferramentas-conteudos{
+        .ferramentas-conteudos {
             display: flex;
             flex-direction: column;
             flex: 1;
             height: 100%;
         }
 
-        .conteudo{
+        .conteudo {
             display: flex;
             width: 100%;
             background-color: #eef2f7;
@@ -135,7 +137,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .projetos,
-        .tarefas{
+        .tarefas {
             width: 80%;
         }
 
@@ -150,7 +152,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .form-box {
@@ -158,7 +160,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             margin: 60px auto;
             background: #ffffff;
             border-radius: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
             padding: 28px;
             position: relative;
         }
@@ -204,7 +206,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
 
         .form-control:focus {
             border-color: #0d6efd;
-            box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.25);
+            box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
         }
 
         .datas {
@@ -233,36 +235,37 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         .btn-projeto:hover {
             background: #0b5ed7;
             transform: translateY(-1px);
-            box-shadow: 0 6px 12px rgba(13,110,253,0.25);
-        }
-        .menu-acoes{
-            position:absolute;
-            background:white;
-            border:1px solid #ddd;
-            border-radius:6px;
-            box-shadow:0 6px 12px rgba(0,0,0,.15);
-            padding:6px 0;
-            z-index:9999;
+            box-shadow: 0 6px 12px rgba(13, 110, 253, 0.25);
         }
 
-        .menu-acoes button{
-            display:block;
-            width:100%;
-            padding:8px 14px;
-            border:none;
-            background:none;
-            text-align:left;
+        .menu-acoes {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, .15);
+            padding: 6px 0;
+            z-index: 9999;
         }
 
-        .menu-acoes button:hover{
-            background:#f1f1f1;
+        .menu-acoes button {
+            display: block;
+            width: 100%;
+            padding: 8px 14px;
+            border: none;
+            background: none;
+            text-align: left;
+        }
+
+        .menu-acoes button:hover {
+            background: #f1f1f1;
         }
 
         /* FUNDO ESCURO */
         .overlay-usuarios {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0, 0, 0, 0.45);
             backdrop-filter: blur(2px);
             z-index: 9998;
         }
@@ -278,7 +281,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             height: 520px;
             background: #fff;
             border-radius: 14px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -334,7 +337,8 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             background: #f1f3f5;
         }
 
-        .modal-usuarios td, th {
+        .modal-usuarios td,
+        th {
             padding: 8px;
             border-bottom: 1px solid #eee;
         }
@@ -351,17 +355,17 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             margin-left: 4px;
         }
 
-        .overlay-tarefas{
+        .overlay-tarefas {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0, 0, 0, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
 
-        .modal-tarefas{
+        .modal-tarefas {
             background: #fff;
             width: 1000px;
             max-width: 95%;
@@ -371,132 +375,134 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             padding: 20px;
         }
 
-        .modal-header{
-            display:flex;
+        .modal-header {
+            display: flex;
             justify-content: space-between;
-            align-items:center;
-            font-weight:bold;
-            font-size:18px;
-            margin-bottom:15px;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 15px;
         }
 
-        .container-tarefas{
+        .container-tarefas {
             display: flex;
             gap: 30px;
         }
 
-        .col-form{
+        .col-form {
             width: 400px;
             border-right: 1px solid #eee;
             padding-right: 20px;
         }
 
-        .col-lista{
+        .col-lista {
             width: 60%;
         }
 
-        .campo{
+        .campo {
             margin-bottom: 15px;
         }
 
-        .linha-dupla{
+        .linha-dupla {
             display: flex;
             gap: 15px;
         }
 
-        .linha-dupla .campo{
+        .linha-dupla .campo {
             flex: 1;
         }
 
-        .invalido{
+        .invalido {
             border: 1px solid red !important;
         }
 
-        .btn-opcoes{
-            background:none;
-            border:none;
-            font-size:18px;
-            cursor:pointer;
+        .btn-opcoes {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
         }
 
-        .menu-opcoes{
-            display:none;
-            position:absolute;
-            right:0;
-            background:#fff;
-            border:1px solid #ddd;
-            border-radius:6px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.1);
-            z-index:10;
-            min-width:120px;
+        .menu-opcoes {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            min-width: 120px;
         }
 
-        .menu-opcoes div{
-            padding:8px 12px;
-            cursor:pointer;
+        .menu-opcoes div {
+            padding: 8px 12px;
+            cursor: pointer;
         }
 
-        .menu-opcoes div:hover{
-            background:#f2f2f2;
+        .menu-opcoes div:hover {
+            background: #f2f2f2;
         }
 
-        .btn-opcoes{
-            background:none;
-            border:none;
-            font-size:18px;
-            cursor:pointer;
+        .btn-opcoes {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
         }
 
-        .menu-opcoes{
-            display:none;
-            position:absolute;
-            right:0;
-            background:#fff;
-            border:1px solid #ddd;
-            border-radius:6px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.1);
-            z-index:10;
-            min-width:120px;
+        .menu-opcoes {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            min-width: 120px;
         }
 
-        .menu-opcoes div{
-            padding:8px 12px;
-            cursor:pointer;
+        .menu-opcoes div {
+            padding: 8px 12px;
+            cursor: pointer;
         }
 
-        .menu-opcoes div:hover{
-            background:#f2f2f2;
+        .menu-opcoes div:hover {
+            background: #f2f2f2;
         }
 
         /* OVERLAY */
-        .overlay-editar-tarefa{
+        .overlay-editar-tarefa {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0, 0, 0, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2000; /* maior que o painel principal */
+            z-index: 2000;
+            /* maior que o painel principal */
         }
 
         /* MODAL */
-        .modal-editar-tarefa{
+        .modal-editar-tarefa {
             background: #fff;
             width: 700px;
             max-width: 95%;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
             animation: aparecerModal 0.2s ease-out;
         }
 
         /* Animação suave */
-        @keyframes aparecerModal{
-            from{
+        @keyframes aparecerModal {
+            from {
                 transform: scale(0.95);
                 opacity: 0;
             }
-            to{
+
+            to {
                 transform: scale(1);
                 opacity: 1;
             }
@@ -523,7 +529,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             right: 0;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
             min-width: 120px;
             display: none;
             z-index: 999;
@@ -543,223 +549,245 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
         .menu-wrapper:hover .menu-opcoes {
             display: block;
         }
-
     </style>
 </head>
 
 <body>
+    <?php if (isset($_SESSION['alerta'])): ?>
 
-<div class="pai">
+        <div class="alert alert-<?= $_SESSION['alerta']['tipo'] ?> alert-dismissible fade show"
+            role="alert"
+            id="alertaSistema">
 
-<aside class="sidebar">
-    <h2>Controle</h2>
-    <nav>
-        <ul class="menu">
-            <li class="menu-section">Principal</li>
-            <li><a href="control" class="<?= $pagina === 'control' ? 'active' : '' ?>"><i class="bi bi-house"></i> Home Controle</a></li>
-            
-            <li class="menu-section">Usuário</li>
-            <li><a href="cadastrar-usuario" ><i class="bi bi-plus-circle"></i> Novo Usuário</a></li>
-            <li><a href="listar-usuarios"><i class="bi bi-eye"></i> Usuários Existentes</a></li>
-            
-            <li class="menu-section">Classes de Usuário</li>
-            <li><a href="criar-classe"><i class="bi bi-plus-circle"></i> Nova Classe</a></li>
-            <li><a href="listar-classes"><i class="bi bi-eye"></i> Classes Existentes</a></li>
+            <?= $_SESSION['alerta']['mensagem'] ?>
 
-            <li class="menu-section">Áreas de Atuação</li>
-            <li><a href="criar-nova-area"><i class="bi bi-plus-circle"></i> Nova Área</a></li>
-            <li><a href="listar-areas-existentes"><i class="bi bi-eye"></i> Áreas Existentes</a></li>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 
-            <li class="menu-section">Notícias</li>
-            <li><a href="cadastrar-noticias"><i class="bi bi-plus-circle"></i> Nova Notícia</a></li>
-            <li><a href="view-noticias-existentes"><i class="bi bi-eye"></i> Ver Notícias</a></li>
+        </div>
 
-            <li class="menu-section">Dashboard</li>
-            <li><a href="gerenciador-de-dashboards"><i class="bi bi-clipboard-data"></i> Gerenciar Dashboard</a></li>
+        <script>
+            setTimeout(() => {
+                const alerta = document.getElementById("alertaSistema");
+                if (alerta) {
+                    alerta.style.transition = "opacity 0.5s";
+                    alerta.style.opacity = "0";
+                    setTimeout(() => alerta.remove(), 500);
+                }
+            }, 4000);
+        </script>
 
-            <li class="menu-section">Documentos</li>
-            <li><a href="gerenciar-documentos-institucionais"><i class="bi bi-file-text"></i> Gerenciar Documentos</a></li>
+        <?php unset($_SESSION['alerta']); ?>
 
-            <li class="menu-section">Projetos & Tarefas</li>
-            <li><a href="ger-projetos-tarefas"><i class="bi bi-kanban-fill service-icon"></i>
-            Gerenciar Projetos & Tarefas</a></li>
-            
-            <li class="menu-section">Site Público</li>
-            <li><a href="home"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>
-            
-        </ul>
-        <br>
-        <br>
-    </nav>
-</aside>
+    <?php endif; ?>
 
-<div class="ferramentas-conteudos">
+    <div class="pai">
 
-    <!-- BARRA DE FERRAMENTAS -->
-    <div class="ferramentas shadow-sm">
+        <aside class="sidebar">
+            <h2>Controle</h2>
+            <nav>
+                <ul class="menu">
+                    <li class="menu-section">Principal</li>
+                    <li><a href="control" class="<?= $pagina === 'control' ? 'active' : '' ?>"><i class="bi bi-house"></i> Home Controle</a></li>
 
-        <div class="opcoes">
+                    <li class="menu-section">Usuário</li>
+                    <li><a href="cadastrar-usuario"><i class="bi bi-plus-circle"></i> Novo Usuário</a></li>
+                    <li><a href="listar-usuarios"><i class="bi bi-eye"></i> Usuários Existentes</a></li>
 
-            <button class="btn btn-primary" onclick="AddProjeto()">
-                <i class="bi bi-folder-plus"></i> Criar Projeto
-            </button>
+                    <li class="menu-section">Classes de Usuário</li>
+                    <li><a href="criar-classe"><i class="bi bi-plus-circle"></i> Nova Classe</a></li>
+                    <li><a href="listar-classes"><i class="bi bi-eye"></i> Classes Existentes</a></li>
+
+                    <li class="menu-section">Áreas de Atuação</li>
+                    <li><a href="criar-nova-area"><i class="bi bi-plus-circle"></i> Nova Área</a></li>
+                    <li><a href="listar-areas-existentes"><i class="bi bi-eye"></i> Áreas Existentes</a></li>
+
+                    <li class="menu-section">Notícias</li>
+                    <li><a href="cadastrar-noticias"><i class="bi bi-plus-circle"></i> Nova Notícia</a></li>
+                    <li><a href="view-noticias-existentes"><i class="bi bi-eye"></i> Ver Notícias</a></li>
+
+                    <li class="menu-section">Dashboard</li>
+                    <li><a href="gerenciador-de-dashboards"><i class="bi bi-clipboard-data"></i> Gerenciar Dashboard</a></li>
+
+                    <li class="menu-section">Documentos</li>
+                    <li><a href="gerenciar-documentos-institucionais"><i class="bi bi-file-text"></i> Gerenciar Documentos</a></li>
+
+                    <li class="menu-section">Projetos & Tarefas</li>
+                    <li><a href="ger-projetos-tarefas"><i class="bi bi-kanban-fill service-icon"></i>
+                            Gerenciar Projetos & Tarefas</a></li>
+
+                    <li class="menu-section">Site Público</li>
+                    <li><a href="home"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>
+
+                </ul>
+                <br>
+                <br>
+            </nav>
+        </aside>
+
+        <div class="ferramentas-conteudos">
+
+            <!-- BARRA DE FERRAMENTAS -->
+            <div class="ferramentas shadow-sm">
+
+                <div class="opcoes">
+
+                    <button class="btn btn-primary" onclick="AddProjeto()">
+                        <i class="bi bi-folder-plus"></i> Criar Projeto
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- CONTEÚDO -->
+            <div class="conteudo">
+
+                <!-- PROJETOS -->
+                <div class="projetos">
+
+                    <h5 class="mb-3">
+                        <i class="bi bi-kanban"></i> Projetos
+                    </h5>
+
+                    <table class="table table-hover table-striped shadow-sm bg-white rounded">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nome Projeto</th>
+
+                                <th>Data Criação</th>
+
+                                <th>Data Modificação</th>
+
+                                <th>Status</th>
+
+                                <th>Início</th>
+
+                                <th>Fim</th>
+
+                                <th style="width:160px;">Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbodyProjeto">
+
+                            <?php foreach ($projetos as $p): ?>
+                                <tr>
+
+                                    <td>
+                                        <span class="valor" data-id="<?= $p['id'] ?>" data-campo="titulo">
+                                            <?= htmlspecialchars($p['titulo']) ?>
+                                        </span>
+                                        <button
+                                            class="btn btn-sm btn-outline-primary ms-1"
+                                            onclick="editarCampo(<?= $p['id'] ?>, 'titulo')"
+                                            title="Editar título">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars($p['data_criacao']) ?>
+                                    </td>
+
+                                    <td>
+                                        <?= htmlspecialchars($p['data_modificacao']) ?>
+
+                                    </td>
+
+                                    <td>
+                                        <?php if ($p['status'] == 'Em andamento'): ?>
+                                            <span class="valor"
+                                                data-id="<?= $p['id'] ?>"
+                                                data-campo="status"
+                                                style="color: <?= $p['status'] == 'Concluído' ? 'green' : 'red' ?>">
+                                                <?= htmlspecialchars($p['status']) ?>
+                                            </span>
+                                            <button
+                                                class="btn btn-sm btn-outline-primary ms-1"
+                                                onclick="editarCampo(<?= $p['id'] ?>, 'status')"
+                                                title="Editar status">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        <?php else: ?>
+                                            <span class="valor"
+                                                data-id="<?= $p['id'] ?>"
+                                                data-campo="status"
+                                                style="color: <?= $p['status'] == 'Concluído' ? 'green' : 'red' ?>">
+                                                <?= htmlspecialchars($p['status']) ?>
+                                            </span>
+                                            <button
+                                                class="btn btn-sm btn-outline-primary ms-1"
+                                                onclick="editarCampo(<?= $p['id'] ?>, 'status')"
+                                                title="Editar status">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        <?php endif ?>
+                                    </td>
+
+                                    <td>
+                                        <span class="valor" data-id="<?= $p['id'] ?>" data-campo="data_inicio">
+                                            <?= date('d/m/Y', strtotime($p['data_inicio'])) ?>
+                                        </span>
+                                        <button
+                                            class="btn btn-sm btn-outline-primary ms-1"
+                                            onclick="editarCampo(<?= $p['id'] ?>, 'data_inicio')"
+                                            title="Editar data início">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                    </td>
+
+                                    <td>
+                                        <span class="valor" data-id="<?= $p['id'] ?>" data-campo="data_fim">
+                                            <?= date('d/m/Y', strtotime($p['data_fim'])) ?>
+                                        </span>
+                                        <button class="btn btn-sm btn-warning"
+                                            onclick="prorrogarProjeto(<?= $p['id'] ?>)">
+                                            <i class="bi bi-clock-history">Prorrogar</i>
+                                        </button>
+                                    </td>
+
+                                    <td>
+                                        <button
+                                            class="btn btn-sm btn-secondary"
+                                            onclick="abrirMenu(event, <?= $p['id'] ?>, '<?= htmlspecialchars($p['titulo'], ENT_QUOTES) ?>')">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            <?php endforeach; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
 
-    <!-- CONTEÚDO -->
-    <div class="conteudo">
+    <script>
+        async function carregarUsuarios(projetoId) {
 
-        <!-- PROJETOS -->
-        <div class="projetos">
+            const r = await fetch(`usuarios-projeto?id=${projetoId}`);
+            const dados = await r.json();
 
-            <h5 class="mb-3">
-                <i class="bi bi-kanban"></i> Projetos
-            </h5>
+            const lista = document.getElementById("listaUsuarios");
+            const projeto = document.getElementById("usuariosProjeto");
 
-            <table class="table table-hover table-striped shadow-sm bg-white rounded">
+            lista.innerHTML = "";
+            projeto.innerHTML = "";
 
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nome Projeto</th>
+            dados.usuariosSistema.forEach(u => {
 
-                        <th>Data Criação</th>
-
-                        <th>Data Modificação</th>
-
-                        <th>Status</th>
-
-                        <th>Início</th>
-
-                        <th>Fim</th>
-
-                        <th style="width:160px;">Ações</th>
-                    </tr>
-                </thead>
-
-                <tbody id="tbodyProjeto">
-
-                <?php foreach ($projetos as $p): ?>
-                    <tr>
-
-                        <td>
-                            <span class="valor" data-id="<?= $p['id'] ?>" data-campo="titulo">
-                                <?= htmlspecialchars($p['titulo']) ?>
-                            </span>
-                            <button
-                                class="btn btn-sm btn-outline-primary ms-1"
-                                onclick="editarCampo(<?= $p['id'] ?>, 'titulo')"
-                                title="Editar título">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($p['data_criacao']) ?>
-                        </td>
-
-                        <td>
-                            <?= htmlspecialchars($p['data_modificacao']) ?>
-
-                        </td>
-
-                        <td>
-                            <?php if ($p['status'] == 'Em andamento'):?>
-                                <span class="valor"
-                                    data-id="<?= $p['id'] ?>"
-                                    data-campo="status"
-                                    style="color: <?= $p['status']=='Concluído'?'green':'red' ?>">
-                                    <?= htmlspecialchars($p['status']) ?>
-                                </span>
-                                <button
-                                    class="btn btn-sm btn-outline-primary ms-1"
-                                    onclick="editarCampo(<?= $p['id'] ?>, 'status')"
-                                    title="Editar status">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                            <?php else:?>
-                                <span class="valor"
-                                    data-id="<?= $p['id'] ?>"
-                                    data-campo="status"
-                                    style="color: <?= $p['status']=='Concluído'?'green':'red' ?>">
-                                    <?= htmlspecialchars($p['status']) ?>
-                                </span>
-                                <button
-                                    class="btn btn-sm btn-outline-primary ms-1"
-                                    onclick="editarCampo(<?= $p['id'] ?>, 'status')"
-                                    title="Editar status">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                            <?php endif?>
-                        </td>
-
-                        <td>
-                            <span class="valor" data-id="<?= $p['id'] ?>" data-campo="data_inicio">
-                                <?= date('d/m/Y', strtotime($p['data_inicio'])) ?>
-                            </span>
-                            <button
-                                class="btn btn-sm btn-outline-primary ms-1"
-                                onclick="editarCampo(<?= $p['id'] ?>, 'data_inicio')"
-                                title="Editar data início">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                        </td>
-
-                        <td>
-                            <span class="valor" data-id="<?= $p['id'] ?>" data-campo="data_fim">
-                                <?= date('d/m/Y', strtotime($p['data_fim'])) ?>
-                            </span>
-                            <button
-                                class="btn btn-sm btn-outline-primary ms-1"
-                                onclick="editarCampo(<?= $p['id'] ?>, 'data_fim')"
-                                title="Editar data fim">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                        </td>
-
-                        <td>
-                            <button
-                                class="btn btn-sm btn-secondary"
-                                onclick="abrirMenu(event, <?= $p['id'] ?>, '<?= htmlspecialchars($p['titulo'], ENT_QUOTES) ?>')">
-                                <i class="bi bi-gear"></i>
-                            </button>
-                        </td>
-
-                    </tr>
-                <?php endforeach; ?>
-
-            </tbody>
-            
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-<script>
-
-    async function carregarUsuarios(projetoId){
-
-        const r = await fetch(`usuarios-projeto?id=${projetoId}`);
-        const dados = await r.json();
-
-        const lista = document.getElementById("listaUsuarios");
-        const projeto = document.getElementById("usuariosProjeto");
-
-        lista.innerHTML = "";
-        projeto.innerHTML = "";
-
-        dados.usuariosSistema.forEach(u => {
-
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
                 <td>${u.nome}</td>
                 <td>${u.classe ?? "-"}</td>
                 <td>${u.area ?? "-"}</td>
@@ -768,30 +796,30 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                 </td>
             `;
 
-            tr.querySelector("button").onclick = () =>
-                addUsuarioProjeto(projetoId, u.id, u.nome);
+                tr.querySelector("button").onclick = () =>
+                    addUsuarioProjeto(projetoId, u.id, u.nome);
 
-            lista.appendChild(tr);
-        });
+                lista.appendChild(tr);
+            });
 
-        dados.usuariosProjeto.forEach(u => {
+            dados.usuariosProjeto.forEach(u => {
 
-            const tr = document.createElement("tr");
+                const tr = document.createElement("tr");
 
-            // monta select de papeis
-            let selectHTML = `<select class="form-select form-select-sm">`;
+                // monta select de papeis
+                let selectHTML = `<select class="form-select form-select-sm">`;
 
-            dados.papeis.forEach(p => {
-                selectHTML += `
+                dados.papeis.forEach(p => {
+                    selectHTML += `
                     <option value="${p.id}" ${p.id == u.papel_id ? "selected" : ""}>
                         ${p.nome}
                     </option>
                 `;
-            });
+                });
 
-            selectHTML += `</select>`;
+                selectHTML += `</select>`;
 
-            tr.innerHTML = `
+                tr.innerHTML = `
                 <td>${u.nome}</td>
                 <td>${selectHTML}</td>
                 <td>
@@ -801,69 +829,73 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                 </td>
             `;
 
-            // mudança de papel
-            tr.querySelector("select").onchange = function() {
-                alterarPapelUsuario(projetoId, u.id, this.value);
-            };
+                // mudança de papel
+                tr.querySelector("select").onchange = function() {
+                    alterarPapelUsuario(projetoId, u.id, this.value);
+                };
 
-            // remover usuário
-            tr.querySelector("button").onclick = () =>
-                removerUsuarioProjeto(projetoId, u.id, u.nome);
+                // remover usuário
+                tr.querySelector("button").onclick = () =>
+                    removerUsuarioProjeto(projetoId, u.id, u.nome);
 
-            projeto.appendChild(tr);
-        });
+                projeto.appendChild(tr);
+            });
 
-    }
-
-    async function alterarPapelUsuario(projetoId, usuarioId, papelId){
-
-        const r = await fetch("alterar-papel-usuario", {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({
-                projeto_id: projetoId,
-                usuario_id: usuarioId,
-                papel_id: papelId
-            })
-        });
-
-        const resp = await r.json();
-
-        if(resp.status !== "success"){
-            alert(resp.message);
-        }
-    }
-
-    async function addUsuarioProjeto(projetoId, usuarioId, nome){
-
-        const r = await fetch("add-usuario-projeto", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({
-                projeto_id: projetoId,
-                usuario_id: usuarioId,
-                papel_id: 1
-            })
-        });
-
-        const resp = await r.json();
-
-        if(resp.status !== "success"){
-            alert(resp.message);
-            return;
         }
 
-        // evita duplicar se já existir
-        if(document.querySelector(`#usuariosProjeto tr[data-id="${usuarioId}"]`)){
-            return;
+        async function alterarPapelUsuario(projetoId, usuarioId, papelId) {
+
+            const r = await fetch("alterar-papel-usuario", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    projeto_id: projetoId,
+                    usuario_id: usuarioId,
+                    papel_id: papelId
+                })
+            });
+
+            const resp = await r.json();
+
+            if (resp.status !== "success") {
+                alert(resp.message);
+            }
         }
 
-        const lista = document.getElementById("usuariosProjeto");
+        async function addUsuarioProjeto(projetoId, usuarioId, nome) {
 
-        const tr = document.createElement("tr");
-        tr.dataset.id = usuarioId; // <- chave importante
+            const r = await fetch("add-usuario-projeto", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    projeto_id: projetoId,
+                    usuario_id: usuarioId,
+                    papel_id: 1
+                })
+            });
 
-        tr.innerHTML = `
+            const resp = await r.json();
+
+            if (resp.status !== "success") {
+                alert(resp.message);
+                return;
+            }
+
+            // evita duplicar se já existir
+            if (document.querySelector(`#usuariosProjeto tr[data-id="${usuarioId}"]`)) {
+                return;
+            }
+
+            const lista = document.getElementById("usuariosProjeto");
+
+            const tr = document.createElement("tr");
+            tr.dataset.id = usuarioId; // <- chave importante
+
+            tr.innerHTML = `
             <td>${nome}</td>
             <td>
                 <button class="btn btn-sm btn-danger">
@@ -872,199 +904,204 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             </td>
         `;
 
-        tr.querySelector("button").onclick = () =>
-            removerUsuarioProjeto(projetoId, usuarioId, nome);
+            tr.querySelector("button").onclick = () =>
+                removerUsuarioProjeto(projetoId, usuarioId, nome);
 
-        lista.appendChild(tr);
+            lista.appendChild(tr);
 
-        // sincroniza com o banco depois
-        setTimeout(() => carregarUsuarios(projetoId), 150);
-    }
-
-    async function dellProjeto(projetoId) {
-
-        if(!confirm("tem certeza que deseja deletar este projeto?")){
-            return;
+            // sincroniza com o banco depois
+            setTimeout(() => carregarUsuarios(projetoId), 150);
         }
 
-        try {
+        async function dellProjeto(projetoId) {
 
-            const response = await fetch('deletar-projeto', {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                projeto_id: projetoId
-            })
-            });
-
-            const resp = await response.json();
-
-            if (resp.status === "success") {
-                alert("Projeto deletado com sucesso!");
-                location.reload();
-            } else if (resp.status === "error") {
-                alert("Não foi possível deletar o projeto");
+            if (!confirm("tem certeza que deseja deletar este projeto?")) {
+                return;
             }
 
-        } catch (erro) {
-            console.error(erro);
-            alert("Erro ao conectar com a API");
-        }
-    }
-
-    async function removerUsuarioProjeto(projetoId, usuarioId, nome){
-
-        if (!confirm(`Remover ${nome} do projeto?`)) return;
-
-        const r = await fetch("remover-usuario-projeto", {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({
-                projeto_id: projetoId,
-                usuario_id: usuarioId
-            })
-        });
-
-        const resp = await r.json();
-
-        if (resp.status === "success") {
-            carregarUsuarios(projetoId); // recarrega lista
-        } else {
-            alert(resp.message);
-        }
-    }
-
-    function AddProjeto(){
-
-        if (document.getElementById("form-box")) {
-            console.log("Form já está aberto");
-            return;
-        }
-
-        const formBox = document.createElement("div");
-        formBox.className = "form-box";
-        formBox.id = "form-box";
-
-        // botão fechar
-        const btnClose = document.createElement("button");
-        btnClose.className = "form-close";
-
-        const iconClose = document.createElement("i");
-        iconClose.className = "bi bi-x-lg";
-
-        btnClose.appendChild(iconClose);
-        formBox.appendChild(btnClose);
-
-        btnClose.addEventListener("click", () => {
-            formBox.remove();
-        });
-
-        // form
-        const form = document.createElement("form");
-
-        form.addEventListener("submit", async function(e){
-            e.preventDefault();
-
-            const dados = {
-                titulo: document.getElementById("titulo").value,
-                descricao: document.getElementById("descricao").value,
-                data_inicio: document.getElementById("data_inicio").value,
-                data_fim: document.getElementById("data_fim").value
-            };
-
             try {
-                const resposta = await fetch("criar-projeto", {
-                    method: "POST",
+
+                const response = await fetch('deletar-projeto', {
+                    method: 'POST',
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(dados)
+                    body: JSON.stringify({
+                        projeto_id: projetoId
+                    })
                 });
 
-                const resultado = await resposta.json();
+                const resp = await response.json();
 
-                if (resultado.status === "success") {
-
-                    alert(resultado.message);
-                    formBox.remove();location.reload();
-
-
-                } else {
-
-                    alert("Erro: " + resultado.message);
-
+                if (resp.status === "success") {
+                    alert("Projeto deletado com sucesso!");
+                    location.reload();
+                } else if (resp.status === "error") {
+                    alert("Não foi possível deletar o projeto");
                 }
 
             } catch (erro) {
-                console.error("Falha:", erro);
-                alert("Erro de conexão com o servidor.");
+                console.error(erro);
+                alert("Erro ao conectar com a API");
             }
-        });
-
-
-        // título
-        const title = document.createElement("div");
-        title.className = "form-title";
-        title.textContent = "Cadastro de Projeto";
-        form.appendChild(title);
-
-        function criarCampo(labelText, id, type = "text") {
-            const group = document.createElement("div");
-            group.className = "form-group";
-
-            const label = document.createElement("label");
-            label.className = "form-label";
-            label.setAttribute("for", id);
-            label.textContent = labelText;
-
-            const input = document.createElement("input");
-            input.type = type;
-            input.id = id;
-            input.className = "form-control";
-
-            group.appendChild(label);
-            group.appendChild(input);
-
-            return group;
         }
 
-        form.appendChild(criarCampo("Título do Projeto", "titulo"));
-        form.appendChild(criarCampo("Descrição do Projeto", "descricao"));
+        async function removerUsuarioProjeto(projetoId, usuarioId, nome) {
 
-        const datas = document.createElement("div");
-        datas.className = "datas";
+            if (!confirm(`Remover ${nome} do projeto?`)) return;
 
-        datas.appendChild(criarCampo("Data de Início", "data_inicio", "date"));
-        datas.appendChild(criarCampo("Data Final", "data_fim", "date"));
+            const r = await fetch("remover-usuario-projeto", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    projeto_id: projetoId,
+                    usuario_id: usuarioId
+                })
+            });
 
-        form.appendChild(datas);
+            const resp = await r.json();
 
-        const btnAdd = document.createElement("button");
-        btnAdd.type = "submit";
-        btnAdd.className = "btn btn-projeto";
+            if (resp.status === "success") {
+                carregarUsuarios(projetoId); // recarrega lista
+            } else {
+                alert(resp.message);
+            }
+        }
 
-        const iconAdd = document.createElement("i");
-        iconAdd.className = "bi bi-plus-circle me-2";
+        function AddProjeto() {
 
-        btnAdd.appendChild(iconAdd);
-        btnAdd.append("Adicionar Projeto");
+            if (document.getElementById("form-box")) {
+                console.log("Form já está aberto");
+                return;
+            }
 
-        form.appendChild(btnAdd);
+            const formBox = document.createElement("div");
+            formBox.className = "form-box";
+            formBox.id = "form-box";
 
-        formBox.appendChild(form);
+            // botão fechar
+            const btnClose = document.createElement("button");
+            btnClose.className = "form-close";
 
-        document.body.appendChild(formBox);
+            const iconClose = document.createElement("i");
+            iconClose.className = "bi bi-x-lg";
 
-    }
+            btnClose.appendChild(iconClose);
+            formBox.appendChild(btnClose);
 
-    function abrirMenu(event, id, titulo){
+            btnClose.addEventListener("click", () => {
+                formBox.remove();
+            });
 
-        document.querySelectorAll(".menu-acoes").forEach(m => m.remove());
+            // form
+            const form = document.createElement("form");
 
-        const menu = document.createElement("div");
-        menu.className = "menu-acoes";
+            form.addEventListener("submit", async function(e) {
+                e.preventDefault();
 
-        menu.innerHTML = `
+                const dados = {
+                    titulo: document.getElementById("titulo").value,
+                    descricao: document.getElementById("descricao").value,
+                    data_inicio: document.getElementById("data_inicio").value,
+                    data_fim: document.getElementById("data_fim").value
+                };
+
+                try {
+                    const resposta = await fetch("criar-projeto", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(dados)
+                    });
+
+                    const resultado = await resposta.json();
+
+                    if (resultado.status === "success") {
+
+                        alert(resultado.message);
+                        formBox.remove();
+                        location.reload();
+
+
+                    } else {
+
+                        alert("Erro: " + resultado.message);
+
+                    }
+
+                } catch (erro) {
+                    console.error("Falha:", erro);
+                    alert("Erro de conexão com o servidor.");
+                }
+            });
+
+
+            // título
+            const title = document.createElement("div");
+            title.className = "form-title";
+            title.textContent = "Cadastro de Projeto";
+            form.appendChild(title);
+
+            function criarCampo(labelText, id, type = "text") {
+                const group = document.createElement("div");
+                group.className = "form-group";
+
+                const label = document.createElement("label");
+                label.className = "form-label";
+                label.setAttribute("for", id);
+                label.textContent = labelText;
+
+                const input = document.createElement("input");
+                input.type = type;
+                input.id = id;
+                input.className = "form-control";
+
+                group.appendChild(label);
+                group.appendChild(input);
+
+                return group;
+            }
+
+            form.appendChild(criarCampo("Título do Projeto", "titulo"));
+            form.appendChild(criarCampo("Descrição do Projeto", "descricao"));
+
+            const datas = document.createElement("div");
+            datas.className = "datas";
+
+            datas.appendChild(criarCampo("Data de Início", "data_inicio", "date"));
+            datas.appendChild(criarCampo("Data Final", "data_fim", "date"));
+
+            form.appendChild(datas);
+
+            const btnAdd = document.createElement("button");
+            btnAdd.type = "submit";
+            btnAdd.className = "btn btn-projeto";
+
+            const iconAdd = document.createElement("i");
+            iconAdd.className = "bi bi-plus-circle me-2";
+
+            btnAdd.appendChild(iconAdd);
+            btnAdd.append("Adicionar Projeto");
+
+            form.appendChild(btnAdd);
+
+            formBox.appendChild(form);
+
+            document.body.appendChild(formBox);
+
+        }
+
+        function abrirMenu(event, id, titulo) {
+
+            document.querySelectorAll(".menu-acoes").forEach(m => m.remove());
+
+            const menu = document.createElement("div");
+            menu.className = "menu-acoes";
+
+            menu.innerHTML = `
             <button onclick="dellProjeto(${id})">
                 <span style="color: red;"><i class="bi bi-trash"></i> Excluir Projeto</span>
             </button>
@@ -1076,28 +1113,30 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             </button>
         `;
 
-        document.body.appendChild(menu);
+            document.body.appendChild(menu);
 
-        const rect = event.target.closest("button").getBoundingClientRect();
-        menu.style.top = rect.bottom + "px";
-        menu.style.left = rect.left + "px";
+            const rect = event.target.closest("button").getBoundingClientRect();
+            menu.style.top = rect.bottom + "px";
+            menu.style.left = rect.left + "px";
 
-        document.addEventListener("click", () => menu.remove(), { once: true });
+            document.addEventListener("click", () => menu.remove(), {
+                once: true
+            });
 
-        event.stopPropagation();
-    }
+            event.stopPropagation();
+        }
 
-    function viewPanTarefas(projetoId){
+        function viewPanTarefas(projetoId) {
 
-        document.querySelector(".overlay-tarefas")?.remove();
+            document.querySelector(".overlay-tarefas")?.remove();
 
-        const overlay = document.createElement("div");
-        overlay.className = "overlay-tarefas";
+            const overlay = document.createElement("div");
+            overlay.className = "overlay-tarefas";
 
-        const modal = document.createElement("div");
-        modal.className = "modal-tarefas";
+            const modal = document.createElement("div");
+            modal.className = "modal-tarefas";
 
-        modal.innerHTML = `
+            modal.innerHTML = `
             <div class="modal-header">
                 <span>Administrar Tarefas do Projeto</span>
                 <button class="btn btn-sm btn-light"
@@ -1182,111 +1221,111 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             </div>
         `;
 
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
 
-        overlay.addEventListener("click", e=>{
-            if(e.target === overlay) overlay.remove();
-        });
-
-        ativarValidacaoFormulario();
-        carregarTarefas(projetoId);
-    }
-
-    function ativarValidacaoFormulario(){
-
-        const campos = document.querySelectorAll(".obrigatorio");
-        const botao = document.getElementById("btnSalvarTarefa");
-
-        function validar(){
-
-            let valido = true;
-
-            campos.forEach(campo => {
-
-                if(!campo.value.trim()){
-                    campo.classList.add("invalido");
-                    valido = false;
-                }else{
-                    campo.classList.remove("invalido");
-                }
-
+            overlay.addEventListener("click", e => {
+                if (e.target === overlay) overlay.remove();
             });
 
-            botao.disabled = !valido;
+            ativarValidacaoFormulario();
+            carregarTarefas(projetoId);
         }
 
-        campos.forEach(campo=>{
-            campo.addEventListener("input", validar);
-            campo.addEventListener("change", validar);
-        });
-    }
+        function ativarValidacaoFormulario() {
 
-    function salvarTarefa(projetoId){
+            const campos = document.querySelectorAll(".obrigatorio");
+            const botao = document.getElementById("btnSalvarTarefa");
 
-        const titulo = document.getElementById("tituloTarefa").value.trim();
-        const descricao = document.getElementById("descricaoTarefa").value.trim();
-        const status = document.getElementById("statusTarefa").value;
-        const prazo = document.getElementById("prazoTarefa").value;
-        const arquivoInput = document.getElementById("arquivoTarefa");
+            function validar() {
 
-        if(!titulo){
-            alert("O título é obrigatório.");
-            return;
-        }
+                let valido = true;
 
-        const formData = new FormData();
-        formData.append("projeto_id", projetoId);
-        formData.append("titulo", titulo);
-        formData.append("descricao", descricao);
-        formData.append("status", status);
-        formData.append("prazo", prazo);
+                campos.forEach(campo => {
 
-        if(arquivoInput.files.length > 0){
-            formData.append("arquivo", arquivoInput.files[0]);
-        }
+                    if (!campo.value.trim()) {
+                        campo.classList.add("invalido");
+                        valido = false;
+                    } else {
+                        campo.classList.remove("invalido");
+                    }
 
-        fetch("salvar-tarefa", {
-            method: "POST",
-            body: formData
-        })
-        .then(r => r.json())
-        .then(resp => {
-            if(resp.status === "success"){
-                carregarTarefas(projetoId);
-                limparFormularioTarefa();
-                alert("Tarefa salva com sucesso!");
-            }else{
-                alert(resp.message);
+                });
+
+                botao.disabled = !valido;
             }
-        });
-    }
 
-    function formatarData(data){
+            campos.forEach(campo => {
+                campo.addEventListener("input", validar);
+                campo.addEventListener("change", validar);
+            });
+        }
 
-        if(!data) return "-";
+        function salvarTarefa(projetoId) {
 
-        const partes = data.split("-");
+            const titulo = document.getElementById("tituloTarefa").value.trim();
+            const descricao = document.getElementById("descricaoTarefa").value.trim();
+            const status = document.getElementById("statusTarefa").value;
+            const prazo = document.getElementById("prazoTarefa").value;
+            const arquivoInput = document.getElementById("arquivoTarefa");
 
-        if(partes.length !== 3) return data;
+            if (!titulo) {
+                alert("O título é obrigatório.");
+                return;
+            }
 
-        return `${partes[2]}/${partes[1]}/${partes[0]}`;
-    }
+            const formData = new FormData();
+            formData.append("projeto_id", projetoId);
+            formData.append("titulo", titulo);
+            formData.append("descricao", descricao);
+            formData.append("status", status);
+            formData.append("prazo", prazo);
 
-    function carregarTarefas(projetoId){
+            if (arquivoInput.files.length > 0) {
+                formData.append("arquivo", arquivoInput.files[0]);
+            }
 
-        fetch(`listar-tarefas?projeto_id=${projetoId}`)
-        .then(r => r.json())
-        .then(lista => {
+            fetch("salvar-tarefa", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.status === "success") {
+                        carregarTarefas(projetoId);
+                        limparFormularioTarefa();
+                        alert("Tarefa salva com sucesso!");
+                    } else {
+                        alert(resp.message);
+                    }
+                });
+        }
 
-            const tbody = document.getElementById("listaTarefas");
-            tbody.innerHTML = "";
+        function formatarData(data) {
 
-            lista.forEach(tarefa => {
+            if (!data) return "-";
 
-                const tr = document.createElement("tr");
+            const partes = data.split("-");
 
-                tr.innerHTML = `
+            if (partes.length !== 3) return data;
+
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        function carregarTarefas(projetoId) {
+
+            fetch(`listar-tarefas?projeto_id=${projetoId}`)
+                .then(r => r.json())
+                .then(lista => {
+
+                    const tbody = document.getElementById("listaTarefas");
+                    tbody.innerHTML = "";
+
+                    lista.forEach(tarefa => {
+
+                        const tr = document.createElement("tr");
+
+                        tr.innerHTML = `
                     <td>${tarefa.titulo}</td>
 
                     <td style="color:${tarefa.status === 'Concluído' ? 'green' : 'red'}">
@@ -1306,168 +1345,171 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                             <span class="menu-btn">⋮</span>
 
                             <div class="menu-opcoes">
-                                <div onclick="editarTarefa(${tarefa.id}, ${projetoId})">Editar</div>
-                                <div onclick="excluirTarefa(${tarefa.id})">Excluir</div>
-                            </div>
+    <div onclick="editarTarefa(${tarefa.id}, ${projetoId})">Editar</div>
+    <div onclick="prorrogarTarefa(${tarefa.id}, ${projetoId})">Prorrogar</div>
+    <div onclick="excluirTarefa(${tarefa.id})">Excluir</div>
+</div>
                         </div>
                     </td>
                 `;
 
-                tbody.appendChild(tr);
-            });
-        });
-    }
-
-    function limparFormularioTarefa(){
-        document.getElementById("tituloTarefa").value = "";
-        document.getElementById("descricaoTarefa").value = "";
-        document.getElementById("prazoTarefa").value = "";
-        document.getElementById("arquivoTarefa").value = "";
-    }
-
-    function toggleMenuTarefa(id){
-
-        document.querySelectorAll(".menu-opcoes")
-            .forEach(menu => menu.style.display = "none");
-
-        const menu = document.getElementById(`menu-${id}`);
-
-        if(menu){
-            menu.style.display = "block";
-        }
-    }
-
-    function excluirProjeto(id){
-        if(confirm("Deseja excluir este projeto?")){
-            alert("Excluir projeto " + id);
-        }
-    }
-
-    function editarCampo(id, campo){
-
-        const span = document.querySelector(
-            `.valor[data-id="${id}"][data-campo="${campo}"]`
-        );
-
-        if (!span) return;
-
-        const td = span.parentElement;
-        const botao = td.querySelector("button"); // botão lápis
-
-        if (botao) botao.style.display = "none";
-
-        const valorAtual = span.innerText.trim();
-        let input;
-
-        // STATUS
-        if (campo === "status") {
-
-            input = document.createElement("select");
-            input.className = "form-control form-control-sm";
-
-            ["Em andamento", "Concluído"].forEach(op => {
-                const option = document.createElement("option");
-                option.value = op;
-                option.textContent = op;
-                if (op === valorAtual) option.selected = true;
-                input.appendChild(option);
-            });
-
-            setTimeout(() => {
-                input.focus();
-                input.click();
-            }, 50);
+                        tbody.appendChild(tr);
+                    });
+                });
         }
 
-        // DATAS
-        else if (campo === "data_inicio" || campo === "data_fim") {
+        function limparFormularioTarefa() {
+            document.getElementById("tituloTarefa").value = "";
+            document.getElementById("descricaoTarefa").value = "";
+            document.getElementById("prazoTarefa").value = "";
+            document.getElementById("arquivoTarefa").value = "";
+        }
 
-            input = document.createElement("input");
-            input.type = "date";
-            input.className = "form-control form-control-sm";
+        function toggleMenuTarefa(id) {
 
-            const partes = valorAtual.split("/");
-            if (partes.length === 3) {
-                input.value = `${partes[2]}-${partes[1]}-${partes[0]}`;
+            document.querySelectorAll(".menu-opcoes")
+                .forEach(menu => menu.style.display = "none");
+
+            const menu = document.getElementById(`menu-${id}`);
+
+            if (menu) {
+                menu.style.display = "block";
             }
         }
 
-        // TEXTO
-        else {
-            input = document.createElement("input");
-            input.type = "text";
-            input.value = valorAtual;
-            input.className = "form-control form-control-sm";
+        function excluirProjeto(id) {
+            if (confirm("Deseja excluir este projeto?")) {
+                alert("Excluir projeto " + id);
+            }
         }
 
-        span.replaceWith(input);
-        input.focus();
+        function editarCampo(id, campo) {
 
-        function salvar(){
+            const span = document.querySelector(
+                `.valor[data-id="${id}"][data-campo="${campo}"]`
+            );
 
-            let novoValor = input.value;
+            if (!span) return;
 
-            fetch("editar-projeto", {
-                method: "POST",
-                headers: {"Content-Type":"application/json"},
-                body: JSON.stringify({
-                    id: id,
-                    campo: campo,
-                    valor: novoValor
-                })
-            })
-            .then(r => r.json())
-            .then(resp => {
+            const td = span.parentElement;
+            const botao = td.querySelector("button"); // botão lápis
 
-                if (resp.status !== "success") {
-                    alert(resp.message);
-                    return;
+            if (botao) botao.style.display = "none";
+
+            const valorAtual = span.innerText.trim();
+            let input;
+
+            // STATUS
+            if (campo === "status") {
+
+                input = document.createElement("select");
+                input.className = "form-control form-control-sm";
+
+                ["Em andamento", "Concluído"].forEach(op => {
+                    const option = document.createElement("option");
+                    option.value = op;
+                    option.textContent = op;
+                    if (op === valorAtual) option.selected = true;
+                    input.appendChild(option);
+                });
+
+                setTimeout(() => {
+                    input.focus();
+                    input.click();
+                }, 50);
+            }
+
+            // DATAS
+            else if (campo === "data_inicio" || campo === "data_fim") {
+
+                input = document.createElement("input");
+                input.type = "date";
+                input.className = "form-control form-control-sm";
+
+                const partes = valorAtual.split("/");
+                if (partes.length === 3) {
+                    input.value = `${partes[2]}-${partes[1]}-${partes[0]}`;
                 }
+            }
 
-                const novoSpan = document.createElement("span");
-                novoSpan.className = "valor";
-                novoSpan.dataset.id = id;
-                novoSpan.dataset.campo = campo;
+            // TEXTO
+            else {
+                input = document.createElement("input");
+                input.type = "text";
+                input.value = valorAtual;
+                input.className = "form-control form-control-sm";
+            }
 
-                if (campo === "status") {
-                    novoSpan.style.color =
-                        novoValor === "Concluído" ? "green" : "red";
+            span.replaceWith(input);
+            input.focus();
+
+            function salvar() {
+
+                let novoValor = input.value;
+
+                fetch("editar-projeto", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            campo: campo,
+                            valor: novoValor
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(resp => {
+
+                        if (resp.status !== "success") {
+                            alert(resp.message);
+                            return;
+                        }
+
+                        const novoSpan = document.createElement("span");
+                        novoSpan.className = "valor";
+                        novoSpan.dataset.id = id;
+                        novoSpan.dataset.campo = campo;
+
+                        if (campo === "status") {
+                            novoSpan.style.color =
+                                novoValor === "Concluído" ? "green" : "red";
+                        }
+
+                        if (campo.includes("data")) {
+                            const partes = novoValor.split("-");
+                            novoValor = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                        }
+
+                        novoSpan.textContent = novoValor;
+
+                        input.replaceWith(novoSpan);
+
+                        if (botao) botao.style.display = "inline-block";
+                    });
+            }
+
+            input.addEventListener("blur", salvar);
+            input.addEventListener("keydown", e => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    salvar();
                 }
-
-                if (campo.includes("data")) {
-                    const partes = novoValor.split("-");
-                    novoValor = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                }
-
-                novoSpan.textContent = novoValor;
-
-                input.replaceWith(novoSpan);
-
-                if (botao) botao.style.display = "inline-block";
             });
         }
 
-        input.addEventListener("blur", salvar);
-        input.addEventListener("keydown", e => {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                salvar();
-            }
-        });
-    }
+        function viewPanUs(projetoId, projetoNome) {
 
-    function viewPanUs(projetoId, projetoNome){
+            // remove se já existir
+            document.querySelector(".overlay-usuarios")?.remove();
 
-        // remove se já existir
-        document.querySelector(".overlay-usuarios")?.remove();
+            const overlay = document.createElement("div");
+            overlay.className = "overlay-usuarios";
 
-        const overlay = document.createElement("div");
-        overlay.className = "overlay-usuarios";
+            const modal = document.createElement("div");
+            modal.className = "modal-usuarios";
 
-        const modal = document.createElement("div");
-        modal.className = "modal-usuarios";
-
-        modal.innerHTML = `
+            modal.innerHTML = `
             <div class="modal-header">
                 Adicionar usuários do projeto: ${projetoNome}
                 <button class="btn btn-sm btn-light" onclick="this.closest('.overlay-usuarios').remove()">✕</button>
@@ -1513,76 +1555,80 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             </div>
         `;
 
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
 
-        overlay.addEventListener("click", e=>{
-            if(e.target === overlay) overlay.remove();
-        });
+            overlay.addEventListener("click", e => {
+                if (e.target === overlay) overlay.remove();
+            });
 
-        carregarUsuarios(projetoId);
-    }
-
-    function filtrarUsuarios(input){
-        const termo = input.value.toLowerCase();
-
-        document.querySelectorAll("#listaUsuarios tr").forEach(tr=>{
-            tr.style.display = tr.innerText.toLowerCase().includes(termo)
-                ? ""
-                : "none";
-        });
-    }
-
-    
-
-    function toggleMenuTarefa(id){
-
-        document.querySelectorAll(".menu-opcoes")
-            .forEach(menu => menu.style.display = "none");
-
-        const menu = document.getElementById(`menu-${id}`);
-
-        if(menu){
-            menu.style.display = "block";
+            carregarUsuarios(projetoId);
         }
-    }
 
-    function excluirTarefa(id, projetoId){
+        function filtrarUsuarios(input) {
+            const termo = input.value.toLowerCase();
 
-        if(!confirm("Deseja realmente excluir esta tarefa?")) return;
+            document.querySelectorAll("#listaUsuarios tr").forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(termo) ?
+                    "" :
+                    "none";
+            });
+        }
 
-        fetch("excluir-tarefa", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id })
-        })
-        .then(r => r.json())
-        .then(resp => {
 
-            if(resp.status === "success"){
-                carregarTarefas(projetoId);
-            }else{
-                alert(resp.message);
+
+        function toggleMenuTarefa(id) {
+
+            document.querySelectorAll(".menu-opcoes")
+                .forEach(menu => menu.style.display = "none");
+
+            const menu = document.getElementById(`menu-${id}`);
+
+            if (menu) {
+                menu.style.display = "block";
             }
+        }
 
-        });
-    }
+        function excluirTarefa(id, projetoId) {
 
-    function editarTarefa(id, projetoId){
+            if (!confirm("Deseja realmente excluir esta tarefa?")) return;
 
-        fetch(`buscar-tarefa?id=${id}`)
-        .then(r => r.json())
-        .then(tarefa => {
+            fetch("excluir-tarefa", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id
+                    })
+                })
+                .then(r => r.json())
+                .then(resp => {
 
-            document.querySelector(".overlay-editar-tarefa")?.remove();
+                    if (resp.status === "success") {
+                        carregarTarefas(projetoId);
+                    } else {
+                        alert(resp.message);
+                    }
 
-            const overlay = document.createElement("div");
-            overlay.className = "overlay-editar-tarefa";
+                });
+        }
 
-            const modal = document.createElement("div");
-            modal.className = "modal-editar-tarefa";
+        function editarTarefa(id, projetoId) {
 
-            modal.innerHTML = `
+            fetch(`buscar-tarefa?id=${id}`)
+                .then(r => r.json())
+                .then(tarefa => {
+
+                    document.querySelector(".overlay-editar-tarefa")?.remove();
+
+                    const overlay = document.createElement("div");
+                    overlay.className = "overlay-editar-tarefa";
+
+                    const modal = document.createElement("div");
+                    modal.className = "modal-editar-tarefa";
+
+                    modal.innerHTML = `
                 <div class="modal-header">
                     Editar Tarefa
                     <button onclick="this.closest('.overlay-editar-tarefa').remove()">✕</button>
@@ -1641,50 +1687,119 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             `;
 
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
+                    overlay.appendChild(modal);
+                    document.body.appendChild(overlay);
 
-            overlay.addEventListener("click", e=>{
-                if(e.target === overlay) overlay.remove();
-            });
+                    overlay.addEventListener("click", e => {
+                        if (e.target === overlay) overlay.remove();
+                    });
 
-        });
-    }
-
-    function salvarEdicaoTarefa(id, projetoId){
-
-        const formData = new FormData();
-
-        formData.append("id", id);
-        formData.append("titulo", document.getElementById("editTitulo").value);
-        formData.append("descricao", document.getElementById("editDescricao").value);
-        formData.append("status", document.getElementById("editStatus").value);
-        formData.append("prazo", document.getElementById("editPrazo").value);
-
-        const arquivoInput = document.getElementById("editArquivo");
-
-        if(arquivoInput.files.length > 0){
-            formData.append("arquivo", arquivoInput.files[0]);
+                });
         }
 
-        fetch("editar-tarefa", {
-            method: "POST",
-            body: formData
-        })
-        .then(r => r.json())
-        .then(resp => {
+        function salvarEdicaoTarefa(id, projetoId) {
 
-            if(resp.status === "success"){
-                document.querySelector(".overlay-editar-tarefa").remove();
-                carregarTarefas(projetoId);
-            }else{
-                alert(resp.message);
+            const formData = new FormData();
+
+            formData.append("id", id);
+            formData.append("titulo", document.getElementById("editTitulo").value);
+            formData.append("descricao", document.getElementById("editDescricao").value);
+            formData.append("status", document.getElementById("editStatus").value);
+            formData.append("prazo", document.getElementById("editPrazo").value);
+
+            const arquivoInput = document.getElementById("editArquivo");
+
+            if (arquivoInput.files.length > 0) {
+                formData.append("arquivo", arquivoInput.files[0]);
             }
 
-        });
-    }
+            fetch("editar-tarefa", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(resp => {
 
-</script>
+                    if (resp.status === "success") {
+                        document.querySelector(".overlay-editar-tarefa").remove();
+                        carregarTarefas(projetoId);
+                    } else {
+                        alert(resp.message);
+                    }
+
+                });
+        }
+
+        function prorrogarTarefa(id, projetoId) {
+
+            const novoPrazo = prompt("Digite o novo prazo da tarefa (DD/MM/AAAA)");
+
+            if (!novoPrazo) return;
+
+            const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+
+            if (!regex.test(novoPrazo)) {
+                alert("Formato inválido. Use DD/MM/AAAA");
+                return;
+            }
+
+            // converter para yyyy-mm-dd
+            const partes = novoPrazo.split("/");
+            const dataSQL = `${partes[2]}-${partes[1]}-${partes[0]}`;
+
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "prorrogar-tarefa";
+
+            const inputId = document.createElement("input");
+            inputId.type = "hidden";
+            inputId.name = "tarefa_id";
+            inputId.value = id;
+
+            const inputPrazo = document.createElement("input");
+            inputPrazo.type = "hidden";
+            inputPrazo.name = "novo_prazo";
+            inputPrazo.value = dataSQL;
+
+            form.appendChild(inputId);
+            form.appendChild(inputPrazo);
+
+            document.body.appendChild(form);
+
+            form.submit();
+        }
+
+        function prorrogarProjeto(id) {
+
+            const novoPrazo = prompt("Digite a nova data final do projeto (YYYY-MM-DD)");
+
+            if (!novoPrazo) return;
+
+            fetch("editar-projeto", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        campo: "data_fim",
+                        valor: novoPrazo
+                    })
+                })
+                .then(r => r.json())
+                .then(resp => {
+
+                    if (resp.status === "success") {
+                        alert("Prazo do projeto prorrogado!");
+                        location.reload();
+                    } else {
+                        alert(resp.message);
+                    }
+
+                });
+        }
+    </script>
 
 </body>
+
 </html>
