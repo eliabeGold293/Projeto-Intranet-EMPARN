@@ -1,5 +1,9 @@
 <?php
 session_start();
+
+$grauAcesso = $_SESSION['grau_acesso'] ?? 0;
+$emailUsuario = $_SESSION['usuario_email'] ?? '';
+$classeNome = $_SESSION['classe_nome'] ?? '';
 // Impedir cache da página protegida
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -17,17 +21,32 @@ if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
 
 require_once __DIR__ . '/../config/connection.php';
 
+$stmt = $pdo->prepare("
+    SELECT u.email, c.nome AS classe_nome
+    FROM usuario u
+    JOIN classe_usuario c ON c.id = u.classe_id
+    WHERE u.id = :id
+");
+
+$stmt->execute([
+    ':id' => $_SESSION['usuario_id']
+]);
+
+$usuarioDados = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$emailUsuario = $usuarioDados['email'] ?? '';
+$classeNome = $usuarioDados['classe_nome'] ?? '';
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EMPARN - Portal</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./static/index.css">
-
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
@@ -46,7 +65,7 @@ require_once __DIR__ . '/../config/connection.php';
             padding: 8px;
             margin-top: 12px !important;
             border: 1px solid #e6e6e6;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
         }
 
         .dropdown-item {
@@ -115,7 +134,8 @@ require_once __DIR__ . '/../config/connection.php';
             font-size: 1.2rem !important;
             line-height: 42px !important;
             text-align: center !important;
-            border: 2px solid #ffffff; /* Borda branca elegante */
+            border: 2px solid #ffffff;
+            /* Borda branca elegante */
             cursor: pointer;
         }
 
@@ -127,12 +147,12 @@ require_once __DIR__ . '/../config/connection.php';
             color: white;
             cursor: pointer;
             transition: 0.25s;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
 
         .service-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
         }
 
         .service-title {
@@ -175,13 +195,25 @@ require_once __DIR__ . '/../config/connection.php';
             background: #111;
             color: #ddd;
         }
-
     </style>
 </head>
+
 <body>
 
     <!-- HEADER -->
     <?php include __DIR__ . '/../templates/header.php'; ?>
+
+    <!-- Resposta para a classe JUNIOR -->
+    <?php if ($grauAcesso == 1): ?>
+
+        <div class="container mt-3">
+            <div class="alert alert-danger text-center">
+                Infelizmente você não tem acesso a este recurso,
+                caso haja dúvidas, contatar o administrador do sistema.
+            </div>
+        </div>
+
+    <?php endif; ?>
 
     <!-- SUBHEADER -->
     <div class="profile-bar">
@@ -240,7 +272,7 @@ require_once __DIR__ . '/../config/connection.php';
 
             <!-- Card fixo 2 -->
             <div class="col">
-                <a href="control" class="text-decoration-none">
+                <a href="#" id="btnControle" class="text-decoration-none">
                     <div class="service-card" style="background:#d90429;">
                         <i class="bi bi-gear-fill service-icon"></i>
                         <div class="service-title">ÁREA DE CONTROLE</div>
@@ -283,7 +315,7 @@ require_once __DIR__ . '/../config/connection.php';
                             </div>
                         </a>
                     </div>
-                <?php endforeach;
+            <?php endforeach;
             endif; ?>
         </div>
     </div>
@@ -303,26 +335,108 @@ require_once __DIR__ . '/../config/connection.php';
         <i class="bi bi-at"></i> <?= date('Y') ?> EMPARN — Todos os direitos reservados.
     </footer>
 
+    <div class="modal fade" id="modalControle" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmação de Segurança</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div id="erroSenha" class="alert alert-danger d-none"></div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" class="form-control"
+                            value="<?= htmlspecialchars($emailUsuario) ?>"
+                            readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Classe</label>
+                        <input type="text" class="form-control"
+                            value="<?= htmlspecialchars($classeNome) ?>"
+                            readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Confirme sua senha</label>
+                        <input type="password" id="senhaConfirmacao" class="form-control">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="confirmarControle">
+                        Confirmar acesso
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- SCRIPT PARA ÍCONES INTELIGENTES -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
 
-            const iconMap = [
-                { keywords: ["documento", "arquivo", "pdf", "doc"], icon: "bi-file-earmark-text" },
-                { keywords: ["controle", "administração", "gerenciar", "config"], icon: "bi-gear-fill" },
-                { keywords: ["relatório", "report"], icon: "bi-bar-chart-fill" },
-                { keywords: ["notícia", "informação"], icon: "bi-newspaper" },
-                { keywords: ["usuário", "perfil", "colaborador"], icon: "bi-person-circle" },
-                { keywords: ["financeiro", "dinheiro", "pagamento"], icon: "bi-cash-stack" },
-                { keywords: ["estatística", "dados", "analise"], icon: "bi-graph-up" },
-                { keywords: ["suporte", "ajuda"], icon: "bi-life-preserver" },
-                { keywords: ["setor", "departamento"], icon: "bi-diagram-3-fill" },
-                { keywords: ["formulário", "form"], icon: "bi-ui-checks-grid" },
-                { keywords: ["projeto", "project"], icon: "bi-kanban" },
-                { keywords: ["agenda", "calendário"], icon: "bi-calendar-event" },
-                { keywords: ["email", "mensagem", "comunicação"], icon: "bi-envelope-paper-fill" }
+            const iconMap = [{
+                    keywords: ["documento", "arquivo", "pdf", "doc"],
+                    icon: "bi-file-earmark-text"
+                },
+                {
+                    keywords: ["controle", "administração", "gerenciar", "config"],
+                    icon: "bi-gear-fill"
+                },
+                {
+                    keywords: ["relatório", "report"],
+                    icon: "bi-bar-chart-fill"
+                },
+                {
+                    keywords: ["notícia", "informação"],
+                    icon: "bi-newspaper"
+                },
+                {
+                    keywords: ["usuário", "perfil", "colaborador"],
+                    icon: "bi-person-circle"
+                },
+                {
+                    keywords: ["financeiro", "dinheiro", "pagamento"],
+                    icon: "bi-cash-stack"
+                },
+                {
+                    keywords: ["estatística", "dados", "analise"],
+                    icon: "bi-graph-up"
+                },
+                {
+                    keywords: ["suporte", "ajuda"],
+                    icon: "bi-life-preserver"
+                },
+                {
+                    keywords: ["setor", "departamento"],
+                    icon: "bi-diagram-3-fill"
+                },
+                {
+                    keywords: ["formulário", "form"],
+                    icon: "bi-ui-checks-grid"
+                },
+                {
+                    keywords: ["projeto", "project"],
+                    icon: "bi-kanban"
+                },
+                {
+                    keywords: ["agenda", "calendário"],
+                    icon: "bi-calendar-event"
+                },
+                {
+                    keywords: ["email", "mensagem", "comunicação"],
+                    icon: "bi-envelope-paper-fill"
+                }
             ];
 
             const defaultIcon = "bi-grid-3x3-gap-fill";
@@ -343,6 +457,73 @@ require_once __DIR__ . '/../config/connection.php';
             });
 
         });
+
+        const grauAcesso = <?= $grauAcesso ?>;
+
+        document.getElementById("btnControle").addEventListener("click", function(e) {
+
+            e.preventDefault();
+
+            switch (grauAcesso) {
+
+                case 1:
+                    window.scrollTo(0, 0);
+                    return;
+
+                default:
+                    const modal = new bootstrap.Modal(
+                        document.getElementById("modalControle")
+                    );
+                    modal.show();
+            }
+
+        });
+
+
+        document.getElementById("confirmarControle")
+            .addEventListener("click", async () => {
+
+                const senha = document.getElementById("senhaConfirmacao").value;
+
+                const form = new FormData();
+                form.append("senha", senha);
+
+                const response = await fetch("confirmar-controle", {
+                    method: "POST",
+                    body: form
+                });
+
+                const data = await response.json();
+
+                if (data.status === "error") {
+
+                    const erro = document.getElementById("erroSenha");
+                    erro.classList.remove("d-none");
+                    erro.innerText = data.message;
+                    return;
+
+                }
+
+                switch (data.grau_acesso) {
+
+                    case 2:
+                        window.location.href = "controle-projetos";
+                        break;
+
+                    case 3:
+                        window.location.href = "controle-projetos";
+                        break;
+
+                    case 4:
+                        window.location.href = "control";
+                        break;
+
+                    default:
+                        alert("Acesso não autorizado");
+                }
+
+            });
     </script>
 </body>
+
 </html>

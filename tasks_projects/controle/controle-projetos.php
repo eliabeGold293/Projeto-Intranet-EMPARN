@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once __DIR__ . '/../config/connection.php';
 
 $stmt = $pdo->query("
@@ -582,48 +581,6 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
     <?php endif; ?>
 
     <div class="pai">
-
-        <aside class="sidebar">
-            <h2>Controle</h2>
-            <nav>
-                <ul class="menu">
-                    <li class="menu-section">Principal</li>
-                    <li><a href="control" class="<?= $pagina === 'control' ? 'active' : '' ?>"><i class="bi bi-house"></i> Home Controle</a></li>
-
-                    <li class="menu-section">Usuário</li>
-                    <li><a href="cadastrar-usuario"><i class="bi bi-plus-circle"></i> Novo Usuário</a></li>
-                    <li><a href="listar-usuarios"><i class="bi bi-eye"></i> Usuários Existentes</a></li>
-
-                    <li class="menu-section">Classes de Usuário</li>
-                    <li><a href="criar-classe"><i class="bi bi-plus-circle"></i> Nova Classe</a></li>
-                    <li><a href="listar-classes"><i class="bi bi-eye"></i> Classes Existentes</a></li>
-
-                    <li class="menu-section">Áreas de Atuação</li>
-                    <li><a href="criar-nova-area"><i class="bi bi-plus-circle"></i> Nova Área</a></li>
-                    <li><a href="listar-areas-existentes"><i class="bi bi-eye"></i> Áreas Existentes</a></li>
-
-                    <li class="menu-section">Notícias</li>
-                    <li><a href="cadastrar-noticias"><i class="bi bi-plus-circle"></i> Nova Notícia</a></li>
-                    <li><a href="view-noticias-existentes"><i class="bi bi-eye"></i> Ver Notícias</a></li>
-
-                    <li class="menu-section">Dashboard</li>
-                    <li><a href="gerenciador-de-dashboards"><i class="bi bi-clipboard-data"></i> Gerenciar Dashboard</a></li>
-
-                    <li class="menu-section">Documentos</li>
-                    <li><a href="gerenciar-documentos-institucionais"><i class="bi bi-file-text"></i> Gerenciar Documentos</a></li>
-
-                    <li class="menu-section">Projetos & Tarefas</li>
-                    <li><a href="ger-projetos-tarefas"><i class="bi bi-kanban-fill service-icon"></i>
-                            Gerenciar Projetos & Tarefas</a></li>
-
-                    <li class="menu-section">Site Público</li>
-                    <li><a href="home"><i class="bi bi-arrow-left-circle"></i> Voltar ao Site</a></li>
-
-                </ul>
-                <br>
-                <br>
-            </nav>
-        </aside>
 
         <div class="ferramentas-conteudos">
 

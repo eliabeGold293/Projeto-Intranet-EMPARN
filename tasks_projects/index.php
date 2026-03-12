@@ -66,6 +66,10 @@ switch($arquivo){
 
     # Rotas de páginas de controle
 
+    case 'controle-projetos':
+        include 'controle/controle-projetos.php';
+        break;
+
     case 'relatorio-acesso':
         include 'controle/relatorio-acesso.php';
         break;
@@ -136,6 +140,10 @@ switch($arquivo){
         break;
 
     # Rotas de apis
+
+    case 'confirmar-controle':
+        include 'apis/confirmar-controle.php';
+        break;
 
     case 'prorrogar-tarefa':
         include 'apis/prorrogar-tarefa.php';
