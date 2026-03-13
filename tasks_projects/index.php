@@ -1,20 +1,61 @@
 <?php
-#session_start();
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+session_start();
 
 include_once 'config/config.php';
-//include_once 'apis/auth.php';
 
 $url = $_GET['url'] ?? 'login';
 
-// criar o caminho da página com o nome que está na primeira posição do array, criado acima e atribuir a extensão .php.
+/*
+|--------------------------------------------------------------------------
+| ROTAS PÚBLICAS (não exigem login)
+|--------------------------------------------------------------------------
+*/
+$rotas_publicas = [
+    'login2',
+    'login',
+    'auth',
+    'primeiro-acesso',
+    'salvar-primeiro-acesso'
+];
+
+/*
+|--------------------------------------------------------------------------
+| PROTEÇÃO GLOBAL DE LOGIN
+|--------------------------------------------------------------------------
+*/
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
+
+    if (!in_array($url, $rotas_publicas)) {
+        header("Location: ?url=login");
+        exit;
+    }
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| PROTEÇÃO DE CACHE (somente para usuários logados)
+|--------------------------------------------------------------------------
+*/
+if (isset($_SESSION['usuario_id'])) {
+
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+    header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
+
+}
+
 $arquivo = $url;
-// var_dump($arquivo);
 
 switch($arquivo){
 
     # Rotas de arquivos da pasta public
+
+    case 'login2':
+        include 'public/login2.php';
+        break;
+    
     case 'uploads-usuarios':
         include 'public/uploads-usuarios.php';
         break;

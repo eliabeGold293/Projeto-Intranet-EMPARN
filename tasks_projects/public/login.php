@@ -1,5 +1,5 @@
 <?php
-session_start();
+#session_start();
 
 $erro = $_SESSION['erro_login'] ?? null;
 $info = $_SESSION['info_login'] ?? null;

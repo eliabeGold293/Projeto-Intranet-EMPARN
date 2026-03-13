@@ -1,5 +1,24 @@
+<?php
+session_start();
+
+// Impedir cache da página protegida
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Impedir navegação "voltar" após logout
+header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
+
+// Se não estiver logado → volta para login
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
+    header("Location: login");
+    # echo 'Não há usuário logado';
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +30,7 @@
     <!-- TinyMCE -->
     <script src="tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
-    
+
     <style>
         body {
             background-color: #f4f6f8;
@@ -34,7 +53,7 @@
         }
 
         .card {
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
     </style>
@@ -44,7 +63,7 @@
 
     <!-- Menu reutilizável -->
     <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
-    <?php require_once __DIR__ . '/../config/connection.php';?>
+    <?php require_once __DIR__ . '/../config/connection.php'; ?>
 
     <!-- Conteúdo principal -->
     <main class="main-content">
@@ -52,12 +71,12 @@
 
         <div id="local-button">
             <button id="addNewsForm" onclick="addNoticia()" class="btn btn-success mb-4 d-flex align-items-center gap-2 shadow-sm px-3">
-            <i class="bi bi-plus-circle fs-5"></i>
-            <span class="fw-semibold">Nova Notícia</span>
-        </button>
+                <i class="bi bi-plus-circle fs-5"></i>
+                <span class="fw-semibold">Nova Notícia</span>
+            </button>
 
         </div>
-        
+
         <!-- Container onde os formulários aparecem -->
         <div id="newsFormsContainer"></div>
     </main>
@@ -99,8 +118,7 @@
 
             content_css: "tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
 
-            removeformat: [
-                {
+            removeformat: [{
                     selector: 'b,strong,em,i,u,span,font',
                     remove: 'all'
                 },
@@ -124,7 +142,9 @@
                 if (!tinymce.get(txt.id)) {
                     // se não tiver id, cria um
                     if (!txt.id) txt.id = "mce_" + Math.random().toString(36).slice(2, 9);
-                    tinymce.init(Object.assign({}, TINYMCE_COMMON, { target: txt }));
+                    tinymce.init(Object.assign({}, TINYMCE_COMMON, {
+                        target: txt
+                    }));
                 }
             });
         }
@@ -132,7 +152,9 @@
         // Inicia TinyMCE apenas em um textarea DOM (usado ao criar tópico dinamicamente)
         function initTinyMCEOnElement(textareaEl) {
             if (!textareaEl.id) textareaEl.id = "mce_" + Math.random().toString(36).slice(2, 9);
-            tinymce.init(Object.assign({}, TINYMCE_COMMON, { target: textareaEl }));
+            tinymce.init(Object.assign({}, TINYMCE_COMMON, {
+                target: textareaEl
+            }));
         }
 
         // Garante que conteúdo do TinyMCE vai para os <textarea> antes de ler o form
@@ -140,7 +162,7 @@
             if (typeof tinymce !== "undefined") tinymce.triggerSave();
         }
 
-        function addNoticia(){
+        function addNoticia() {
 
             let formId = 1;
 
@@ -218,7 +240,7 @@
         }
 
         let topicoIndex = 0;
-        
+
         function gerarTopico() {
             const topicosContainer = document.getElementById("topicos-container");
             const index = topicoIndex++;
@@ -290,8 +312,8 @@
             const card = document.getElementById("news-card-1");
             const localBotao = document.getElementById("local-button");
 
-            if(confirm("Tem certeza que deseja deletar toda a notícia?")){
-                
+            if (confirm("Tem certeza que deseja deletar toda a notícia?")) {
+
                 if (card) card.remove();
 
                 localBotao.innerHTML = `
@@ -305,7 +327,7 @@
             }
         }
 
-        function removeTopico(btn){
+        function removeTopico(btn) {
 
             if (confirm("Tem certeza que deseja remover o tópico?")) {
 
@@ -317,9 +339,9 @@
 
         async function salvarNoticia() {
 
-            if(confirm("Tem certeza que deseja salvar esta notícia?")){
+            if (confirm("Tem certeza que deseja salvar esta notícia?")) {
 
-                const topicosContainer = document.getElementById("topicos-container");
+                triggerTinySaveAll(); // SINCRONIZA O TINYMCE
 
                 // valida tópicos
                 const topicos = document.querySelectorAll(".topicos-container > div");
@@ -376,10 +398,11 @@
                     alert("Erro ao enviar: " + err.message);
                 }
 
-            } else{
+            } else {
                 alert("Ok!");
             }
         }
     </script>
 </body>
+
 </html>

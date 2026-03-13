@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 $grauAcesso = $_SESSION['grau_acesso'] ?? 0;
 $emailUsuario = $_SESSION['usuario_email'] ?? '';
 $classeNome = $_SESSION['classe_nome'] ?? '';
@@ -14,7 +12,7 @@ header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
 
 // Se não estiver logado → volta para login
 if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
-    header("Location: login.php");
+    header("Location: login");
     # echo 'Não há usuário logado';
     exit;
 }
@@ -502,24 +500,25 @@ $classeNome = $usuarioDados['classe_nome'] ?? '';
                     erro.innerText = data.message;
                     return;
 
-                }
+                } else if (data.status === "success") {
+                    switch (data.grau_acesso) {
 
-                switch (data.grau_acesso) {
+                        case 2:
+                            window.location.href = "controle-projetos";
+                            break;
 
-                    case 2:
-                        window.location.href = "controle-projetos";
-                        break;
+                        case 3:
+                            window.location.href = "controle-projetos";
+                            break;
 
-                    case 3:
-                        window.location.href = "controle-projetos";
-                        break;
+                        case 4:
+                            window.location.href = "control";
+                            break;
 
-                    case 4:
-                        window.location.href = "control";
-                        break;
+                        default:
+                            alert("Acesso não autorizado");
+                    }
 
-                    default:
-                        alert("Acesso não autorizado");
                 }
 
             });

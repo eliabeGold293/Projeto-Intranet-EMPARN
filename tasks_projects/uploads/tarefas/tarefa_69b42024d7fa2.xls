@@ -1,0 +1,73 @@
+
+                <html>
+                <head>
+                <meta charset="UTF-8">
+                </head>
+                <body>
+                <div id="tabelaExportacao" style="display:none">
+
+        <table border="1">
+
+            <tbody><tr>
+                <th>ID_Usuario</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Area</th>
+                <th>Data_Acesso</th>
+                <th>Quantidade_Acessos</th>
+            </tr>
+            
+                <tr>
+
+                    <td>42</td>
+                    <td>Eliabe Rodrigues Florêncio</td>
+                    <td>eliabeflorencio@gmail.com</td>
+                    <td>BIOTECNOLOGIAs</td>
+                    <td>2026-03-09</td>
+                    <td>3</td>
+
+                </tr>
+
+            
+                <tr>
+
+                    <td>49</td>
+                    <td>Juniro Bragancio</td>
+                    <td>eliabegold293@gmail.com</td>
+                    <td>ANIMAL</td>
+                    <td>2026-03-09</td>
+                    <td>1</td>
+
+                </tr>
+
+            
+                <tr>
+
+                    <td>42</td>
+                    <td>Eliabe Rodrigues Florêncio</td>
+                    <td>eliabeflorencio@gmail.com</td>
+                    <td>BIOTECNOLOGIAs</td>
+                    <td>2026-03-06</td>
+                    <td>2</td>
+
+                </tr>
+
+            
+                <tr>
+
+                    <td>42</td>
+                    <td>Eliabe Rodrigues Florêncio</td>
+                    <td>eliabeflorencio@gmail.com</td>
+                    <td>BIOTECNOLOGIAs</td>
+                    <td>2026-03-05</td>
+                    <td>1</td>
+
+                </tr>
+
+            
+        </tbody></table>
+
+    </div>
+                </body>
+                </html>
+            

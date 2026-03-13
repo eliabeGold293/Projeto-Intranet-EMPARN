@@ -1,4 +1,20 @@
 <?php
+session_start();
+
+// Impedir cache da página protegida
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Impedir navegação "voltar" após logout
+header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
+
+// Se não estiver logado → volta para login
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
+    header("Location: login");
+    # echo 'Não há usuário logado';
+    exit;
+}
 require_once __DIR__ . '/../config/connection.php';
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -15,204 +31,221 @@ $topicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Editar Notícia</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar Notícia</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-<script src="tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
-<script src="tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
+    <script src="<?= URL ?>tinymce_8.2.2/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script src="<?= URL ?>tinymce_8.2.2/tinymce/js/tinymce/langs/pt_BR.js"></script>
 
-<style>
-body { background:#f5f7f9; }
-.container-main { margin-left:250px; padding:28px; max-width:1200px; }
-@media (max-width:768px){ .container-main{ margin-left:0; padding:16px; } }
+    <style>
+        body {
+            background: #f5f7f9;
+        }
 
-.topico { cursor:grab; }
+        .container-main {
+            margin-left: 250px;
+            padding: 28px;
+            max-width: 1200px;
+        }
 
-.img-preview {
-    width:100%;
-    max-height:360px;
-    object-fit:cover;
-    border-radius:.75rem;
-}
+        @media (max-width:768px) {
+            .container-main {
+                margin-left: 0;
+                padding: 16px;
+            }
+        }
 
-/* largura padrão para tudo */
-.main-fields {
-    max-width: 760px;
-}
-/* centraliza e limita o conteúdo do card */
-.card-body > form {
-    width: 90%;
-    margin: 0 auto;
-}
+        .topico {
+            cursor: grab;
+        }
 
-/* garante alinhamento visual consistente */
-.main-fields {
-    max-width: 100%;
-}
+        .img-preview {
+            width: 100%;
+            max-height: 360px;
+            object-fit: cover;
+            border-radius: .75rem;
+        }
 
-/* tópicos seguem o mesmo fluxo */
-#topicos {
-    width: 100%;
-}
+        /* largura padrão para tudo */
+        .main-fields {
+            max-width: 760px;
+        }
 
-</style>
+        /* centraliza e limita o conteúdo do card */
+        .card-body>form {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        /* garante alinhamento visual consistente */
+        .main-fields {
+            max-width: 100%;
+        }
+
+        /* tópicos seguem o mesmo fluxo */
+        #topicos {
+            width: 100%;
+        }
+    </style>
 </head>
+
 <body>
 
-<?php include __DIR__ . '/../templates/gen_menu.php'; ?>
+    <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
-<div class="container-main">
+    <div class="container-main">
 
-<!-- TOPO -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- TOPO -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
-    <h3>Editar Notícia</h3>
+            <h3>Editar Notícia</h3>
 
-    <div class="d-flex gap-2">
+            <div class="d-flex gap-2">
 
-        <button type="button" class="btn btn-success" onclick="salvar()">
-            <i class="bi bi-save"></i> Salvar
-        </button>
+                <button type="button" class="btn btn-success" onclick="salvar()">
+                    <i class="bi bi-save"></i> Salvar
+                </button>
 
-        <a href="deletar-noticia?id=<?= $noticia['id'] ?>"
-           class="btn btn-danger"
-           onclick="return confirm('Tem certeza que deseja excluir esta notícia?')">
-            <i class="bi bi-trash"></i> Excluir
-        </a>
+                <a href="deletar-noticia?id=<?= $noticia['id'] ?>"
+                    class="btn btn-danger"
+                    onclick="return confirm('Tem certeza que deseja excluir esta notícia?')">
+                    <i class="bi bi-trash"></i> Excluir
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="card-content">
+                    <form id="formNoticia" enctype="multipart/form-data">
+                        <input type="hidden" name="id" value="<?= $noticia['id'] ?>">
+
+                        <div class="mb-3">
+                            <label class="form-label">Título</label>
+                            <input type="text" name="titulo" class="form-control" required
+                                value="<?= htmlspecialchars($noticia['titulo']) ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Subtítulo</label>
+                            <input type="text" name="subtitulo" class="form-control"
+                                value="<?= htmlspecialchars($noticia['subtitulo']) ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Autoria</label>
+                            <input type="text" name="autoria" class="form-control"
+                                value="<?= htmlspecialchars($noticia['autoria']) ?>">
+                        </div>
+
+                        <?php if ($noticia['imagem']): ?>
+                            <div class="mb-3">
+                                <img src="/tasks_projects/uploads/<?= htmlspecialchars($noticia['imagem']) ?>" class="img-preview">
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="mb-3">
+                            <label class="form-label">Imagem principal</label>
+                            <input type="file" name="imagem" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Fonte da imagem</label>
+                            <textarea name="fonte_imagem" class="form-control"><?= htmlspecialchars($noticia['fonte_imagem']) ?></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Conteúdo</label>
+                            <textarea name="texto" class="form-control editor"><?= htmlspecialchars($noticia['texto']) ?></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Link externo (opcional)</label>
+                            <input type="text" name="link" class="form-control"
+                                value="<?= htmlspecialchars($noticia['link']) ?>">
+                        </div>
+
+                        <hr>
+
+                        <h5>Tópicos</h5>
+
+                        <div id="topicos">
+                            <?php foreach ($topicos as $i => $t): ?>
+                                <div class="topico border rounded p-3 mb-3">
+
+                                    <input type="hidden" name="topicos[<?= $i ?>][id]" value="<?= $t['id'] ?>">
+
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <strong class="topico-titulo">Tópico</strong>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarRemocao(this)">Remover</button>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label">Título do tópico</label>
+                                        <input type="text" name="topicos[<?= $i ?>][titulo]" class="form-control"
+                                            value="<?= htmlspecialchars($t['titulo']) ?>">
+                                    </div>
+
+                                    <?php if ($t['imagem']): ?>
+                                        <img src="/tasks_projects/uploads/<?= htmlspecialchars($t['imagem']) ?>" class="img-preview my-2">
+                                    <?php endif; ?>
+
+                                    <div class="mb-2">
+                                        <label class="form-label">Imagem do tópico</label>
+                                        <input type="file" name="topicos[<?= $i ?>][imagem]" class="form-control">
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label">Fonte da Imagem:</label>
+                                        <input type="text" id="fonte"
+                                            name="topicos[${index}][fonte_imagem]"
+                                            class="form-control"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label">Conteúdo do tópico</label>
+                                        <textarea name="topicos[<?= $i ?>][texto]" class="form-control editor"><?= htmlspecialchars($t['texto']) ?></textarea>
+                                    </div>
+
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-secondary mt-2" onclick="addTopico()">
+                            <i class="bi bi-plus-circle"></i> Adicionar tópico
+                        </button>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
 
     </div>
 
-</div>
+    <script>
+        const TINYMCE_COMMON = {
+            license_key: 'gpl',
+            height: 350,
+            menubar: true,
+            language: "pt_BR",
 
-<div class="card shadow-sm">
-<div class="card-body">
+            plugins: "lists link image table code fullscreen media justify lineheight removeformat paste",
 
-<div class="card-content">
-<form id="formNoticia" enctype="multipart/form-data">
-<input type="hidden" name="id" value="<?= $noticia['id'] ?>">
+            paste_as_text: true,
 
-<div class="mb-3">
-<label class="form-label">Título</label>
-<input type="text" name="titulo" class="form-control" required
-       value="<?= htmlspecialchars($noticia['titulo']) ?>">
-</div>
-
-<div class="mb-3">
-<label class="form-label">Subtítulo</label>
-<input type="text" name="subtitulo" class="form-control"
-       value="<?= htmlspecialchars($noticia['subtitulo']) ?>">
-</div>
-
-<div class="mb-3">
-<label class="form-label">Autoria</label>
-<input type="text" name="autoria" class="form-control"
-       value="<?= htmlspecialchars($noticia['autoria']) ?>">
-</div>
-
-<?php if ($noticia['imagem']): ?>
-<div class="mb-3">
-<img src="/tasks_projects/uploads/<?= htmlspecialchars($noticia['imagem']) ?>" class="img-preview">
-</div>
-<?php endif; ?>
-
-<div class="mb-3">
-<label class="form-label">Imagem principal</label>
-<input type="file" name="imagem" class="form-control">
-</div>
-
-<div class="mb-3">
-<label class="form-label">Fonte da imagem</label>
-<textarea name="fonte_imagem" class="form-control"><?= htmlspecialchars($noticia['fonte_imagem']) ?></textarea>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Conteúdo</label>
-<textarea name="texto" class="form-control editor"><?= htmlspecialchars($noticia['texto']) ?></textarea>
-</div>
-
-<div class="mb-4">
-<label class="form-label">Link externo (opcional)</label>
-<input type="text" name="link" class="form-control"
-       value="<?= htmlspecialchars($noticia['link']) ?>">
-</div>
-
-<hr>
-
-<h5>Tópicos</h5>
-
-<div id="topicos">
-<?php foreach ($topicos as $i => $t): ?>
-<div class="topico border rounded p-3 mb-3">
-
-<input type="hidden" name="topicos[<?= $i ?>][id]" value="<?= $t['id'] ?>">
-
-<div class="d-flex justify-content-between mb-3">
-<strong class="topico-titulo">Tópico</strong>
-<button type="button" class="btn btn-sm btn-outline-danger"
-        onclick="confirmarRemocao(this)">Remover</button>
-</div>
-
-<div class="mb-2">
-<label class="form-label">Título do tópico</label>
-<input type="text" name="topicos[<?= $i ?>][titulo]" class="form-control"
-       value="<?= htmlspecialchars($t['titulo']) ?>">
-</div>
-
-<?php if ($t['imagem']): ?>
-<img src="/tasks_projects/uploads/<?= htmlspecialchars($t['imagem']) ?>" class="img-preview my-2">
-<?php endif; ?>
-
-<div class="mb-2">
-<label class="form-label">Imagem do tópico</label>
-<input type="file" name="topicos[<?= $i ?>][imagem]" class="form-control">
-</div>
-
-<div class="mb-2">
-    <label class="form-label">Fonte da Imagem:</label>
-    <input type="text" id="fonte"
-    name="topicos[${index}][fonte_imagem]"
-    class="form-control"
-    required>
-</div>
-
-<div class="mb-2">
-<label class="form-label">Conteúdo do tópico</label>
-<textarea name="topicos[<?= $i ?>][texto]" class="form-control editor"><?= htmlspecialchars($t['texto']) ?></textarea>
-</div>
-
-</div>
-<?php endforeach; ?>
-</div>
-
-<button type="button" class="btn btn-outline-secondary mt-2" onclick="addTopico()">
-<i class="bi bi-plus-circle"></i> Adicionar tópico
-</button>
-
-</form>
-</div>
-
-</div>
-</div>
-
-</div>
-
-<script>
-const TINYMCE_COMMON = {
-    license_key: 'gpl',
-    height: 350,
-    menubar: true,
-    language: "pt_BR",
-
-    plugins: "lists link image table code fullscreen media justify lineheight removeformat paste",
-
-    paste_as_text: true,
-
-    toolbar: `
+            toolbar: `
         undo redo |
         bold italic underline removeformat |
         alignleft aligncenter alignright alignjustify |
@@ -222,57 +255,57 @@ const TINYMCE_COMMON = {
         fullscreen code
     `,
 
-    branding: false,
-    promotion: false,
+            branding: false,
+            promotion: false,
 
-    skin: "oxide",
-    skin_url: "tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
+            skin: "oxide",
+            skin_url: "<?= URL ?>tinymce_8.2.2/tinymce/js/tinymce/skins/ui/oxide",
+            content_css: "<?= URL ?>tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
 
-    content_css: "tinymce_8.2.2/tinymce/js/tinymce/skins/content/default/content.css",
+            removeformat: [{
+                    selector: 'b,strong,em,i,u,span,font',
+                    remove: 'all'
+                },
+                {
+                    selector: '*',
+                    attributes: ['style', 'class']
+                }
+            ]
+        };
 
-    removeformat: [
-        {
-            selector: 'b,strong,em,i,u,span,font',
-            remove: 'all'
-        },
-        {
-            selector: '*',
-            attributes: ['style', 'class']
+        tinymce.init({
+            selector: "textarea#meuEditor",
+            ...TINYMCE_COMMON
+        });
+
+        // Inicia TinyMCE em todos os textareas com a classe .editor já existentes
+        function initTinyMCE() {
+            // Evita inicializar novamente editores já inicializados
+            document.querySelectorAll("textarea.editor").forEach(txt => {
+                if (!tinymce.get(txt.id)) {
+                    // se não tiver id, cria um
+                    if (!txt.id) txt.id = "mce_" + Math.random().toString(36).slice(2, 9);
+                    tinymce.init(Object.assign({}, TINYMCE_COMMON, {
+                        target: txt
+                    }));
+                }
+            });
         }
-    ]
-};
 
-tinymce.init({
-    selector: "textarea#meuEditor",
-    ...TINYMCE_COMMON
-});
-
-// Inicia TinyMCE em todos os textareas com a classe .editor já existentes
-function initTinyMCE() {
-    // Evita inicializar novamente editores já inicializados
-    document.querySelectorAll("textarea.editor").forEach(txt => {
-        if (!tinymce.get(txt.id)) {
-            // se não tiver id, cria um
-            if (!txt.id) txt.id = "mce_" + Math.random().toString(36).slice(2, 9);
-            tinymce.init(Object.assign({}, TINYMCE_COMMON, { target: txt }));
+        function confirmarRemocao(botao) {
+            if (confirm('Deseja realmente remover este tópico?')) {
+                botao.closest('.topico').remove();
+                atualizarNumeracaoTopicos();
+            }
         }
-    });
-}
 
-function confirmarRemocao(botao) {
-    if (confirm('Deseja realmente remover este tópico?')) {
-        botao.closest('.topico').remove();
-        atualizarNumeracaoTopicos();
-    }
-}
+        function addTopico() {
+            const c = document.getElementById('topicos');
+            const i = c.children.length;
 
-function addTopico() {
-    const c = document.getElementById('topicos');
-    const i = c.children.length;
-
-    const d = document.createElement('div');
-    d.className = 'topico border rounded p-3 mb-3';
-    d.innerHTML = `
+            const d = document.createElement('div');
+            d.className = 'topico border rounded p-3 mb-3';
+            d.innerHTML = `
         <input type="hidden" name="topicos[${i}][id]">
 
         <div class="d-flex justify-content-between mb-3">
@@ -306,43 +339,46 @@ function addTopico() {
             <textarea name="topicos[${i}][texto]" class="form-control editor"></textarea>
         </div>
     `;
-    c.appendChild(d);
-    initTinyMCE();
-    atualizarNumeracaoTopicos();
+            c.appendChild(d);
+            initTinyMCE();
+            atualizarNumeracaoTopicos();
 
-}
-
-function salvar() {
-    if (!confirm('Deseja salvar as alterações desta notícia?')) return;
-    tinymce.triggerSave();
-    const fd = new FormData(document.getElementById('formNoticia'));
-
-    fetch('salvar-noticia', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(j => {
-            if (j.status === 'success') {
-                alert('Notícia salva com sucesso!');
-                location.href = 'view-noticias-existentes';
-            } else alert(j.message || 'Erro');
-        });
-}
-
-function atualizarNumeracaoTopicos() {
-    document.querySelectorAll("#topicos .topico").forEach((topico, i) => {
-        const titulo = topico.querySelector(".topico-titulo");
-        if (titulo) {
-            titulo.textContent = `Tópico ${i + 1}`;
         }
-    });
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-    initTinyMCE();
-    atualizarNumeracaoTopicos();
-});
+        function salvar() {
+            if (!confirm('Deseja salvar as alterações desta notícia?')) return;
+            tinymce.triggerSave();
+            const fd = new FormData(document.getElementById('formNoticia'));
 
-</script>
+            fetch('salvar-noticia', {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(r => r.json())
+                .then(j => {
+                    if (j.status === 'success') {
+                        alert('Notícia salva com sucesso!');
+                        location.href = 'view-noticias-existentes';
+                    } else alert(j.message || 'Erro');
+                });
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        function atualizarNumeracaoTopicos() {
+            document.querySelectorAll("#topicos .topico").forEach((topico, i) => {
+                const titulo = topico.querySelector(".topico-titulo");
+                if (titulo) {
+                    titulo.textContent = `Tópico ${i + 1}`;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTinyMCE();
+            atualizarNumeracaoTopicos();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

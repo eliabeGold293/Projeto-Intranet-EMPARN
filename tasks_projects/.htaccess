@@ -43,7 +43,7 @@ Options -Indexes
 </FilesMatch>
 
 # Bloquear pastas sensíveis
-RewriteRule ^(apis|config|controle|vendor|templates|tinymce_8\.2\.2)(/.*)?$ - [F,L]
+RewriteRule ^(apis|config|controle|vendor|templates)(/.*)?$ - [F,L]
 
 # Bloquear listagem de uploads
 Options -Indexes

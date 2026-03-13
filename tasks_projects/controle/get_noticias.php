@@ -1,4 +1,21 @@
 <?php
+session_start();
+
+// Impedir cache da página protegida
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Impedir navegação "voltar" após logout
+header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
+
+// Se não estiver logado → volta para login
+if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
+    header("Location: login");
+    # echo 'Não há usuário logado';
+    exit;
+}
+
 require_once __DIR__ . '/../config/connection.php';
 
 $search = isset($_GET['q']) ? trim($_GET['q']) : '';
