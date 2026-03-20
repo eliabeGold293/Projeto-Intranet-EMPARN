@@ -237,10 +237,12 @@ if ($usuarioFiltro) {
 
 $tituloAno = 'Acessos no ano';
 $tituloMes = 'Acessos este mês';
+$tituloMedia = 'Média diária';
 
 if (!empty($usuarioFiltro)) {
     $tituloAno .= " ({$nomeUsuarioFiltro})";
     $tituloMes .= " ({$nomeUsuarioFiltro})";
+    $tituloMedia .= " ({$nomeUsuarioFiltro})";
 }
 
 
@@ -395,7 +397,7 @@ $anoRelatorio = $ano;
 
             <div class="col-md-3">
                 <div class="card card-dashboard p-3">
-                    <div>Média diária</div>
+                    <div><?= $tituloMedia ?></div>
                     <div class="metric"><?= $mediaDiaria ?></div>
                 </div>
             </div>
@@ -592,7 +594,7 @@ $anoRelatorio = $ano;
                 <th>Total <span><?= $tituloAno ?></span></th>
                 <th><span><?= $tituloMes ?></span></th>
                 <th>Usuários ativos</th>
-                <th>Média diária</th>
+                <th><span><?= $tituloMedia ?></span></th>
             </tr>
 
             <tr>
