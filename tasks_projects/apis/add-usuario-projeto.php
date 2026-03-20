@@ -14,8 +14,9 @@ try{
         $data['usuario_id'],
         $data['papel_id']
     ]);
-
+    
     echo json_encode(["status"=>"success"]);
+     # registro da ação
 
 }catch(PDOException $e){
     echo json_encode([

@@ -37,6 +37,7 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>Cadastro de Usuário</title>
@@ -79,7 +80,7 @@ try {
             border-radius: 10px;
             padding: 25px;
             border: none;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
 
         .form-label {
@@ -157,9 +158,15 @@ try {
                     <div class="invalid-feedback">Selecione uma área.</div>
                 </div>
 
-                <button type="submit" class="btn btn-success">
+                <button type="submit" id="btnSubmit" class="btn btn-success">
                     <i class="bi bi-check2-circle"></i> Salvar
                 </button>
+                <div id="loading" class="mt-3 d-none">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <span>Salvando usuário...</span>
+                    </div>
+                </div>
 
             </form>
 
@@ -173,11 +180,11 @@ try {
 
     <script>
         // Validação Bootstrap
-        (function () {
+        (function() {
             'use strict';
             const forms = document.querySelectorAll('.needs-validation');
             forms.forEach(form => {
-                form.addEventListener('submit', function (event) {
+                form.addEventListener('submit', function(event) {
                     if (!form.checkValidity()) {
                         event.preventDefault();
                         event.stopPropagation();
@@ -193,64 +200,73 @@ try {
             if (!this.checkValidity()) return;
 
             const formData = new FormData(this);
+            const btn = document.getElementById("btnSubmit");
+            const loading = document.getElementById("loading");
+            const msgDiv = document.getElementById("message");
+
+            // DESABILITA BOTÃO + MOSTRA LOADING
+            btn.disabled = true;
+            loading.classList.remove("d-none");
+            msgDiv.innerHTML = ""; // limpa mensagens antigas
 
             fetch("cadastrar-us", {
-                method: "POST",
-                body: formData
-            })
-            .then(async res => {
-                const raw = await res.text(); // pega a resposta crua
+                    method: "POST",
+                    body: formData
+                })
+                .then(async res => {
+                    const raw = await res.text();
 
-                console.log("=== RESPOSTA CRUA DA API ===");
-                console.log(raw); // MOSTRA O QUE EU PRECISO ANALISAR
+                    console.log("=== RESPOSTA CRUA DA API ===");
+                    console.log(raw);
 
-                let json;
+                    let json;
 
-                try {
-                    json = JSON.parse(raw);
-                } catch (e) {
-                    // JSON inválido → mostrar erro completo
-                    document.getElementById("message").innerHTML =
-                        `<div class="alert alert-danger">
-                            <strong>Erro inesperado:</strong><br>
-                            A API retornou um conteúdo inválido:<br><br>
-                            <pre>${raw}</pre>
-                        </div>`;
-                    throw e; // interrompe aqui
-                }
+                    try {
+                        json = JSON.parse(raw);
+                    } catch (e) {
+                        msgDiv.innerHTML =
+                            `<div class="alert alert-danger">
+                    <strong>Erro inesperado:</strong><br>
+                    <pre>${raw}</pre>
+                </div>`;
+                        throw e;
+                    }
 
-                return json;
-            })
-            .then(json => {
-                const msgDiv = document.getElementById("message");
+                    return json;
+                })
+                .then(json => {
 
-                if (json.success) {
+                    if (json.success) {
+                        msgDiv.innerHTML =
+                            `<div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> ${json.message}
+                </div>`;
+
+                        this.reset();
+                        this.classList.remove("was-validated");
+
+                    } else {
+                        msgDiv.innerHTML =
+                            `<div class="alert alert-danger">
+                    <i class="bi bi-x-circle"></i> ${json.message}<br>
+                    <small>${json.error ?? ""}</small>
+                </div>`;
+                    }
+                })
+                .catch((err) => {
                     msgDiv.innerHTML =
-                        `<div class="alert alert-success">
-                            <i class="bi bi-check-circle"></i> ${json.message}
-                        </div>`;
-
-                    this.reset();
-                    this.classList.remove("was-validated");
-
-                } else {
-                    msgDiv.innerHTML =
                         `<div class="alert alert-danger">
-                            <i class="bi bi-x-circle"></i> ${json.message}<br>
-                            <small>${json.error ?? ""}</small>
-                        </div>`;
-                }
-            })
-            .catch((err) => {
-                document.getElementById("message").innerHTML =
-                    `<div class="alert alert-danger">
-                        <i class="bi bi-x-circle"></i> Erro inesperado: ${err}
-                    </div>`;
-            });
+                <i class="bi bi-x-circle"></i> Erro inesperado: ${err}
+            </div>`;
+                })
+                .finally(() => {
+                    // REATIVA BOTÃO + ESCONDE LOADING
+                    btn.disabled = false;
+                    loading.classList.add("d-none");
+                });
 
         });
-
-
     </script>
 </body>
+
 </html>

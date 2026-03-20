@@ -108,6 +108,7 @@ try {
     // ================================
     // 6. RESPOSTA FINAL
     // ================================
+
     response(true, "Usuário criado com sucesso!", [
         "user_id" => $novoUsuarioId
     ]);

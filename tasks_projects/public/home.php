@@ -201,17 +201,7 @@ $classeNome = $usuarioDados['classe_nome'] ?? '';
     <!-- HEADER -->
     <?php include __DIR__ . '/../templates/header.php'; ?>
 
-    <!-- Resposta para a classe JUNIOR -->
-    <?php if ($grauAcesso == 1): ?>
 
-        <div class="container mt-3">
-            <div class="alert alert-danger text-center">
-                Infelizmente você não tem acesso a este recurso,
-                caso haja dúvidas, contatar o administrador do sistema.
-            </div>
-        </div>
-
-    <?php endif; ?>
 
     <!-- SUBHEADER -->
     <div class="profile-bar">
@@ -465,7 +455,21 @@ $classeNome = $usuarioDados['classe_nome'] ?? '';
             switch (grauAcesso) {
 
                 case 1:
-                    window.scrollTo(0, 0);
+
+                    const alerta = document.getElementById("alertaAcesso");
+
+                    if (alerta) {
+                        alerta.classList.remove("d-none");
+
+                        window.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+
+                        setTimeout(() => {
+                            alerta.classList.add("d-none");
+                        }, 4500);
+                    }
                     return;
 
                 default:
@@ -476,7 +480,6 @@ $classeNome = $usuarioDados['classe_nome'] ?? '';
             }
 
         });
-
 
         document.getElementById("confirmarControle")
             .addEventListener("click", async () => {

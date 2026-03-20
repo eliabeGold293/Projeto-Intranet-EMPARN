@@ -5,18 +5,19 @@ session_start();
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
-
-// Impedir navegação "voltar" após logout
 header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
 
 // Se não estiver logado → volta para login
 if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
     header("Location: login");
-    # echo 'Não há usuário logado';
     exit;
 }
 
 require_once __DIR__ . '/../config/connection.php';
+
+// =======================
+// FILTROS
+// =======================
 
 $ano = $_GET['ano'] ?? date("Y");
 $usuarioFiltro = $_GET['usuario'] ?? '';
@@ -52,50 +53,47 @@ if (!empty($dataFim)) {
     $params[':fim'] = $dataFim;
 }
 
-if ($usuarioFiltro) {
-    $where .= " AND u.id = :usuario ";
-    $params[':usuario'] = $usuarioFiltro;
-}
-
-if ($areaFiltro) {
-    $where .= " AND u.area_id = :area ";
-    $params[':area'] = $areaFiltro;
-}
-
-if ($dataInicio) {
-    $where .= " AND lc.data_login >= :inicio ";
-    $params[':inicio'] = $dataInicio;
-}
-
-if ($dataFim) {
-    $where .= " AND lc.data_login <= :fim ";
-    $params[':fim'] = $dataFim;
-}
-
 /* =======================
 CARDS DASHBOARD
 =======================*/
 
-$sqlAno = "SELECT SUM(quantidade_login) total FROM login_contador 
-WHERE EXTRACT(YEAR FROM data_login)=:ano";
+// 🔹 Acessos no ano (corrigido)
+$sqlAno = "
+SELECT SUM(lc.quantidade_login) total
+FROM login_contador lc
+JOIN usuario u ON u.id = lc.usuario_id
+$where
+";
 
 $stmt = $pdo->prepare($sqlAno);
-$stmt->execute([':ano' => $ano]);
+$stmt->execute($params);
 $totalAno = $stmt->fetchColumn() ?? 0;
 
 
-$sqlMes = "SELECT SUM(quantidade_login)
-FROM login_contador
-WHERE DATE_TRUNC('month',data_login)=DATE_TRUNC('month',CURRENT_DATE)";
-$totalMes = $pdo->query($sqlMes)->fetchColumn() ?? 0;
+// 🔹 Acessos no mês (já estava correto, só mantive)
+$sqlMes = "
+SELECT SUM(lc.quantidade_login)
+FROM login_contador lc
+JOIN usuario u ON u.id = lc.usuario_id
+$where
+AND DATE_TRUNC('month', lc.data_login) = DATE_TRUNC('month', CURRENT_DATE)
+";
+
+$stmt = $pdo->prepare($sqlMes);
+$stmt->execute($params);
+$totalMes = $stmt->fetchColumn() ?? 0;
 
 
+// 🔹 Usuários ativos (agora respeita filtros)
 $sqlUsuariosAtivos = "
-SELECT COUNT(DISTINCT usuario_id)
-FROM login_contador
-WHERE EXTRACT(YEAR FROM data_login)=:ano";
+SELECT COUNT(DISTINCT lc.usuario_id)
+FROM login_contador lc
+JOIN usuario u ON u.id = lc.usuario_id
+$where
+";
+
 $stmt = $pdo->prepare($sqlUsuariosAtivos);
-$stmt->execute([':ano' => $ano]);
+$stmt->execute($params);
 $usuariosAtivos = $stmt->fetchColumn();
 
 
@@ -103,7 +101,7 @@ $mediaDiaria = $totalAno > 0 ? round($totalAno / 365, 2) : 0;
 
 
 /* =======================
-ACESSOS POR MÊS
+ACESSOS POR MÊS (mantido)
 =======================*/
 
 $sqlMeses = "
@@ -138,17 +136,14 @@ $nomesMeses = [
 ];
 
 foreach ($dadosMeses as $m) {
-
     $mesNumero = (int)$m['mes'];
-
     $labelsMes[] = $nomesMeses[$mesNumero];
-
     $dadosMes[] = $m['acessos'];
 }
 
 
 /* =======================
-ACESSOS POR DIA
+ACESSOS POR DIA (mantido)
 =======================*/
 
 $sqlDias = "
@@ -173,7 +168,7 @@ foreach ($dias as $d) {
 
 
 /* =======================
-ACESSOS POR USUÁRIO
+ACESSOS POR USUÁRIO (mantido)
 =======================*/
 
 $sqlUsuarios = "
@@ -194,11 +189,16 @@ $semResultados = count($usuarios) === 0;
 
 
 /* =======================
-LISTA USUARIOS
+LISTAS (mantido)
 =======================*/
 
 $listaUsuarios = $pdo->query("SELECT id,nome FROM usuario ORDER BY nome")->fetchAll();
 $areas = $pdo->query("SELECT id,nome FROM area_atuacao")->fetchAll();
+
+
+/* =======================
+EXPORT (mantido)
+=======================*/
 
 $sqlExport = "
 SELECT
@@ -220,6 +220,11 @@ $stmt = $pdo->prepare($sqlExport);
 $stmt->execute($params);
 $dadosExport = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+/* =======================
+NOMES FILTROS (mantido)
+=======================*/
+
 $nomeUsuarioFiltro = 'Todos';
 
 if ($usuarioFiltro) {
@@ -229,6 +234,20 @@ if ($usuarioFiltro) {
         }
     }
 }
+
+$tituloAno = 'Acessos no ano';
+$tituloMes = 'Acessos este mês';
+
+if (!empty($usuarioFiltro)) {
+    $tituloAno .= " ({$nomeUsuarioFiltro})";
+    $tituloMes .= " ({$nomeUsuarioFiltro})";
+}
+
+
+$mesEmissao = $mesesNomes[(int)date('n')];
+$dataEmissao = date('d/m/Y H:i');
+$anoRelatorio = $ano;
+
 
 $nomeAreaFiltro = 'Todas';
 
@@ -241,23 +260,15 @@ if ($areaFiltro) {
 }
 
 $mesesNomes = [
-    1 => 'Janeiro',
-    2 => 'Fevereiro',
-    3 => 'Março',
-    4 => 'Abril',
-    5 => 'Maio',
-    6 => 'Junho',
-    7 => 'Julho',
-    8 => 'Agosto',
-    9 => 'Setembro',
-    10 => 'Outubro',
-    11 => 'Novembro',
-    12 => 'Dezembro'
+    1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+    5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+    9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
 ];
 
 $mesEmissao = $mesesNomes[(int)date('n')];
 $dataEmissao = date('d/m/Y H:i');
 $anoRelatorio = $ano;
+
 ?>
 
 <!DOCTYPE html>
@@ -306,6 +317,7 @@ $anoRelatorio = $ano;
         <?php } ?>
 
         <h3 class="mb-4">📊 Dashboard de Acessos</h3>
+        <a href="control">Voltar ao Home do Administrador</a>
 
         <form class="row g-2 mb-4">
 
@@ -362,14 +374,14 @@ $anoRelatorio = $ano;
 
             <div class="col-md-3">
                 <div class="card card-dashboard p-3">
-                    <div>Acessos no ano</div>
+                    <div><?= $tituloAno ?></div>
                     <div class="metric"><?= $totalAno ?></div>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="card card-dashboard p-3">
-                    <div>Acessos este mês</div>
+                    <div><?= $tituloMes ?></div>
                     <div class="metric"><?= $totalMes ?></div>
                 </div>
             </div>
@@ -577,8 +589,8 @@ $anoRelatorio = $ano;
         <table border="1" cellpadding="6">
 
             <tr>
-                <th>Total acessos no ano</th>
-                <th>Acessos este mês</th>
+                <th>Total <span><?= $tituloAno ?></span></th>
+                <th><span><?= $tituloMes ?></span></th>
                 <th>Usuários ativos</th>
                 <th>Média diária</th>
             </tr>

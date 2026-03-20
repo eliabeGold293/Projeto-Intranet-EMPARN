@@ -48,12 +48,15 @@ try {
 
     $dbAtual = $pdo->query("SELECT current_database()")->fetchColumn();
 
+    
+
     echo json_encode([
         "status" => "success",
         "message" => "Projeto criado com sucesso",
         "id" => $novoId,
         "debug_db" => $dbAtual
     ]);
+    #Registro da ação
     exit;
 
 } catch (Exception $e) {
