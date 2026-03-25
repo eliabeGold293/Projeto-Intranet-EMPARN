@@ -672,7 +672,6 @@ $anoRelatorio = $ano;
 
     </div>
 
-
     <script>
         new Chart(document.getElementById('graficoMes'), {
             type: 'bar',

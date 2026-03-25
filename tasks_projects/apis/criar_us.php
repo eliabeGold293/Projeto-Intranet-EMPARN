@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 ini_set('display_errors', '0');
@@ -8,6 +9,7 @@ error_reporting(E_ALL);
 header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../config/log-action.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -74,6 +76,19 @@ try {
 
     $novoUsuarioId = $stmt->fetchColumn();
 
+    # Registro de ação
+    try {
+        logAction(
+            $pdo,
+            "CREATE",
+            "usuario",
+            $novoUsuarioId,
+            "Usuário criado: {$nome}"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
+
     // ================================
     // 5. EMAIL (NÃO PODE QUEBRAR A API)
     // ================================
@@ -99,7 +114,6 @@ try {
         ";
 
         $mail->send();
-
     } catch (Exception $e) {
         error_log("Erro ao enviar email: {$e->getMessage()}");
         // NÃO quebra a API
@@ -112,13 +126,11 @@ try {
     response(true, "Usuário criado com sucesso!", [
         "user_id" => $novoUsuarioId
     ]);
-
 } catch (PDOException $e) {
 
     response(false, "Erro no banco de dados.", [
         "error" => $e->getMessage()
     ], 500);
-
 } catch (Throwable $e) {
 
     response(false, "Erro inesperado.", [
