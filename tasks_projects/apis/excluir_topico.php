@@ -1,7 +1,9 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
+
 require_once __DIR__ . '/../config/connection.php';
-session_start(); // para registrar no log quem fez a ação
+require_once __DIR__ . '/../utils/log-action.php';
+session_start();
 
 try {
 
@@ -15,7 +17,9 @@ try {
         exit;
     }
 
-    // 1 — Obter nome do tópico (será usado no log)
+    // ================================
+    // 1 — OBTER NOME (PARA LOG)
+    // ================================
     $stmtNome = $pdo->prepare("SELECT nome FROM documento_topico WHERE id = :id");
     $stmtNome->execute([":id" => $id]);
 
@@ -29,7 +33,9 @@ try {
         exit;
     }
 
-    // 2 — Buscar arquivos associados ao tópico
+    // ================================
+    // 2 — BUSCAR ARQUIVOS
+    // ================================
     $queryFiles = $pdo->prepare("
         SELECT caminho_armazenado 
         FROM documento_arquivo
@@ -38,14 +44,15 @@ try {
     $queryFiles->execute([":id" => $id]);
     $arquivos = $queryFiles->fetchAll(PDO::FETCH_ASSOC);
 
-    // 3 — Apagar arquivos físicos
+    // ================================
+    // 3 — REMOVER ARQUIVOS FÍSICOS
+    // ================================
     if (!empty($arquivos)) {
 
         foreach ($arquivos as $arq) {
             $relative = $arq['caminho_armazenado'];
             if (!$relative) continue;
 
-            // Caminho absoluto
             $absolute = realpath(__DIR__ . "/../" . $relative);
 
             if ($absolute && file_exists($absolute) && is_file($absolute)) {
@@ -53,7 +60,9 @@ try {
             }
         }
 
-        // 4 — Remover a pasta principal do tópico
+        // ================================
+        // 4 — REMOVER PASTA
+        // ================================
         $topicFolder = dirname($arquivos[0]['caminho_armazenado']);
         $absoluteFolder = realpath(__DIR__ . "/../" . $topicFolder);
 
@@ -67,27 +76,33 @@ try {
         }
     }
 
-    // 5 — Excluir arquivos do banco
+    // ================================
+    // 5 — REMOVER DO BANCO
+    // ================================
     $delFiles = $pdo->prepare("DELETE FROM documento_arquivo WHERE topico_id = :id");
     $delFiles->execute([":id" => $id]);
 
-    // 6 — Excluir tópico
     $delete = $pdo->prepare("DELETE FROM documento_topico WHERE id = :id");
     $delete->execute([":id" => $id]);
 
-    // 7 — Registrar log
-    $stmtLog = $pdo->prepare("
-        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
-        VALUES (:usuario_id, 'documento_topico', 'EXCLUIR', :descricao)
-    ");
+    // ================================
+    // 6 — LOG (PADRÃO NOVO)
+    // ================================
+    try {
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'] ?? null,
+            'documento_topico',
+            'DELETE',
+            "Tópico '{$topico['nome']}' (ID {$id}) excluído"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
 
-    $descricao = "Tópico '{$topico['nome']}' excluído.";
-
-    $stmtLog->execute([
-        ":usuario_id" => $_SESSION['usuario_id'] ?? null,
-        ":descricao"  => $descricao
-    ]);
-
+    // ================================
+    // RESPOSTA
+    // ================================
     echo json_encode([
         "status" => "success",
         "message" => "Tópico removido com sucesso."
@@ -110,5 +125,4 @@ try {
     ]);
     exit;
 }
-
 ?>

@@ -1,7 +1,10 @@
 <?php
 declare(strict_types=1);
 
+session_start();
+
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -21,7 +24,9 @@ if ($id <= 0) {
 
 try {
 
-    // Buscar usuário atual
+    // ================================
+    // BUSCAR DADOS ANTIGOS
+    // ================================
     $stmtAntigo = $pdo->prepare("SELECT nome, email FROM usuario WHERE id = :id");
     $stmtAntigo->execute([':id' => $id]);
     $usuarioAntigo = $stmtAntigo->fetch(PDO::FETCH_ASSOC);
@@ -33,30 +38,38 @@ try {
 
     $campos = [];
     $params = [':id' => $id];
+    $alteracoes = [];
 
+    // ================================
+    // MONTAR ALTERAÇÕES
+    // ================================
     if ($nome) {
         $campos[] = "nome = :nome";
         $params[':nome'] = $nome;
+        $alteracoes[] = "nome: {$usuarioAntigo['nome']} → {$nome}";
     }
 
     if ($email) {
         $campos[] = "email = :email";
         $params[':email'] = $email;
+        $alteracoes[] = "email: {$usuarioAntigo['email']} → {$email}";
     }
 
     if ($classe_id) {
         $campos[] = "classe_id = :classe_id";
         $params[':classe_id'] = $classe_id;
+        $alteracoes[] = "classe_id alterado";
     }
 
     if ($area_id) {
         $campos[] = "area_id = :area_id";
         $params[':area_id'] = $area_id;
+        $alteracoes[] = "area_id alterado";
     }
 
-    /* ==========================================
-       ALTERAÇÃO DE SENHA SE "sim"
-       ========================================== */
+    // ================================
+    // SENHA
+    // ================================
     $senhaTemporaria = null;
 
     if ($mudarSenha === 'sim') {
@@ -68,17 +81,43 @@ try {
         $campos[] = "primeiro_acesso = true";
 
         $params[':senha'] = $senhaHash;
+
+        $alteracoes[] = "senha redefinida";
     }
 
+    // ================================
+    // EXECUTAR UPDATE
+    // ================================
     if (!empty($campos)) {
 
         $sql = "UPDATE usuario SET " . implode(", ", $campos) . " WHERE id = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
 
-        /* ==========================================
-           ENVIO DE EMAIL SE SENHA FOI ALTERADA
-           ========================================== */
+        // ================================
+        // LOG DE AÇÃO 
+        // ================================
+        try {
+
+            $usuarioLogadoId = $_SESSION['usuario_id'] ?? null;
+
+            $descricao = "Atualizou usuário ID {$id}: " . implode(', ', $alteracoes);
+
+            registrarLog(
+                $pdo,
+                $usuarioLogadoId,
+                'usuario',
+                'UPDATE',
+                $descricao
+            );
+
+        } catch (Exception $e) {
+            error_log("Erro ao registrar log: " . $e->getMessage());
+        }
+
+        // ================================
+        // EMAIL (SE SENHA ALTERADA)
+        // ================================
         if ($mudarSenha === 'sim' && $senhaTemporaria) {
 
             try {
@@ -93,7 +132,10 @@ try {
                 $mail->Port       = 587;
 
                 $mail->setFrom('SEU_EMAIL@gmail.com', 'Sistema');
-                $mail->addAddress($email ?? $usuarioAntigo['email'], $nome ?? $usuarioAntigo['nome']);
+                $mail->addAddress(
+                    $email ?? $usuarioAntigo['email'],
+                    $nome ?? $usuarioAntigo['nome']
+                );
 
                 $mail->isHTML(true);
                 $mail->Subject = 'Senha redefinida - Sistema Emparn';
@@ -108,7 +150,7 @@ try {
                 $mail->send();
 
             } catch (Exception $e) {
-                error_log("Erro ao enviar email de redefinição: {$e->getMessage()}");
+                error_log("Erro ao enviar email: {$e->getMessage()}");
             }
         }
 

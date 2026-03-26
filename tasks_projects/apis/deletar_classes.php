@@ -1,7 +1,13 @@
 <?php
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
+
+session_start();
 
 $id = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
+
+// Usuário logado (se existir)
+$usuarioLogadoId = $_SESSION['usuario_id'] ?? null;
 
 if ($id > 0) {
     try {
@@ -20,26 +26,36 @@ if ($id > 0) {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([":id" => $id]);
 
-        // Registrar ação no log
-        $descricao = "Classe de Usuário '{$classe['nome']}' excluída";
-        $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
-                                  VALUES (:usuario_id, 'classe_usuario', 'EXCLUIR', :descricao)");
-        // Aqui você pode usar o ID do usuário logado na sessão, se houver. 
-        // Como exemplo, deixamos NULL.
-        $stmtLog->execute([
-            ':usuario_id' => null,
-            ':descricao'  => $descricao
-        ]);
+        // ============================
+        // LOG PADRONIZADO
+        // ============================
+        $descricao = "Classe '{$classe['nome']}' excluída";
+
+        registrarLog(
+            $pdo,
+            $usuarioLogadoId,
+            "classe_usuario",
+            "DELETE",
+            $descricao
+        );
 
         echo "Classe deletada com sucesso!";
+
     } catch (PDOException $e) {
+
         if ($e->getCode() === '23503') {
-            // Mensagem amigável para o usuário
+            // Violação de chave estrangeira
             echo "Não é possível excluir esta classe porque existem usuários vinculados a ela.";
         } else {
-            echo "Erro ao excluir classe: " . $e->getMessage();
+            error_log("Erro ao excluir classe: " . $e->getMessage());
+            echo "Erro ao excluir classe.";
         }
+
+    } catch (Exception $e) {
+        error_log("Erro geral: " . $e->getMessage());
+        echo "Erro inesperado.";
     }
+
 } else {
     echo "Informe um ID válido.";
 }

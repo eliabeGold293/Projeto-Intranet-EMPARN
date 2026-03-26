@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
+session_start();
+
 header("Content-Type: application/json");
 
 try {
@@ -12,24 +15,33 @@ try {
         throw new Exception("Dados incompletos.");
     }
 
+    // ================================
+    // INSERT
+    // ================================
     $sql = "INSERT INTO dashboard (titulo, cor, link) VALUES (?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$titulo, $cor, $link]);
 
-    // Pega o ID recém inserido
     $id = $pdo->lastInsertId();
 
-    // Registrar ação no log
-    $descricao = "Card '{$titulo}' criado";
-    $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
-                              VALUES (:usuario_id, 'dashboard', 'INSERIR', :descricao)");
-    // Aqui você pode usar o ID do usuário logado na sessão, se houver.
-    // Como exemplo, deixamos NULL.
-    $stmtLog->execute([
-        ':usuario_id' => null,
-        ':descricao'  => $descricao
-    ]);
+    // ================================
+    // LOG (PADRÃO NOVO)
+    // ================================
+    try {
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'] ?? null,
+            'dashboard',
+            'CREATE',
+            "Card '{$titulo}' (ID {$id}) criado"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
 
+    // ================================
+    // RESPOSTA
+    // ================================
     echo json_encode([
         "status" => "success",
         "id" => $id,
@@ -37,12 +49,14 @@ try {
         "cor" => $cor,
         "link" => $link
     ]);
+
 } catch (Exception $e) {
+
     http_response_code(500);
+
     echo json_encode([
         "status" => "error",
         "message" => $e->getMessage()
     ]);
 }
-
 ?>

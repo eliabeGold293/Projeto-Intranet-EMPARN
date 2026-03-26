@@ -10,9 +10,9 @@ header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
 // Se não estiver logado → volta para login
 if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
     header("Location: login");
-    # echo 'Não há usuário logado';
     exit;
 }
+
 require_once __DIR__ . '/../config/connection.php';
 ?>
 <!DOCTYPE html>
@@ -22,6 +22,7 @@ require_once __DIR__ . '/../config/connection.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle - EMPARN</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
@@ -73,12 +74,6 @@ require_once __DIR__ . '/../config/connection.php';
             margin-right: auto;
         }
 
-        .btn-acoes {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
         footer {
             width: 100%;
             background: #e9ecef;
@@ -86,11 +81,6 @@ require_once __DIR__ . '/../config/connection.php';
             text-align: center;
             border-top: 1px solid #d1d1d1;
             margin-top: 40px;
-        }
-
-        #listaAcoes {
-            max-height: 500px;
-            overflow-y: auto;
         }
 
         .stat-card {
@@ -154,14 +144,12 @@ require_once __DIR__ . '/../config/connection.php';
                 </button>
 
                 <ul class="dropdown-menu dropdown-menu-end shadow">
-
                     <li>
                         <a class="dropdown-item" href="relatorio-acesso">
                             <i class="bi bi-bar-chart-line me-2"></i>
                             Relatórios de acesso
                         </a>
                     </li>
-
                 </ul>
             </div>
         </div>
@@ -171,22 +159,25 @@ require_once __DIR__ . '/../config/connection.php';
             <div class="row text-center g-3">
                 <div class="col-md-3">
                     <div class="stat-card bg-success">
-                        <h6> Nº de Cards</h6>
+                        <h6>Nº de Cards</h6>
                         <p><?php echo $pdo->query("SELECT COUNT(*) FROM dashboard")->fetchColumn(); ?></p>
                     </div>
                 </div>
+
                 <div class="col-md-3">
                     <div class="stat-card bg-primary">
                         <h6>Nº de Notícias</h6>
                         <p><?php echo $pdo->query("SELECT COUNT(*) FROM noticias")->fetchColumn(); ?></p>
                     </div>
                 </div>
+
                 <div class="col-md-3">
                     <div class="stat-card bg-warning text-dark">
                         <h6>Nº Usuários</h6>
                         <p><?php echo $pdo->query("SELECT COUNT(*) FROM usuario")->fetchColumn(); ?></p>
                     </div>
                 </div>
+
                 <?php
                 $timezone = new DateTimeZone('America/Sao_Paulo');
                 $hoje = (new DateTime('now', $timezone))->format('Y-m-d');
@@ -197,12 +188,9 @@ require_once __DIR__ . '/../config/connection.php';
                 WHERE data_login = :data_login
             ");
 
-                $stmtAcesso->execute([
-                    ':data_login' => $hoje
-                ]);
+                $stmtAcesso->execute([':data_login' => $hoje]);
 
-                $acessosHoje = $stmtAcesso->fetchColumn();
-                $acessosHoje = $acessosHoje ?: 0;
+                $acessosHoje = $stmtAcesso->fetchColumn() ?: 0;
                 ?>
 
                 <div class="col-md-3">
@@ -213,48 +201,142 @@ require_once __DIR__ . '/../config/connection.php';
                 </div>
             </div>
         </div>
+        <div class="row">
 
-        <div class="card-box">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <h5 class="mb-0">Últimas Ações</h5>
-                <div class="d-flex gap-2 ms-3">
-                    <div class="form-check form-check-inline"><input class="form-check-input filtro-acao" type="checkbox" id="filtroTodos" value="TODOS" checked><label class="form-check-label" for="filtroTodos">Todos</label></div>
-                    <div class="form-check form-check-inline"><input class="form-check-input filtro-acao" type="checkbox" id="filtroCriacao" value="CREATE"><label class="form-check-label" for="filtroCriacao">Criações</label></div>
-                    <div class="form-check form-check-inline"><input class="form-check-input filtro-acao" type="checkbox" id="filtroAtualizacao" value="UPDATE"><label class="form-check-label" for="filtroAtualizacao">Atualizações</label></div>
-                    <div class="form-check form-check-inline"><input class="form-check-input filtro-acao" type="checkbox" id="filtroExclusao" value="DELETE"><label class="form-check-label" for="filtroExclusao">Deleções</label></div>
-                    <div class="form-check form-check-inline"><input class="form-check-input filtro-acao" type="checkbox" id="filtroLogin" value="LOGIN"><label class="form-check-label" for="filtroLogin">Logins</label></div>
+            <!-- BOX 1: AÇÕES DO SISTEMA -->
+            <div class="col-md-8">
+                <div class="card-box">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Ações do Sistema</h5>
+
+                        <div class="d-flex gap-2">
+                            <select id="filtroAcao" class="form-select form-select-sm">
+                                <option value="TODOS">Todos</option>
+                                <option value="CREATE">Criações</option>
+                                <option value="UPDATE">Atualizações</option>
+                                <option value="DELETE">Deleções</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <ul class="list-group" id="listaAcoes" style="max-height: 400px; overflow-y:auto;">
+                        <?php
+                        $temRegistros = false;
+
+                        $stmt = $pdo->query("
+                            SELECT l.descricao, l.acao, l.data_acao, u.nome
+                            FROM log_acao l
+                            LEFT JOIN usuario u ON u.id = l.usuario_id
+                            WHERE l.acao IN ('CREATE','UPDATE','DELETE')
+                            ORDER BY l.data_acao DESC
+                            LIMIT 100
+                        ");
+
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+                            $temRegistros = true;
+
+                            $acaoLabel = match ($row['acao']) {
+                                'CREATE' => 'Criação',
+                                'UPDATE' => 'Atualização',
+                                'DELETE' => 'Deleção',
+                                default => $row['acao']
+                            };
+
+                            $badgeClass = match ($row['acao']) {
+                                'CREATE' => 'bg-success',
+                                'UPDATE' => 'bg-warning text-dark',
+                                'DELETE' => 'bg-danger',
+                                default => 'bg-secondary'
+                            };
+
+                            echo "
+                            <li class='list-group-item acao-item d-flex justify-content-between align-items-start' data-acao='{$row['acao']}'>
+                                <div>
+                                    <strong>" . ($row['nome'] ?? 'Sistema') . "</strong>
+                                    {$row['descricao']}
+                                </div>
+
+                                <div class='text-end'>
+                                    <span class='badge {$badgeClass}'>{$acaoLabel}</span><br>
+                                    <small class='text-muted'>" . date('d/m/Y H:i', strtotime($row['data_acao'])) . "</small>
+                                </div>
+                            </li>";
+                        }
+
+                        if (!$temRegistros) {
+                            echo "<li class='list-group-item text-center text-muted'>Nenhum resultado encontrado</li>";
+                        }
+                        ?>
+                    </ul>
                 </div>
             </div>
 
-            <ul class="list-group" id="listaAcoes">
-                <?php
-                $stmt = $pdo->query("
-                    SELECT l.descricao, l.acao, l.data_acao, u.nome
-                    FROM log_acao l
-                    LEFT JOIN usuario u ON u.id = l.usuario_id
-                    ORDER BY l.data_acao DESC
-                    LIMIT 100
-                ");
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $descricao_limpa = explode('|', $row['descricao'])[0];
-                    echo "
-                    <li class='list-group-item acao-item d-flex justify-content-between align-items-start' data-acao='{$row['acao']}'>
 
-                        <div>
-                            <strong>" . ($row['nome'] ?? 'Sistema') . "</strong>
-                            {$descricao_limpa}
-                        </div>
+            <!-- BOX 2: LOGINS -->
+            <div class="col-md-4">
+                <div class="card-box">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Logins Recentes</h5>
 
-                        <div class='text-end'>
-                            <span class='badge bg-primary'>{$row['acao']}</span><br>
-                            <small class='text-muted'>" . date('d/m/Y H:i', strtotime($row['data_acao'])) . "</small>
-                        </div>
+                        <select id="filtroLogin" class="form-select form-select-sm" style="width:150px;">
+                            <option value="TODOS">Todos</option>
+                            <option value="LOGIN">Logins</option>
+                            <option value="LOGIN_PRIMEIRO_ACESSO">1º Acesso</option>
+                        </select>
+                    </div>
 
-                    </li>";
-                }
-                ?>
-            </ul>
+                    <ul class="list-group" id="listaLogins" style="max-height: 400px; overflow-y:auto;">
+                        <?php
+                        $temLogins = false;
+
+                        $stmt = $pdo->query("
+                            SELECT l.descricao, l.data_acao, l.acao, u.nome
+                            FROM log_acao l
+                            LEFT JOIN usuario u ON u.id = l.usuario_id
+                            WHERE l.acao IN ('LOGIN', 'LOGIN_PRIMEIRO_ACESSO')
+                            ORDER BY l.data_acao DESC
+                            LIMIT 50
+                        ");
+
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+                            $temLogins = true;
+
+                            $badgeClass = match ($row['acao']) {
+                                'LOGIN' => 'bg-primary',
+                                'LOGIN_PRIMEIRO_ACESSO' => 'bg-info text-dark',
+                                default => 'bg-secondary'
+                            };
+
+                            $label = match ($row['acao']) {
+                                'LOGIN' => 'Login',
+                                'LOGIN_PRIMEIRO_ACESSO' => '1º Acesso',
+                                default => $row['acao']
+                            };
+
+                            echo "
+                            <li class='list-group-item login-item d-flex justify-content-between align-items-start' data-acao='{$row['acao']}'>
+                                <div>
+                                    <strong>" . ($row['nome'] ?? 'Sistema') . "</strong><br>
+                                    <small>{$row['descricao']}</small><br>
+                                    <span class='badge {$badgeClass}'>{$label}</span>
+                                </div>
+
+                                <small class='text-muted'>" . date('d/m H:i', strtotime($row['data_acao'])) . "</small>
+                            </li>";
+                        }
+
+                        if (!$temLogins) {
+                            echo "<li class='list-group-item text-center text-muted'>Nenhum resultado encontrado</li>";
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
+
         </div>
+
     </main>
 
     <footer>
@@ -263,26 +345,112 @@ require_once __DIR__ . '/../config/connection.php';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function aplicarFiltro() {
-            const ativo = document.querySelector('.filtro-acao:checked');
-            const valor = ativo ? ativo.value : "TODOS";
-            document.querySelectorAll('#listaAcoes .acao-item').forEach(item => {
-                item.style.display = (valor === "TODOS" || item.dataset.acao === valor) ? '' : 'none';
+        async function carregarAcoes(filtro = "TODOS") {
+            const ul = document.getElementById('listaAcoes');
+            ul.innerHTML = "<li class='list-group-item text-center'>Carregando...</li>";
+
+            const res = await fetch(`ajax-filtro?tipo=acao&filtro=${filtro}`);
+            const data = await res.json();
+
+            ul.innerHTML = "";
+
+            if (data.length === 0) {
+                ul.innerHTML = "<li class='list-group-item text-center text-muted'>Nenhum resultado encontrado</li>";
+                return;
+            }
+
+            data.forEach(row => {
+
+                let badge = '';
+                let label = '';
+
+                if (row.acao === 'CREATE') {
+                    badge = 'bg-success';
+                    label = 'Criação';
+                } else if (row.acao === 'UPDATE') {
+                    badge = 'bg-warning text-dark';
+                    label = 'Atualização';
+                } else if (row.acao === 'DELETE') {
+                    badge = 'bg-danger';
+                    label = 'Deleção';
+                }
+
+                ul.innerHTML += `
+        <li class='list-group-item d-flex justify-content-between align-items-start'>
+            <div>
+                <strong>${row.nome ?? 'Sistema'}</strong>
+                ${row.descricao}
+            </div>
+
+            <div class='text-end'>
+                <span class='badge ${badge}'>${label}</span><br>
+                <small class='text-muted'>
+                    ${new Date(row.data_acao).toLocaleString('pt-BR')}
+                </small>
+            </div>
+        </li>`;
             });
         }
 
-        document.querySelectorAll('.filtro-acao').forEach(chk => {
-            chk.addEventListener('change', () => {
-                document.querySelectorAll('.filtro-acao').forEach(c => {
-                    if (c !== chk) c.checked = false;
-                });
-                if (!chk.checked) document.getElementById('filtroTodos').checked = true;
-                aplicarFiltro();
+
+        async function carregarLogins(filtro = "TODOS") {
+            const ul = document.getElementById('listaLogins');
+            ul.innerHTML = "<li class='list-group-item text-center'>Carregando...</li>";
+
+            const res = await fetch(`ajax-filtro?tipo=login&filtro=${filtro}`);
+            const data = await res.json();
+
+            ul.innerHTML = "";
+
+            if (data.length === 0) {
+                ul.innerHTML = "<li class='list-group-item text-center text-muted'>Nenhum resultado encontrado</li>";
+                return;
+            }
+
+            data.forEach(row => {
+
+                let badge = '';
+                let label = '';
+
+                if (row.acao === 'LOGIN') {
+                    badge = 'bg-primary';
+                    label = 'Login';
+                } else if (row.acao === 'LOGIN_PRIMEIRO_ACESSO') {
+                    badge = 'bg-info text-dark';
+                    label = '1º Acesso';
+                }
+
+                ul.innerHTML += `
+        <li class='list-group-item d-flex justify-content-between align-items-start'>
+            <div>
+                <strong>${row.nome ?? 'Sistema'}</strong><br>
+                <small>${row.descricao}</small><br>
+                <span class='badge ${badge}'>${label}</span>
+            </div>
+
+            <small class='text-muted'>
+                ${new Date(row.data_acao).toLocaleString('pt-BR')}
+            </small>
+        </li>`;
             });
+        }
+
+
+        // EVENTOS
+        document.getElementById('filtroAcao').addEventListener('change', function() {
+            carregarAcoes(this.value);
         });
 
-        aplicarFiltro();
+        document.getElementById('filtroLogin').addEventListener('change', function() {
+            carregarLogins(this.value);
+        });
+
+
+        // CARREGAR AO ABRIR A PÁGINA
+        carregarAcoes();
+        carregarLogins();
     </script>
+
 </body>
 
 </html>

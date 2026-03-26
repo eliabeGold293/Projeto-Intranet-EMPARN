@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/connection.php'; // $pdo está disponível
+require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
+session_start();
 
 header('Content-Type: application/json');
 
@@ -23,26 +25,36 @@ try {
 
     $tituloNoticia = $noticia['titulo'];
 
-    // IMPORTANTE: deletar tópicos manualmente *caso não exista ON DELETE CASCADE*
-    // Se já existir CASCADE, não é necessário, mas não causa erro.
+    // ================================
+    // REMOVER TÓPICOS
+    // ================================
     $delTopicos = $pdo->prepare("DELETE FROM noticia_topicos WHERE noticia_id = :id");
     $delTopicos->execute([':id' => $idNoticia]);
 
-    // Deletar notícia
+    // ================================
+    // DELETAR NOTÍCIA
+    // ================================
     $deleteStmt = $pdo->prepare("DELETE FROM noticias WHERE id = :id");
     $deleteStmt->execute([':id' => $idNoticia]);
 
-    // Registrar no log
-    $stmtLog = $pdo->prepare("
-        INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
-        VALUES (:usuario_id, 'noticias', 'DELETAR', :descricao)
-    ");
+    // ================================
+    // LOG (PADRÃO NOVO)
+    // ================================
+    try {
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'] ?? null,
+            'noticia',
+            'DELETE',
+            "Notícia '{$tituloNoticia}' (ID {$idNoticia}) excluída"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
 
-    $stmtLog->execute([
-        ':usuario_id' => null, // coloque o ID do usuário logado quando implementar login
-        ':descricao'  => "Notícia '{$tituloNoticia}' deletada"
-    ]);
-
+    // ================================
+    // RESPOSTA
+    // ================================
     echo json_encode([
         "status" => "success",
         "message" => "Notícia deletada com sucesso."
@@ -50,7 +62,9 @@ try {
     exit;
 
 } catch (Exception $e) {
+
     http_response_code(500);
+
     echo json_encode([
         "status" => "error",
         "message" => $e->getMessage()

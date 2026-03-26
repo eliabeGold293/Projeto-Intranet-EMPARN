@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../config/connection.php';
-session_start(); // necessário para registrar usuario_id no log
+require_once __DIR__ . '/../utils/log-action.php';
+
+session_start();
 
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST");
@@ -19,13 +21,14 @@ try {
         throw new Exception("Preencha todos os campos da notícia por favor.");
     }
 
-    // ===== Criar pasta de uploads =====
+    // Usuário logado
+    $usuarioLogadoId = $_SESSION['usuario_id'] ?? null;
+
+    // ===== Pasta upload =====
     $pasta = __DIR__ . "/../uploads/uploads_noticias/";
     if (!is_dir($pasta)) mkdir($pasta, 0777, true);
 
-    // ===========================================
-    //  UPLOAD IMAGEM PRINCIPAL
-    // ===========================================
+    // ===== Upload imagem principal =====
     $caminhoImagemPrincipal = null;
 
     if (!empty($_FILES['imagem']['name'])) {
@@ -35,9 +38,10 @@ try {
     }
 
     // ===========================================
-    //  INSERIR OU ATUALIZAR NOTÍCIA
+    // INSERT OU UPDATE
     // ===========================================
     if ($idNoticia) {
+
         // UPDATE
         $sql = "UPDATE noticias SET 
                     titulo = :titulo, 
@@ -49,6 +53,7 @@ try {
                     fonte_imagem = :fonte_imagem,
                     data_edicao = NOW()
                 WHERE id = :id";
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':titulo' => $titulo,
@@ -61,13 +66,15 @@ try {
             ':id' => $idNoticia
         ]);
 
-        $acao = "EDITAR";
+        $acao = "UPDATE";
         $descricaoLog = "Notícia '{$titulo}' (ID {$idNoticia}) atualizada.";
 
     } else {
+
         // INSERT
         $sql = "INSERT INTO noticias (titulo, subtitulo, texto, imagem, autoria, link, fonte_imagem)
                 VALUES (:titulo, :subtitulo, :texto, :imagem, :autoria, :link, :fonte_imagem)";
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':titulo' => $titulo,
@@ -78,26 +85,25 @@ try {
             ':link' => $link,
             ':fonte_imagem' => $fonte_imagem
         ]);
+
         $idNoticia = $pdo->lastInsertId();
 
-        $acao = "CRIAR";
-        $descricaoLog = "Nova notícia criada: '{$titulo}' (ID {$idNoticia}).";
+        $acao = "CREATE";
+        $descricaoLog = "Notícia criada: '{$titulo}' (ID {$idNoticia}).";
     }
 
-    // =====================================================
-    //  TRATAMENTO DE TÓPICOS — (INSERIR / ATUALIZAR / REMOVER)
-    // =====================================================
-
+    // ===========================================
+    // TÓPICOS (mantido igual)
+    // ===========================================
     $topicos = $_POST['topicos'] ?? [];
 
-    // ----- 1. Obter IDs atuais dos tópicos no banco -----
     $stmt = $pdo->prepare("SELECT id FROM noticia_topicos WHERE noticia_id = ?");
     $stmt->execute([$idNoticia]);
     $idsExistentes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
     $idsMantidos = [];
-
     $i = 0;
+
     foreach ($topicos as $index => $t) {
 
         $idTopico = $t['id'] ?? null;
@@ -122,8 +128,8 @@ try {
             );
         }
 
-        // ----- 3. Atualizar se tiver ID -----
         if ($idTopico) {
+
             $sql = "UPDATE noticia_topicos SET
                         titulo = :titulo,
                         texto = :texto,
@@ -131,6 +137,7 @@ try {
                         fonte_imagem = :fonte_imagem,
                         ordem = :ordem
                     WHERE id = :id AND noticia_id = :noticia_id";
+
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ':titulo' => $tituloT,
@@ -143,10 +150,12 @@ try {
             ]);
 
             $idsMantidos[] = $idTopico;
+
         } else {
-            // ----- 4. Inserir tópico novo -----
+
             $sql = "INSERT INTO noticia_topicos (noticia_id, titulo, texto, imagem, fonte_imagem, ordem)
                     VALUES (:noticia_id, :titulo, :texto, :imagem, :fonte_imagem, :ordem)";
+
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ':noticia_id' => $idNoticia,
@@ -163,7 +172,6 @@ try {
         $i++;
     }
 
-    // ----- 5. Remover tópicos excluídos no frontend -----
     $idsParaRemover = array_diff($idsExistentes, $idsMantidos);
 
     if (!empty($idsParaRemover)) {
@@ -174,21 +182,19 @@ try {
     }
 
     // ===========================================
-    //  REGISTRAR LOG DA AÇÃO
+    // LOG PADRONIZADO
     // ===========================================
-    $stmtLog = $pdo->prepare("
-        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
-        VALUES (:usuario_id, 'noticia', 'INSERIR', :descricao)
-    ");
+    registrarLog(
+        $pdo,
+        $usuarioLogadoId,
+        "noticia",
+        $acao,
+        $descricaoLog
+    );
 
-    $stmtLog->execute([
-        ":usuario_id" => $_SESSION['usuario_id'] ?? null,
-        ":descricao"  => $descricaoLog
-    ]);
-
-    // ===================================
-    //  RETORNO JSON
-    // ===================================
+    // ===========================================
+    // RETORNO
+    // ===========================================
     echo json_encode([
         "status" => "success",
         "id" => $idNoticia,

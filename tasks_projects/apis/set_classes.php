@@ -1,13 +1,19 @@
 <?php 
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
+
+session_start();
 
 $id          = isset($_POST['id']) ? (int) $_POST['id'] : 0;
 $nome        = $_POST['nome'] ?? null;
 $grau_acesso = isset($_POST['grau_acesso']) ? (int) $_POST['grau_acesso'] : 0;
 
+// Usuário logado (se existir)
+$usuarioLogadoId = $_SESSION['usuario_id'] ?? null;
+
 if ($id > 0) {
     try {
-        // Buscar dados antigos da classe antes da atualização
+        // Buscar dados antigos
         $stmtAntigo = $pdo->prepare("SELECT nome, grau_acesso FROM classe_usuario WHERE id = :id");
         $stmtAntigo->execute([':id' => $id]);
         $classeAntiga = $stmtAntigo->fetch(PDO::FETCH_ASSOC);
@@ -24,42 +30,49 @@ if ($id > 0) {
             $campos[] = "nome = :nome";
             $params[':nome'] = $nome;
         }
+
         if ($grau_acesso) {
             $campos[] = "grau_acesso = :grau_acesso";
             $params[':grau_acesso'] = $grau_acesso;
         }
 
         if (!empty($campos)) {
+
             $sql = "UPDATE classe_usuario SET " . implode(", ", $campos) . " WHERE id = :id";
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
 
-            // Registrar ação no log
-            $descricao = "Classe de Usuário '{$classeAntiga['nome']}' (grau {$classeAntiga['grau_acesso']}) atualizada";
+            // ============================
+            // LOG PADRONIZADO
+            // ============================
+            $descricao = "Classe '{$classeAntiga['nome']}' (grau {$classeAntiga['grau_acesso']}) atualizada";
+
             if ($nome) {
-                $descricao .= " → novo nome: '{$nome}'";
-            }
-            if ($grau_acesso) {
-                $descricao .= " → novo grau: {$grau_acesso}";
+                $descricao .= " → nome: '{$nome}'";
             }
 
-            $stmtLog = $pdo->prepare("INSERT INTO log_acao (usuario_id, entidade, acao, descricao) 
-                                      VALUES (:usuario_id, 'classe_usuario', 'ATUALIZAR', :descricao)");
-            // Aqui você pode usar o ID do usuário logado na sessão, se houver.
-            // Como exemplo, deixamos NULL.
-            $stmtLog->execute([
-                ':usuario_id' => null,
-                ':descricao'  => $descricao
-            ]);
+            if ($grau_acesso) {
+                $descricao .= " → grau: {$grau_acesso}";
+            }
+
+            registrarLog(
+                $pdo,
+                $usuarioLogadoId,
+                "classe_usuario",
+                "UPDATE",
+                $descricao
+            );
 
             echo "Alterações realizadas com sucesso!";
         } else {
             echo "Nenhum campo foi informado para atualização.";
         }
 
-    } catch (PDOException $e) {
-        echo "Erro ao salvar alterações: " . $e->getMessage();
+    } catch (Exception $e) {
+        error_log("Erro na API atualizar classe: " . $e->getMessage());
+        echo "Erro ao salvar alterações.";
     }
+
 } else {
     echo "Informe um ID válido.";
 }

@@ -8,8 +8,10 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json; charset=UTF-8');
 
+session_start();
+
 require_once __DIR__ . '/../config/connection.php';
-require_once __DIR__ . '/../config/log-action.php';
+require_once __DIR__ . '/../utils/log-action.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -28,16 +30,10 @@ function response(bool $success, string $message, array $extra = [], int $status
 
 try {
 
-    // ================================
-    // 1. VALIDAR MÉTODO
-    // ================================
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         response(false, "Método não permitido", [], 405);
     }
 
-    // ================================
-    // 2. RECEBER DADOS
-    // ================================
     $nome      = trim($_POST['nome'] ?? '');
     $email     = trim($_POST['email'] ?? '');
     $classe_id = isset($_POST['classe_id']) ? (int) $_POST['classe_id'] : 0;
@@ -49,14 +45,14 @@ try {
     }
 
     // ================================
-    // 3. SENHA
+    // SENHA
     // ================================
     $senhaTemporaria = $senhaRecebida ?: bin2hex(random_bytes(4));
     $senhaHash = password_hash($senhaTemporaria, PASSWORD_DEFAULT);
     $primeiroAcesso = true;
 
     // ================================
-    // 4. BANCO DE DADOS
+    // INSERT
     // ================================
     $stmt = $pdo->prepare("
         INSERT INTO usuario 
@@ -76,21 +72,27 @@ try {
 
     $novoUsuarioId = $stmt->fetchColumn();
 
-    # Registro de ação
+    // ================================
+    // LOG DE AÇÃO
+    // ================================
     try {
-        logAction(
+
+        $usuarioLogadoId = $_SESSION['usuario_id'] ?? null;
+
+        registrarLog(
             $pdo,
-            "CREATE",
-            "usuario",
-            $novoUsuarioId,
-            "Usuário criado: {$nome}"
+            $usuarioLogadoId,
+            'usuario',
+            'CREATE',
+            "Criou o usuário ID {$novoUsuarioId} ({$nome})"
         );
+
     } catch (Exception $e) {
         error_log("Erro ao registrar log: " . $e->getMessage());
     }
 
     // ================================
-    // 5. EMAIL (NÃO PODE QUEBRAR A API)
+    // EMAIL
     // ================================
     try {
         $mail = new PHPMailer(true);
@@ -108,29 +110,29 @@ try {
         $mail->Subject = 'Acesso ao Sistema Emparn';
         $mail->Body = "
             Olá {$nome},<br><br>
-            <b>Sua conta foi criado no sistema de gerenciamento de tarefas da EMPARN.</b> <br><br>
-            <b>Senha:</b> {$senhaTemporaria}<br>
+            <b>Sua conta foi criada no sistema da EMPARN.</b><br><br>
             <b>Email:</b> {$email}<br>
+            <b>Senha:</b> {$senhaTemporaria}<br>
         ";
 
         $mail->send();
     } catch (Exception $e) {
         error_log("Erro ao enviar email: {$e->getMessage()}");
-        // NÃO quebra a API
     }
 
     // ================================
-    // 6. RESPOSTA FINAL
+    // RESPOSTA
     // ================================
-
     response(true, "Usuário criado com sucesso!", [
         "user_id" => $novoUsuarioId
     ]);
+
 } catch (PDOException $e) {
 
     response(false, "Erro no banco de dados.", [
         "error" => $e->getMessage()
     ], 500);
+
 } catch (Throwable $e) {
 
     response(false, "Erro inesperado.", [

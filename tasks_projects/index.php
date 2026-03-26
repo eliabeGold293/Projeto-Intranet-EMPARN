@@ -179,6 +179,12 @@ switch($arquivo){
 
         include 'controle/editar_noticia.php';
         break;
+    
+    # Utils
+
+    case 'ajax-filtro':
+        include 'utils/ajax_filtro.php';
+        break;
 
     # Rotas de apis
 

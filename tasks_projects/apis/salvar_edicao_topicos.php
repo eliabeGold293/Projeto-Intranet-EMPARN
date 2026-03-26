@@ -1,7 +1,8 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . '/../config/connection.php';
-session_start(); // <-- necessário para pegar usuario_id
+require_once __DIR__ . '/../utils/log-action.php';
+session_start();
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -24,7 +25,10 @@ try {
         throw new Exception("O nome do tópico é obrigatório.");
     }
 
-    // Pasta base: uploads/doc/topic_ID/
+    // CONTADORES 
+    $arquivosAdicionados = 0;
+    $arquivosRemovidos = 0;
+
     $basePath = realpath(__DIR__ . "/../uploads/doc/");
     if (!$basePath) {
         mkdir(__DIR__ . "/../uploads/doc/", 0777, true);
@@ -55,7 +59,7 @@ try {
     ]);
 
     // -------------------------------------
-    // 2) UPLOAD DE NOVOS ARQUIVOS
+    // 2) NOVOS ARQUIVOS
     // -------------------------------------
     if (isset($_FILES['novos_arquivos'])) {
 
@@ -63,9 +67,7 @@ try {
 
         for ($i = 0; $i < count($arquivos['name']); $i++) {
 
-            if ($arquivos['error'][$i] !== UPLOAD_ERR_OK) {
-                continue; // ignora arquivos vazios
-            }
+            if ($arquivos['error'][$i] !== UPLOAD_ERR_OK) continue;
 
             $orig  = basename($arquivos['name'][$i]);
             $tmp   = $arquivos['tmp_name'][$i];
@@ -73,21 +75,18 @@ try {
             $size  = $arquivos['size'][$i];
 
             if (!is_uploaded_file($tmp)) {
-                throw new Exception("Falha ao validar arquivo recebido.");
+                throw new Exception("Falha ao validar arquivo.");
             }
 
-            // Gera nome único
             $unique = uniqid('f_', true) . "_" . $orig;
             $dest = $topicFolder . $unique;
 
             if (!move_uploaded_file($tmp, $dest)) {
-                throw new Exception("Falha ao salvar arquivo: $orig");
+                throw new Exception("Erro ao salvar arquivo.");
             }
 
-            // Caminho relativo para salvar no banco
             $relative = "uploads/doc/topic_{$id}/{$unique}";
 
-            // INSERE no banco
             $stmtA = $pdo->prepare("
                 INSERT INTO documento_arquivo
                 (topico_id, nome_original, caminho_armazenado, tipo, tamanho)
@@ -100,25 +99,68 @@ try {
                 ":tipo" => $type,
                 ":tamanho" => $size
             ]);
+
+            $arquivosAdicionados++; //
+        }
+    }
+
+    // -------------------------------------
+    // 3) REMOVER ARQUIVOS (SE ENVIADO)
+    // -------------------------------------
+    if (!empty($_POST['arquivos_removidos'])) {
+
+        $idsRemover = json_decode($_POST['arquivos_removidos'], true);
+
+        if (is_array($idsRemover) && count($idsRemover) > 0) {
+
+            // buscar caminhos
+            $in = implode(",", array_fill(0, count($idsRemover), "?"));
+            $stmt = $pdo->prepare("SELECT caminho_armazenado FROM documento_arquivo WHERE id IN ($in)");
+            $stmt->execute($idsRemover);
+            $arquivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($arquivos as $arq) {
+                $path = realpath(__DIR__ . "/../" . $arq['caminho_armazenado']);
+                if ($path && file_exists($path)) {
+                    unlink($path);
+                }
+                $arquivosRemovidos++; //
+            }
+
+            // remover do banco
+            $stmt = $pdo->prepare("DELETE FROM documento_arquivo WHERE id IN ($in)");
+            $stmt->execute($idsRemover);
         }
     }
 
     $pdo->commit();
 
     // -------------------------------------
-    // 3) REGISTRA LOG da alteração
+    // 4) LOG INTELIGENTE
     // -------------------------------------
-    $stmtLog = $pdo->prepare("
-        INSERT INTO log_acao (usuario_id, entidade, acao, descricao)
-        VALUES (:usuario_id, 'documento_topico', 'ATUALIZAR', :descricao)
-    ");
+    $detalhes = [];
 
-    $descricaoLog = "Tópico '{$nome}' (ID {$id}) atualizado.";
+    if ($arquivosAdicionados > 0) {
+        $detalhes[] = "{$arquivosAdicionados} arquivo(s) adicionados";
+    }
 
-    $stmtLog->execute([
-        ":usuario_id" => $_SESSION['usuario_id'] ?? null,
-        ":descricao"  => $descricaoLog
-    ]);
+    if ($arquivosRemovidos > 0) {
+        $detalhes[] = "{$arquivosRemovidos} arquivo(s) removidos";
+    }
+
+    $descricaoFinal = "Tópico '{$nome}' (ID {$id}) atualizado";
+
+    if (!empty($detalhes)) {
+        $descricaoFinal .= " (" . implode(", ", $detalhes) . ")";
+    }
+
+    registrarLog(
+        $pdo,
+        $_SESSION['usuario_id'] ?? null,
+        'documento_topico',
+        'UPDATE',
+        $descricaoFinal
+    );
 
     echo json_encode([
         "status" => "success",

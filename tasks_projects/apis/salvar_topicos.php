@@ -1,6 +1,9 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
+
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
+session_start();
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -31,6 +34,7 @@ try {
     $pdo->beginTransaction();
 
     $savedTopicsIds = [];
+    $nomesTopicos = [];
 
     foreach ($topics_meta as $index => $meta) {
 
@@ -41,9 +45,9 @@ try {
             continue;
         }
 
-        // -------------------------------------------------
-        // 1) SALVA O TÓPICO NO BANCO
-        // -------------------------------------------------
+        // ================================
+        // 1) SALVA O TÓPICO
+        // ================================
         $stmt = $pdo->prepare("
             INSERT INTO documento_topico (nome, descricao)
             VALUES (:nome, :descricao)
@@ -55,20 +59,22 @@ try {
         ]);
 
         $topicoId = $stmt->fetchColumn();
-        $savedTopicsIds[] = $topicoId;
 
-        // -------------------------------------------------
+        $savedTopicsIds[] = $topicoId;
+        $nomesTopicos[] = $nome;
+
+        // ================================
         // 2) CRIAR PASTA
-        // -------------------------------------------------
+        // ================================
         $topicFolder = $uploadBase . "topic_" . $topicoId . "/";
 
         if (!is_dir($topicFolder)) {
             mkdir($topicFolder, 0777, true);
         }
 
-        // -------------------------------------------------
-        // 3) PROCESSA ARQUIVOS
-        // -------------------------------------------------
+        // ================================
+        // 3) PROCESSAR ARQUIVOS
+        // ================================
         $fieldName = "files_topic_" . $index;
 
         if (!isset($_FILES[$fieldName])) {
@@ -93,7 +99,6 @@ try {
                 throw new Exception("Arquivo temporário inválido: $orig");
             }
 
-            // caminho final
             $unique = uniqid("f_", true) . "_" . $orig;
             $dest = $topicFolder . $unique;
 
@@ -101,12 +106,11 @@ try {
                 throw new Exception("Falha ao mover arquivo: $orig");
             }
 
-            // caminho relativo que vai para o banco
             $caminhoRelativo = "uploads/doc/topic_{$topicoId}/{$unique}";
 
-            // -------------------------------------------------
-            // 4) SALVA ARQUIVO NO BANCO
-            // -------------------------------------------------
+            // ================================
+            // 4) SALVAR ARQUIVO
+            // ================================
             $stmtA = $pdo->prepare("
                 INSERT INTO documento_arquivo
                 (topico_id, nome_original, caminho_armazenado, tipo, tamanho)
@@ -120,11 +124,27 @@ try {
                 ":tipo"    => $type,
                 ":tamanho" => $size
             ]);
-
         }
     }
 
     $pdo->commit();
+
+    // ================================
+    // LOG (FORA DA TRANSAÇÃO)
+    // ================================
+    try {
+        $lista = implode(", ", $nomesTopicos);
+
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'] ?? null,
+            'documento_topico',
+            'CREATE',
+            "Tópicos criados: {$lista}"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
 
     echo json_encode([
         "status" => "success",
