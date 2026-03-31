@@ -282,6 +282,7 @@ $anoRelatorio = $ano;
     <title>Dashboard de Acessos</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -299,6 +300,20 @@ $anoRelatorio = $ano;
         .metric {
             font-size: 28px;
             font-weight: 700;
+        }
+        .btn-smoke {
+            background-color: #5f6368; /* cinza Google style */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            transition: all 0.25s ease;
+        }
+
+        .btn-smoke:hover {
+            background-color: #4a4d52;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
     </style>
 
@@ -319,8 +334,13 @@ $anoRelatorio = $ano;
         <?php } ?>
 
         <h3 class="mb-4">📊 Dashboard de Acessos</h3>
-        <a href="control">Voltar ao Home do Administrador</a>
 
+        <a href="control" class="btn btn-smoke">
+            <i class="bi bi-house-door-fill me-2"></i>
+            Voltar ao Home do Administrador
+        </a>
+        <br>
+        <br>
         <form class="row g-2 mb-4">
 
             <div class="col-md-2">

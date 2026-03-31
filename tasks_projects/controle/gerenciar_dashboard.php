@@ -19,6 +19,7 @@ require_once __DIR__ . '/../config/connection.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,7 +66,7 @@ require_once __DIR__ . '/../config/connection.php';
             padding: 24px;
             margin-bottom: 30px;
             border: 1px solid #e1e5e9;
-            box-shadow: 0px 3px 8px rgba(0,0,0,0.06);
+            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.06);
         }
 
         .table th {
@@ -87,158 +88,273 @@ require_once __DIR__ . '/../config/connection.php';
         }
     </style>
 </head>
+
 <body>
 
-<?php include __DIR__ . '/../templates/gen_menu.php'; ?>
+    <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
 
-<main class="main-content">
-    <h2><i class="bi bi-bar-chart me-2"></i> Gerenciar Dashboard</h2>
+    <main class="main-content">
+        <h2><i class="bi bi-bar-chart me-2"></i> Gerenciar Dashboard</h2>
 
-    <div class="card-box">
-        <h5 class="text-success"><i class="bi bi-plus-circle"></i> Adicionar Novo Card</h5>
-        <form id="form-card" action="../apis/salvar_cards.php" method="POST" class="needs-validation" novalidate>
-            <div class="mb-3">
-                <label class="form-label">Nome do Card:</label>
-                <input type="text" class="form-control" name="titulo" required>
-                <div class="invalid-feedback">Informe o nome do card.</div>
-            </div>
+        <div class="card-box">
+            <h5 class="text-success"><i class="bi bi-plus-circle"></i> Adicionar Novo Card</h5>
+            <form id="form-card" action="../apis/salvar_cards.php" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label class="form-label">Nome do Card:</label>
+                    <input type="text" class="form-control" name="titulo" required>
+                    <div class="invalid-feedback">Informe o nome do card.</div>
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Cor de Fundo:</label>
-                <input type="color" class="form-control form-control-color" name="cor" value="#006400" required>
-                <div class="invalid-feedback">Selecione uma cor.</div>
-            </div>
+                <div class="mb-3">
+                    <label class="form-label">Cor de Fundo:</label>
+                    <input type="color" class="form-control form-control-color" name="cor" value="#006400" required>
+                    <div class="invalid-feedback">Selecione uma cor.</div>
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Link de Destino:</label>
-                <input type="url" class="form-control" name="link" placeholder="https://www.exemplo.com" required>
-                <div class="invalid-feedback">Informe um link válido.</div>
-            </div>
+                <div class="mb-3">
+                    <label class="form-label">Link de Destino:</label>
+                    <input type="url" class="form-control" name="link" placeholder="https://www.exemplo.com" required>
+                    <div class="invalid-feedback">Informe um link válido.</div>
+                </div>
 
-            <button type="submit" class="btn btn-success">Adicionar Card</button>
-        </form>
-    </div>
+                <button type="submit" class="btn btn-success">Adicionar Card</button>
+            </form>
+        </div>
 
-    <div class="card-box">
-        <h5 class="text-primary"><i class="bi bi-collection"></i> Cards Atuais</h5>
-        <table class="table table-striped table-bordered shadow-sm">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Cor</th>
-                    <th>Link</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $sql = "SELECT * FROM dashboard ORDER BY id DESC";
-                $stmt = $pdo->query($sql);
-                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        <div class="card-box">
+            <h5 class="text-primary"><i class="bi bi-collection"></i> Cards Atuais</h5>
+            <table class="table table-striped table-bordered shadow-sm">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Cor</th>
+                        <th>Link</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $sql = "SELECT * FROM dashboard ORDER BY id DESC";
+                    $stmt = $pdo->query($sql);
+                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                if (count($result) > 0):
-                    foreach ($result as $row):
-                ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['titulo']) ?></td>
-                    <td>
-                        <div style="width:30px; height:30px; background:<?= htmlspecialchars($row['cor']) ?>; border-radius:6px;"></div>
-                    </td>
-                    <td>
-                        <a href="<?= htmlspecialchars($row['link']) ?>" target="_blank">
-                            <?= htmlspecialchars($row['link']) ?>
-                        </a>
-                    </td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="deletarCard(<?= $row['id'] ?>)">
-                            Excluir
-                        </button>
-                    </td>
-                </tr>
-                <?php endforeach; else: ?>
-                <tr>
-                    <td colspan="4" class="text-center text-muted">Nenhum card cadastrado ainda.</td>
-                </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</main>
+                    if (count($result) > 0):
+                        foreach ($result as $row):
+                    ?>
+                            <tr>
+                                <td>
+                                    <span class="valor" data-id="<?= $row['id'] ?>" data-campo="titulo">
+                                        <?= htmlspecialchars($row['titulo']) ?>
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary ms-1"
+                                        onclick="editarCampoDashboard(<?= $row['id'] ?>, 'titulo')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </td>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-(() => {
-    'use strict';
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-        }, false);
-    });
-})();
-</script>
+                                <td>
+                                    <span class="valor" data-id="<?= $row['id'] ?>" data-campo="cor">
+                                        <div style="width:30px; height:30px; background:<?= htmlspecialchars($row['cor']) ?>; border-radius:6px;"></div>
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary ms-1"
+                                        onclick="editarCampoDashboard(<?= $row['id'] ?>, 'cor')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </td>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector("#form-card");
+                                <td>
+                                    <span class="valor" data-id="<?= $row['id'] ?>" data-campo="link">
+                                        <?= htmlspecialchars($row['link']) ?>
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary ms-1"
+                                        onclick="editarCampoDashboard(<?= $row['id'] ?>, 'link')">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </td>
+                                <button class="btn btn-danger btn-sm" onclick="deletarCard(<?= $row['id'] ?>)">
+                                    Excluir
+                                </button>
+                                </td>
+                            </tr>
+                        <?php endforeach;
+                    else: ?>
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Nenhum card cadastrado ainda.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </main>
 
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        if (!form.checkValidity()) {
-            form.classList.add("was-validated");
-            return;
-        }
-
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch("adicionar-cards", {
-                method: "POST",
-                body: formData
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
             });
+        })();
+    </script>
 
-            const result = await response.json();
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.querySelector("#form-card");
 
-            if (result.status === "success") {
-                alert("Card adicionado com sucesso!");
-                location.reload();
-            } else {
-                alert("Erro: " + result.message);
-            }
+            form.addEventListener("submit", async function(e) {
+                e.preventDefault();
 
-        } catch (error) {
-            console.error("Erro no envio:", error);
-            alert("Erro ao enviar os dados.");
-        }
-    });
-});
-</script>
+                if (!form.checkValidity()) {
+                    form.classList.add("was-validated");
+                    return;
+                }
 
-<script>
-function deletarCard(id) {
-    if (!confirm("Deseja realmente excluir este card?")) return;
+                const formData = new FormData(form);
 
-    fetch("deletar-cards?id=" + id)
-        .then(res => res.json())
-        .then(result => {
-            if (result.status === "success") {
-                alert("Card excluído com sucesso!");
-                location.reload();
-            } else {
-                alert("Erro: " + result.message);
-            }
-        })
-        .catch(err => {
-            console.error("Erro ao excluir:", err);
-            alert("Erro ao excluir o card.");
+                try {
+                    const response = await fetch("adicionar-cards", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === "success") {
+                        alert("Card adicionado com sucesso!");
+                        location.reload();
+                    } else {
+                        alert("Erro: " + result.message);
+                    }
+
+                } catch (error) {
+                    console.error("Erro no envio:", error);
+                    alert("Erro ao enviar os dados.");
+                }
+            });
         });
-}
-</script>
+    </script>
+
+    <script>
+        function editarCampoDashboard(id, campo) {
+
+            const span = document.querySelector(
+                `.valor[data-id="${id}"][data-campo="${campo}"]`
+            );
+
+            if (!span) return;
+
+            const td = span.parentElement;
+            const botao = td.querySelector("button");
+
+            if (botao) botao.style.display = "none";
+
+            let valorAtual = span.innerText.trim();
+            let input;
+
+            // COR (input color)
+            if (campo === "cor") {
+                input = document.createElement("input");
+                input.type = "color";
+                input.className = "form-control form-control-color";
+                input.value = valorAtual || "#000000";
+            }
+
+            // LINK
+            else if (campo === "link") {
+                input = document.createElement("input");
+                input.type = "url";
+                input.className = "form-control";
+                input.value = valorAtual;
+            }
+
+            // TEXTO
+            else {
+                input = document.createElement("input");
+                input.type = "text";
+                input.className = "form-control";
+                input.value = valorAtual;
+            }
+
+            span.replaceWith(input);
+            input.focus();
+
+            function salvar() {
+
+                fetch("editar-dashboard", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            campo: campo,
+                            valor: input.value
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(resp => {
+
+                        if (resp.status !== "success") {
+                            alert(resp.message);
+                            return;
+                        }
+
+                        const novoSpan = document.createElement("span");
+                        novoSpan.className = "valor";
+                        novoSpan.dataset.id = id;
+                        novoSpan.dataset.campo = campo;
+
+                        if (campo === "cor") {
+                            novoSpan.innerHTML = `
+                    <div style="width:30px; height:30px; background:${input.value}; border-radius:6px;"></div>
+                `;
+                        } else {
+                            novoSpan.textContent = input.value;
+                        }
+
+                        input.replaceWith(novoSpan);
+
+                        if (botao) botao.style.display = "inline-block";
+                    });
+            }
+
+            input.addEventListener("blur", salvar);
+
+            input.addEventListener("keydown", e => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    salvar();
+                }
+            });
+        }
+
+        function deletarCard(id) {
+            if (!confirm("Deseja realmente excluir este card?")) return;
+
+            fetch("deletar-cards?id=" + id)
+                .then(res => res.json())
+                .then(result => {
+                    if (result.status === "success") {
+                        alert("Card excluído com sucesso!");
+                        location.reload();
+                    } else {
+                        alert("Erro: " + result.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Erro ao excluir:", err);
+                    alert("Erro ao excluir o card.");
+                });
+        }
+    </script>
 
 </body>
+
 </html>

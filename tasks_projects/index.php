@@ -187,6 +187,21 @@ switch($arquivo){
         break;
 
     # Rotas de apis
+    case 'adicionar-arquivo-topico':
+        include 'apis/adicionar-arquivo-topico.php';
+        break;
+
+    case 'editar-arquivo-inline':
+        include 'apis/editar-arquivo-inline.php';
+        break;
+
+    case 'editar-topico-inline':
+        include 'apis/editar-topico-inline.php';
+        break;
+
+    case 'editar-dashboard':
+        include 'apis/editar-dashboard.php';
+        break;
 
     case 'confirmar-controle':
         include 'apis/confirmar-controle.php';

@@ -1791,7 +1791,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
 
         function prorrogarProjeto(id) {
 
-            const novoPrazo = prompt("Digite a nova data final do projeto (YYYY-MM-DD)");
+            const novoPrazo = prompt("Digite a nova data final do projeto (DD/MM/AAAA)");
 
             if (!novoPrazo) return;
 

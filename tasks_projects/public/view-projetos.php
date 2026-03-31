@@ -272,7 +272,7 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
 
-                                                        <form method="POST" action="prorrogar-tarefa">
+                                                        <form method="POST" action="prorrogar-tarefa" onsubmit="return confirmarProrrogacao()">
 
                                                         <div class="modal-body">
 
@@ -296,8 +296,6 @@
                                                         <button type="submit" class="btn btn-warning">
                                                         Salvar novo prazo
                                                         </button>
-
-                                                        <a href="prorrogar-tarefa">Clique aqui</a>
 
                                                         </div>
 
@@ -361,6 +359,9 @@
             modal.show();
         }
 
+        function confirmarProrrogacao() {
+            return confirm("Deseja prorrogar a tarefa?");
+        }
 
         setTimeout(function() {
 
