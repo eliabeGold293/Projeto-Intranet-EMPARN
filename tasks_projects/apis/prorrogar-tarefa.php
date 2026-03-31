@@ -8,6 +8,7 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
 
 try {
 
@@ -26,6 +27,28 @@ try {
         throw new Exception("Dados da tarefa inválidos.");
     }
 
+    // ======================================
+    // BUSCAR DADOS ANTES
+    // ======================================
+    $stmtAntes = $pdo->prepare("
+        SELECT t.titulo, t.prazo, p.titulo AS projeto
+        FROM tarefa t
+        JOIN projeto p ON p.id = t.projeto_id
+        WHERE t.id = :id
+    ");
+    $stmtAntes->execute([':id' => $tarefa_id]);
+
+    $antes = $stmtAntes->fetch(PDO::FETCH_ASSOC);
+
+    if (!$antes) {
+        throw new Exception("Tarefa não encontrada.");
+    }
+
+    $prazoAntigo = $antes['prazo'] ?? 'sem prazo';
+
+    // ======================================
+    // UPDATE
+    // ======================================
     $sql = "
         UPDATE tarefa
         SET prazo = :prazo
@@ -41,11 +64,33 @@ try {
         throw new Exception("Erro ao executar atualização.");
     }
 
+    // ======================================
+    // BUSCAR USUÁRIO LOGADO
+    // ======================================
+    $stmtUser = $pdo->prepare("SELECT nome FROM usuario WHERE id = :id");
+    $stmtUser->execute([':id' => $_SESSION['usuario_id']]);
+
+    $usuarioLog = $stmtUser->fetchColumn() ?? "Usuário desconhecido";
+
+    // ======================================
+    // LOG
+    // ======================================
+    try {
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'],
+            'tarefa',
+            'UPDATE',
+            "Prazo da tarefa '{$antes['titulo']}' (projeto '{$antes['projeto']}') alterado de '{$prazoAntigo}' para '{$novo_prazo}' por '{$usuarioLog}'"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
+
     $_SESSION['alerta'] = [
         'tipo' => 'success',
         'mensagem' => 'Prazo da tarefa atualizado com sucesso!'
     ];
-
 } catch (Exception $e) {
 
     $_SESSION['alerta'] = [

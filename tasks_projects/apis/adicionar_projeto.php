@@ -1,6 +1,9 @@
 <?php
 header("Content-Type: application/json");
+
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php'; // <-- IMPORTANTE
+session_start();
 
 // permitir POST apenas
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -25,15 +28,21 @@ try {
     $data_inicio = $input["data_inicio"] ?? null;
     $data_fim = $input["data_fim"] ?? null;
 
-    // validação básica
     if (!$titulo) {
         throw new Exception("Título é obrigatório");
     }
 
-    // SQL
-    $sql = "INSERT INTO projeto (titulo, descricao, data_inicio, data_fim)
-            VALUES (:titulo, :descricao, :data_inicio, :data_fim)
-            RETURNING id";
+    // INSERT
+    $usuario_id = $_SESSION['usuario_id'] ?? null;
+
+    if (!$usuario_id) {
+        throw new Exception("Usuário não autenticado");
+    }
+
+    $sql = "INSERT INTO projeto 
+        (titulo, descricao, data_inicio, data_fim, criado_por)
+        VALUES (:titulo, :descricao, :data_inicio, :data_fim, :criado_por)
+        RETURNING id";
 
     $stmt = $pdo->prepare($sql);
 
@@ -41,14 +50,29 @@ try {
         ":titulo" => $titulo,
         ":descricao" => $descricao,
         ":data_inicio" => $data_inicio,
-        ":data_fim" => $data_fim
+        ":data_fim" => $data_fim,
+        ":criado_por" => $usuario_id
     ]);
 
     $novoId = $stmt->fetchColumn();
 
-    $dbAtual = $pdo->query("SELECT current_database()")->fetchColumn();
+    // -------------------------------------
+    // LOG PADRONIZADO
+    // -------------------------------------
+    try {
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'] ?? null,
+            'projeto',
+            'CREATE',
+            "Projeto '{$titulo}' criado (ID {$novoId})"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
 
-    
+    // opcional debug
+    $dbAtual = $pdo->query("SELECT current_database()")->fetchColumn();
 
     echo json_encode([
         "status" => "success",
@@ -56,9 +80,8 @@ try {
         "id" => $novoId,
         "debug_db" => $dbAtual
     ]);
-    #Registro da ação
-    exit;
 
+    exit;
 } catch (Exception $e) {
 
     echo json_encode([

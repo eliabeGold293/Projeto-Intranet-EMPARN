@@ -2,6 +2,8 @@
 header("Content-Type: application/json");
 
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
+session_start();
 
 try {
 
@@ -21,7 +23,9 @@ try {
 
     $arquivoPath = null;
 
-    // Upload opcional
+    // ======================================
+    // UPLOAD (opcional)
+    // ======================================
     if (isset($_FILES['arquivo']) && $_FILES['arquivo']['error'] === UPLOAD_ERR_OK) {
 
         $pasta = "uploads/tarefas/";
@@ -41,12 +45,17 @@ try {
         $arquivoPath = $destino;
     }
 
-    // ⏱ Data conclusão automática
+    // ======================================
+    // DATA CONCLUSÃO AUTOMÁTICA
+    // ======================================
     $dataConclusao = null;
     if ($status === "Concluído") {
         $dataConclusao = date("Y-m-d");
     }
 
+    // ======================================
+    // INSERT
+    // ======================================
     $sql = "INSERT INTO tarefa 
         (projeto_id, titulo, descricao, status, arquivo, prazo, data_conclusao)
         VALUES 
@@ -62,6 +71,33 @@ try {
         ":prazo"          => $prazo,
         ":data_conclusao" => $dataConclusao
     ]);
+
+    // ======================================
+    // BUSCAR INFO PARA LOG
+    // ======================================
+    $stmtInfo = $pdo->prepare("
+        SELECT titulo FROM projeto WHERE id = :id
+    ");
+    $stmtInfo->execute([':id' => $projeto_id]);
+
+    $projetoNome = $stmtInfo->fetchColumn() ?? "ID {$projeto_id}";
+
+    $infoArquivo = $nomeOriginal ? " | Anexo: '{$nomeOriginal}'" : "";
+
+    // ======================================
+    // LOG
+    // ======================================
+    try {
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'] ?? null,
+            'tarefa',
+            'CREATE',
+            "Tarefa '{$titulo}' criada no projeto '{$projetoNome}' (status: {$status}){$infoArquivo}"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
 
     echo json_encode([
         "status" => "success"

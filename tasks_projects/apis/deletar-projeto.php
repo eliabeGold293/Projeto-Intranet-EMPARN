@@ -1,6 +1,8 @@
 <?php
 header("Content-Type: application/json");
 require_once __DIR__ . '/../config/connection.php';
+require_once __DIR__ . '/../utils/log-action.php';
+session_start();
 
 try {
 
@@ -16,19 +18,31 @@ try {
 
     $projetoId = intval($input['projeto_id']);
 
-    // Verifica se o projeto existe
-    $check = $pdo->prepare("SELECT id FROM projeto WHERE id = :id");
-    $check->bindParam(":id", $projetoId);
-    $check->execute();
+    // Buscar dados antes de deletar
+    $stmtNome = $pdo->prepare("SELECT titulo FROM projeto WHERE id = :id");
+    $stmtNome->execute([":id"=>$projetoId]);
+    $projeto = $stmtNome->fetch(PDO::FETCH_ASSOC);
 
-    if ($check->rowCount() === 0) {
+    if (!$projeto) {
         throw new Exception("Projeto não encontrado");
     }
 
-    // Deleta o projeto
+    // Deletar
     $stmt = $pdo->prepare("DELETE FROM projeto WHERE id = :id");
-    $stmt->bindParam(":id", $projetoId);
-    $stmt->execute();
+    $stmt->execute([":id"=>$projetoId]);
+
+    // LOG PADRÃO
+    try {
+        registrarLog(
+            $pdo,
+            $_SESSION['usuario_id'] ?? null,
+            'projeto',
+            'DELETE',
+            "Projeto '{$projeto['titulo']}' (ID {$projetoId}) excluído"
+        );
+    } catch (Exception $e) {
+        error_log("Erro ao registrar log: " . $e->getMessage());
+    }
 
     echo json_encode([
         "status" => "success",

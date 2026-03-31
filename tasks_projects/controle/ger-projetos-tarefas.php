@@ -1062,7 +1062,7 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             title.textContent = "Cadastro de Projeto";
             form.appendChild(title);
 
-            function criarCampo(labelText, id, type = "text") {
+            function criarCampo(labelText, id, type = "text", required = false) {
                 const group = document.createElement("div");
                 group.className = "form-group";
 
@@ -1075,6 +1075,11 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                 input.type = type;
                 input.id = id;
                 input.className = "form-control";
+
+                // AQUI
+                if (required) {
+                    input.required = true;
+                }
 
                 group.appendChild(label);
                 group.appendChild(input);
@@ -1591,8 +1596,6 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                     "none";
             });
         }
-
-
 
         function toggleMenuTarefa(id) {
 

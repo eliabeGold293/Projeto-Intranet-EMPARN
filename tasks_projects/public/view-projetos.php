@@ -1,51 +1,49 @@
 <?php
-// Impedir cache da página protegida
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
+    // Impedir cache da página protegida
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
 
-// Impedir navegação "voltar" após logout
-header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
+    // Impedir navegação "voltar" após logout
+    header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
 
-// Se não estiver logado → volta para login
-if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
-    header("Location: login");
-    # echo 'Não há usuário logado';
-    exit;
-}
+    // Se não estiver logado → volta para login
+    if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
+        header("Location: login");
+        # echo 'Não há usuário logado';
+        exit;
+    }
 
-require_once __DIR__ . '/../config/connection.php';
+    require_once __DIR__ . '/../config/connection.php';
 
-/*
-|--------------------------------------------------------------------------
-| BUSCAR TODOS OS PROJETOS
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | BUSCAR TODOS OS PROJETOS
+    |--------------------------------------------------------------------------
+    */
 
-$sqlProjetos = "
-    SELECT 
-        p.*,
-        u.nome AS criador
-    FROM projeto p
-    LEFT JOIN usuario u ON u.id = p.criado_por
-    ORDER BY p.data_criacao DESC
-";
+    $sqlProjetos = "
+        SELECT 
+            p.*,
+            u.nome AS criador
+        FROM projeto p
+        LEFT JOIN usuario u ON u.id = p.criado_por
+        ORDER BY p.data_criacao DESC
+    ";
 
-$stmt = $pdo->prepare($sqlProjetos);
-$stmt->execute();
-$projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare($sqlProjetos);
+    $stmt->execute();
+    $projetos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/*
-|--------------------------------------------------------------------------
-| ARRAY PARA GUARDAR MODAIS DE TAREFA (FORA DO MODAL DO PROJETO)
-|--------------------------------------------------------------------------
-*/
-$modaisTarefa = [];
+    /*
+    |--------------------------------------------------------------------------
+    | ARRAY PARA GUARDAR MODAIS DE TAREFA (FORA DO MODAL DO PROJETO)
+    |--------------------------------------------------------------------------
+    */
+    $modaisTarefa = [];
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,7 +68,6 @@ $modaisTarefa = [];
         }
     </style>
 </head>
-
 <body>
     <?php if (isset($_SESSION['alerta'])): ?>
 
@@ -379,7 +376,5 @@ $modaisTarefa = [];
         }, 2500);
 
     </script>
-
 </body>
-
 </html>

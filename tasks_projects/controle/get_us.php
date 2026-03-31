@@ -56,6 +56,7 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <title>Lista de Usuários</title>
@@ -67,94 +68,96 @@ try {
 
     <style>
         body {
-        background-color: #eef1f4;
-        display: flex;
-        margin: 0;
-        font-family: 'Segoe UI', Arial, sans-serif;
-    }
-
-    /* Área principal agora mais larga e confortável */
-    .main-content {
-        flex: 1;
-        padding: 40px;
-        margin-left: 250px;
-        max-width: 1600px;      /* AUMENTO DO WIDTH TOTAL */
-        margin-right: auto;
-    }
-
-    @media (max-width: 768px) {
-        .main-content {
-            margin-left: 0;
-            padding: 20px;
+            background-color: #eef1f4;
+            display: flex;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
-    }
 
-    /* Título principal */
-    .page-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #0046a0;
-        margin-bottom: 25px;
-    }
+        /* Área principal agora mais larga e confortável */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            margin-left: 250px;
+            max-width: 1600px;
+            /* AUMENTO DO WIDTH TOTAL */
+            margin-right: auto;
+        }
 
-    /* Painéis modernos */
-    .card-modern {
-        background: #fff;
-        border-radius: 12px;
-        padding: 28px;
-        border: none;
-        
-        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    }
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
 
-    .card-header-modern {
-        background: transparent !important;
-        border-bottom: 2px solid #e6e9ed;
-        padding-bottom: 12px;
-        margin-bottom: 18px;
-    }
+        /* Título principal */
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0046a0;
+            margin-bottom: 25px;
+        }
 
-    /* Labels */
-    .form-label {
-        font-weight: 600;
-        color: #003b87;
-    }
+        /* Painéis modernos */
+        .card-modern {
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px;
+            border: none;
 
-    /* Tabela mais larga */
-    .table-responsive {
-        max-width: 1250px;       /* MAIOR largura interna */
-        margin: 0 auto;
-    }
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
 
-    .table thead th {
-        font-weight: 700;
-        background: #f2f4f7 !important;
-    }
+        .card-header-modern {
+            background: transparent !important;
+            border-bottom: 2px solid #e6e9ed;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
 
-    /* Botão editar / excluir */
-    .btn-sm {
-        font-size: .8rem;
-        padding: 5px 10px;
-    }
+        /* Labels */
+        .form-label {
+            font-weight: 600;
+            color: #003b87;
+        }
 
-    #editFormContainer {
-        display: none;
-    }
+        /* Tabela mais larga */
+        .table-responsive {
+            max-width: 1250px;
+            /* MAIOR largura interna */
+            margin: 0 auto;
+        }
 
-    /* Ajuste opcional: deixar os inputs e selects mais modernos */
-    .form-control,
-    .form-select {
-        border-radius: 6px;
-        padding: 10px;
-    }
+        .table thead th {
+            font-weight: 700;
+            background: #f2f4f7 !important;
+        }
 
-    /* Hover nas linhas da tabela */
-    .table-hover tbody tr:hover {
-        background-color: #f0f4fa !important;
-    }
+        /* Botão editar / excluir */
+        .btn-sm {
+            font-size: .8rem;
+            padding: 5px 10px;
+        }
 
+        #editFormContainer {
+            display: none;
+        }
+
+        /* Ajuste opcional: deixar os inputs e selects mais modernos */
+        .form-control,
+        .form-select {
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        /* Hover nas linhas da tabela */
+        .table-hover tbody tr:hover {
+            background-color: #f0f4fa !important;
+        }
     </style>
 </head>
+
 <body>
 
     <?php include __DIR__ . '/../templates/gen_menu.php'; ?>
@@ -288,7 +291,7 @@ try {
                             </div>
 
                             <button type="submit" class="btn btn-success">
-                                
+
                                 <span id="btnText">
                                     <i class="bi bi-save"></i> Salvar Alterações
                                 </span>
@@ -313,102 +316,127 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Função de busca na tabela
-    function searchUser() {
-        const input = document.getElementById("searchInput").value.toLowerCase();
-        const rows = document.querySelectorAll("#userTable tr:not(:first-child)");
+        function searchUser() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#userTable tr:not(:first-child)");
 
-        rows.forEach(row => {
-            const nome = row.cells[1].textContent.toLowerCase();
-            const email = row.cells[2].textContent.toLowerCase();
-            row.style.display = (nome.includes(input) || email.includes(input)) ? "" : "none";
-        });
-    }
+            rows.forEach(row => {
+                const nome = row.cells[1].textContent.toLowerCase();
+                const email = row.cells[2].textContent.toLowerCase();
+                row.style.display = (nome.includes(input) || email.includes(input)) ? "" : "none";
+            });
+        }
 
-    // Exibir formulário de edição ao lado da tabela
-    function showEditForm(id, nome, email, classe, area) {
-        const formContainer = document.getElementById("editFormContainer");
-        formContainer.style.display = "block";
+        // Exibir formulário de edição ao lado da tabela
+        function showEditForm(id, nome, email, classe, area) {
+            const formContainer = document.getElementById("editFormContainer");
+            formContainer.style.display = "block";
 
-        document.getElementById("edit_id").value = id;
-        document.getElementById("edit_nome").value = nome;
-        document.getElementById("edit_email").value = email;
-        document.getElementById("edit_classe").value = classe;
-        document.getElementById("edit_area").value = area;
-    }
+            document.getElementById("edit_id").value = id;
+            document.getElementById("edit_nome").value = nome;
+            document.getElementById("edit_email").value = email;
+            document.getElementById("edit_classe").value = classe;
+            document.getElementById("edit_area").value = area;
+        }
 
-    // Submissão do formulário de edição via fetch
-    document.addEventListener("DOMContentLoaded", () => {
-        const editForm = document.getElementById("editForm");
-        if (editForm) {
-            editForm.addEventListener("submit", function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
+        document.addEventListener("DOMContentLoaded", () => {
+            const editForm = document.getElementById("editForm");
 
-                fetch("atualizar-info-usuario", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    const msgDiv = document.getElementById("editMessage");
-                    if (data.toLowerCase().includes("sucesso")) {
-                        msgDiv.textContent = "Usuário atualizado com sucesso!";
-                        msgDiv.className = "message success";
-                    
-                        // Aguarda 1 segundo para o usuário ver a mensagem e recarrega a página
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
+            if (editForm) {
+                editForm.addEventListener("submit", function(e) {
+                    e.preventDefault();
 
-                    } else {
-                        msgDiv.textContent = data;
-                        msgDiv.className = "message error";
-                    }
-                })
-                .catch(() => {
-                    const msgDiv = document.getElementById("editMessage");
-                    msgDiv.textContent = "Erro ao atualizar usuário.";
-                    msgDiv.className = "message error";
+                    const formData = new FormData(this);
+
+                    const btn = editForm.querySelector("button[type='submit']");
+                    const btnText = document.getElementById("btnText");
+                    const btnLoading = document.getElementById("btnLoading");
+
+                    // ATIVA LOADING
+                    btn.disabled = true;
+                    btnText.classList.add("d-none");
+                    btnLoading.classList.remove("d-none");
+
+                    fetch("atualizar-info-usuario", {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+
+                            const msgDiv = document.getElementById("editMessage");
+
+                            if (data.toLowerCase().includes("sucesso")) {
+                                msgDiv.textContent = "Usuário atualizado com sucesso!";
+                                msgDiv.className = "message success";
+
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1000);
+
+                            } else {
+                                msgDiv.textContent = data;
+                                msgDiv.className = "message error";
+
+                                // DESATIVA LOADING (erro)
+                                btn.disabled = false;
+                                btnText.classList.remove("d-none");
+                                btnLoading.classList.add("d-none");
+                            }
+                        })
+                        .catch(() => {
+
+                            const msgDiv = document.getElementById("editMessage");
+                            msgDiv.textContent = "Erro ao atualizar usuário.";
+                            msgDiv.className = "message error";
+
+                            // DESATIVA LOADING (erro)
+                            btn.disabled = false;
+                            btnText.classList.remove("d-none");
+                            btnLoading.classList.add("d-none");
+                        });
                 });
-            });
-        }
-    });
+            }
+        });
 
-    // Função para excluir usuário
-    function deleteUser(id) {
-        if (confirm("Deseja realmente excluir o usuário?")) {
-            fetch("deletar-usuario", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "id=" + encodeURIComponent(id)
-            })
-            .then(response => response.text())
-            .then(data => {
-                const msgDiv = document.getElementById("message");
-                if (data.includes("sucesso")) {
-                    msgDiv.textContent = "Usuário excluído com sucesso";
-                    msgDiv.className = "message success";
+        // Função para excluir usuário
+        function deleteUser(id) {
+            if (confirm("Deseja realmente excluir o usuário?")) {
+                fetch("deletar-usuario", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: "id=" + encodeURIComponent(id)
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        const msgDiv = document.getElementById("message");
+                        if (data.includes("sucesso")) {
+                            msgDiv.textContent = "Usuário excluído com sucesso";
+                            msgDiv.className = "message success";
 
-                    // Remove a linha da tabela correspondente
-                    const rows = document.querySelectorAll("#userTable tr");
-                    rows.forEach(row => {
-                        if (row.cells[0] && row.cells[0].textContent == id) {
-                            row.remove();
+                            // Remove a linha da tabela correspondente
+                            const rows = document.querySelectorAll("#userTable tr");
+                            rows.forEach(row => {
+                                if (row.cells[0] && row.cells[0].textContent == id) {
+                                    row.remove();
+                                }
+                            });
+                        } else {
+                            msgDiv.textContent = data;
+                            msgDiv.className = "message error";
                         }
+                    })
+                    .catch(() => {
+                        const msgDiv = document.getElementById("message");
+                        msgDiv.textContent = "Erro ao excluir usuário";
+                        msgDiv.className = "message error";
                     });
-                } else {
-                    msgDiv.textContent = data;
-                    msgDiv.className = "message error";
-                }
-            })
-            .catch(() => {
-                const msgDiv = document.getElementById("message");
-                msgDiv.textContent = "Erro ao excluir usuário";
-                msgDiv.className = "message error";
-            });
+            }
         }
-    }
     </script>
 
 </body>
+
 </html>
