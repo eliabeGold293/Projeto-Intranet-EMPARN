@@ -262,9 +262,18 @@ if ($areaFiltro) {
 }
 
 $mesesNomes = [
-    1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-    5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-    9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
+    1 => 'Janeiro',
+    2 => 'Fevereiro',
+    3 => 'Março',
+    4 => 'Abril',
+    5 => 'Maio',
+    6 => 'Junho',
+    7 => 'Julho',
+    8 => 'Agosto',
+    9 => 'Setembro',
+    10 => 'Outubro',
+    11 => 'Novembro',
+    12 => 'Dezembro'
 ];
 
 $mesEmissao = $mesesNomes[(int)date('n')];
@@ -301,8 +310,10 @@ $anoRelatorio = $ano;
             font-size: 28px;
             font-weight: 700;
         }
+
         .btn-smoke {
-            background-color: #5f6368; /* cinza Google style */
+            background-color: #5f6368;
+            /* cinza Google style */
             color: #fff;
             border: none;
             border-radius: 8px;
@@ -313,7 +324,7 @@ $anoRelatorio = $ano;
         .btn-smoke:hover {
             background-color: #4a4d52;
             transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
     </style>
 
@@ -428,27 +439,21 @@ $anoRelatorio = $ano;
         <div class="row">
 
             <div class="col-md-6">
-
                 <div class="card card-dashboard p-4">
-
                     <h5>Acessos por mês</h5>
-
-                    <canvas id="graficoMes"></canvas>
-
+                    <div class="chart-container" style="overflow-x:auto;">
+                        <canvas id="graficoMes" style="min-width:800px; height:400px;"></canvas>
+                    </div>
                 </div>
-
             </div>
 
             <div class="col-md-6">
-
                 <div class="card card-dashboard p-4">
-
                     <h5>Acessos por dia</h5>
-
-                    <canvas id="graficoDia"></canvas>
-
+                    <div class="chart-container" style="overflow-x:auto;">
+                        <canvas id="graficoDia" style="min-width:800px; height:400px;"></canvas>
+                    </div>
                 </div>
-
             </div>
 
         </div>
@@ -700,11 +705,13 @@ $anoRelatorio = $ano;
                 datasets: [{
                     label: 'Quantidade de acessos',
                     data: <?= json_encode($dadosMes) ?>,
-                    borderWidth: 1
+                    borderWidth: 1,
+                    backgroundColor: '#0d6efd'
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false, // importante para respeitar a altura fixa
                 plugins: {
                     legend: {
                         display: true
@@ -715,6 +722,46 @@ $anoRelatorio = $ano;
                         title: {
                             display: true,
                             text: 'Mês do ano'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Número de acessos'
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('graficoDia'), {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($labelsDia) ?>,
+                datasets: [{
+                    label: 'Quantidade de acessos',
+                    data: <?= json_encode($dadosDia) ?>,
+                    tension: 0.3,
+                    borderWidth: 2,
+                    borderColor: '#198754',
+                    backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Dia'
                         }
                     },
                     y: {

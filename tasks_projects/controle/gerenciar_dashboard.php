@@ -86,6 +86,10 @@ require_once __DIR__ . '/../config/connection.php';
                 margin-left: 0;
             }
         }
+        #cor{
+            display: flex;
+            flex-direction: row;
+        }
     </style>
 </head>
 
@@ -153,13 +157,16 @@ require_once __DIR__ . '/../config/connection.php';
                                 </td>
 
                                 <td>
-                                    <span class="valor" data-id="<?= $row['id'] ?>" data-campo="cor">
-                                        <div style="width:30px; height:30px; background:<?= htmlspecialchars($row['cor']) ?>; border-radius:6px;"></div>
+                                    <span id="cor">
+                                        <span class="valor" data-id="<?= $row['id'] ?>" data-campo="cor">
+                                            <div style="width:30px; height:30px; background:<?= htmlspecialchars($row['cor']) ?>; border-radius:6px;"></div>
+                                        </span>
+                                        <button class="btn btn-sm btn-outline-primary ms-1"
+                                            onclick="editarCampoDashboard(<?= $row['id'] ?>, 'cor')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
                                     </span>
-                                    <button class="btn btn-sm btn-outline-primary ms-1"
-                                        onclick="editarCampoDashboard(<?= $row['id'] ?>, 'cor')">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
+                                    
                                 </td>
 
                                 <td>
@@ -171,9 +178,11 @@ require_once __DIR__ . '/../config/connection.php';
                                         <i class="bi bi-pencil"></i>
                                     </button>
                                 </td>
-                                <button class="btn btn-danger btn-sm" onclick="deletarCard(<?= $row['id'] ?>)">
-                                    Excluir
-                                </button>
+
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="deletarCard(<?= $row['id'] ?>)">
+                                        Excluir
+                                    </button>
                                 </td>
                             </tr>
                         <?php endforeach;

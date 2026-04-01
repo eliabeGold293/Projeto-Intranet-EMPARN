@@ -21,7 +21,7 @@ try {
         throw new Exception("ID do tópico inválido.");
     }
 
-    // 1️⃣ Verificar se tópico existe
+    // Verificar se tópico existe
     $stmtCheck = $pdo->prepare("SELECT id FROM documento_topico WHERE id = :id");
     $stmtCheck->execute([':id' => $topicoId]);
     $topicoExistente = $stmtCheck->fetchColumn();
@@ -30,7 +30,7 @@ try {
         throw new Exception("Tópico não encontrado.");
     }
 
-    // 2️⃣ Validar arquivo
+    // Validar arquivo
     if ($file['error'] !== UPLOAD_ERR_OK) {
         throw new Exception("Erro no upload do arquivo.");
     }
@@ -40,7 +40,7 @@ try {
     $type = $file['type'];
     $size = $file['size'];
 
-    // 3️⃣ Salvar no servidor
+    // Salvar no servidor
     $folder = __DIR__ . "/../uploads/doc/";
     if (!is_dir($folder)) mkdir($folder, 0777, true);
 
@@ -53,7 +53,7 @@ try {
 
     $caminhoRelativo = "uploads/doc/" . $novoNome;
 
-    // 4️⃣ Inserir no banco
+    // Inserir no banco
     $stmtInsert = $pdo->prepare("
         INSERT INTO documento_arquivo
         (topico_id, nome_original, caminho_armazenado, tipo, tamanho, enviado_por, data_upload)
@@ -71,17 +71,23 @@ try {
 
     $arquivoId = $pdo->lastInsertId();
 
-    // 5️⃣ Log de ação
+    // Log de ação
     try {
         $usuarioLog = $_SESSION['usuario_id'] ? $pdo->query("SELECT nome FROM usuario WHERE id = {$_SESSION['usuario_id']}")->fetchColumn() : "Usuário desconhecido";
+
+        // Pegar o nome do tópico
+        $stmtNomeTopico = $pdo->prepare("SELECT nome FROM documento_topico WHERE id = :id");
+        $stmtNomeTopico->execute([':id' => $topicoId]);
+        $nomeTopico = $stmtNomeTopico->fetchColumn() ?: "Tópico desconhecido";
 
         registrarLog(
             $pdo,
             $_SESSION['usuario_id'] ?? null,
             'documento_arquivo',
-            'INSERT',
-            "Arquivo '{$orig}' (ID {$arquivoId}) adicionado ao Tópico ID {$topicoId} por '{$usuarioLog}'"
+            'UPDATE',
+            "Arquivo '{$orig}' (ID {$arquivoId}) adicionado ao Tópico '{$nomeTopico}' (ID {$topicoId}) por '{$usuarioLog}'"
         );
+
     } catch (Exception $e) {
         error_log("Erro ao registrar log: " . $e->getMessage());
     }

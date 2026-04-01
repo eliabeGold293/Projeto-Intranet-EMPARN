@@ -112,6 +112,28 @@ require_once __DIR__ . '/../config/connection.php';
             background: #cfe2ff !important;
             z-index: 5;
         }
+
+        /* Espaçamento interno do modal */
+        #addFileModal .modal-body {
+            padding: 20px 25px; /* aumenta o padding lateral e vertical */
+        }
+
+        /* Espaçamento entre elementos do modal */
+        #addFileModal .mb-3 {
+            margin-bottom: 1rem; /* garante distância entre label e input/select */
+        }
+
+        /* Botões do modal */
+        #addFileModal .modal-footer {
+            justify-content: flex-end; /* alinhamento padrão à direita */
+            gap: 10px; /* espaço entre os botões */
+        }
+
+        /* Alinhamento do select e input para ocupar toda a largura */
+        #addFileModal .form-control,
+        #addFileModal .form-select {
+            width: 100%;
+        }
     </style>
 </head>
 <!-- MODAL ADICIONAR ARQUIVO -->
@@ -125,8 +147,15 @@ require_once __DIR__ . '/../config/connection.php';
             </div>
 
             <div class="modal-body">
-                <input type="file" id="addFileInput" class="form-control">
-                <input type="hidden" id="addFileTopicId">
+                <div class="mb-3">
+                    <label for="addFileTopicSelect" class="form-label">Selecione o Tópico</label>
+                    <select id="addFileTopicSelect" class="form-select"></select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="addFileInput" class="form-label">Escolha o Arquivo</label>
+                    <input type="file" id="addFileInput" class="form-control">
+                </div>
             </div>
 
             <div class="modal-footer">
@@ -303,7 +332,7 @@ require_once __DIR__ . '/../config/connection.php';
                                                     <small class="text-muted">
                                                         (<?= $arq['tipo'] ?> • <?= round($arq['tamanho'] / 1024, 1) ?> KB)
                                                     </small>
-                                                    <button class="btn btn-sm btn-danger ms-2" onclick="deleteFileFromDatabase(<?= $arq['id'] ?>)"><i class="bi bi-trash text-white"></i></button>
+                                                    <button class="btn btn-sm btn-danger ms-2" onclick="deleteFileFromDatabase(<?= $arq['id'] ?>)"><span style="color:white; font-weight:bold; font-size:0.9rem;">×</span></button>
                                                 </li>
                                             <?php endforeach; ?>
                                         </ul>
@@ -696,11 +725,32 @@ require_once __DIR__ . '/../config/connection.php';
             }
         }
 
-        function openAddFileModal(topicId) {
-            // Guardar ID do tópico
-            document.getElementById("addFileTopicId").value = topicId;
+        function openAddFileModal(selectedTopicId = null) {
+            const topicSelect = document.getElementById("addFileTopicSelect");
+            topicSelect.innerHTML = ""; // Limpa opções anteriores
 
-            // Resetar input
+            // Buscar todos os tópicos da tabela
+            const topicRows = document.querySelectorAll("#topicsTable tbody tr");
+            topicRows.forEach(row => {
+                const span = row.querySelector(".editable-topic");
+                if (!span) return;
+
+                const id = span.dataset.id;
+                const name = span.innerText;
+
+                const option = document.createElement("option");
+                option.value = id;
+                option.text = name;
+
+                // Se for o tópico clicado para adicionar arquivo, já seleciona
+                if (selectedTopicId && id == selectedTopicId) {
+                    option.selected = true;
+                }
+
+                topicSelect.appendChild(option);
+            });
+
+            // Resetar input de arquivo
             document.getElementById("addFileInput").value = "";
 
             // Mostrar modal
@@ -710,7 +760,7 @@ require_once __DIR__ . '/../config/connection.php';
 
         async function enviarNovoArquivoParaTopico() {
             const fileInput = document.getElementById("addFileInput");
-            const topicId = document.getElementById("addFileTopicId").value;
+            const topicId = document.getElementById("addFileTopicSelect").value;
 
             if (!fileInput.files.length) {
                 alert("Selecione um arquivo.");
@@ -722,7 +772,7 @@ require_once __DIR__ . '/../config/connection.php';
             formData.append("arquivo", fileInput.files[0]);
 
             try {
-                const res = await fetch("adicionar-arquivo-topico", { // sua API de upload
+                const res = await fetch("adicionar-arquivo-topico", {
                     method: "POST",
                     body: formData
                 });
