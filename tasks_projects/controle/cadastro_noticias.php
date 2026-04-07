@@ -249,52 +249,54 @@ if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['grau_acesso'])) {
             div.classList.add("border", "rounded", "p-3", "mb-3");
 
             div.innerHTML = `
-                <input type="hidden" name="topicos[${index}][id]" value="">
+        <input type="hidden" name="topicos[${index}][id]" value="">
 
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="topico-titulo">Tópico</h5>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTopico(this)">
-                        <i class="bi bi-x-circle"></i> Remover
-                    </button>
-                </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="topico-titulo">Tópico</h5>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTopico(this)">
+                <i class="bi bi-x-circle"></i> Remover
+            </button>
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Imagem:</label>
-                    <input type="file" id="file"
-                        name="topicos[${index}][imagem]"
-                        class="form-control topico-file"
-                        accept="image/*"
-                        required>
-                </div>
+        <div class="mb-3">
+            <label class="form-label">Imagem:</label>
+            <input type="file"
+                name="topicos[${index}][imagem]"
+                class="form-control topico-file"
+                accept="image/*"
+                required>
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Fonte da Imagem:</label>
-                    <input type="text" id="fonte"
-                        name="topicos[${index}][fonte_imagem]"
-                        class="form-control"
-                        required>
-                </div>
+        <div class="mb-3">
+            <label class="form-label">Fonte da Imagem:</label>
+            <input type="text"
+                name="topicos[${index}][fonte_imagem]"
+                class="form-control"
+                required>
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Título do Tópico:</label>
-                    <input type="text" id="titulo-topico"
-                        name="topicos[${index}][titulo]"
-                        class="form-control"
-                        required>
-                </div>
+        <div class="mb-3">
+            <label class="form-label">Título do Tópico:</label>
+            <input type="text"
+                name="topicos[${index}][titulo]"
+                class="form-control"
+                required>
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Texto:</label>
-                    <textarea name="topicos[${index}][texto]"
-                            id="texto-topico"
-                            class="form-control editor"
-                            rows="5"
-                            required></textarea>
-                </div>
-            `;
+        <div class="mb-3">
+            <label class="form-label">Texto:</label>
+            <textarea name="topicos[${index}][texto]"
+                class="form-control editor"
+                rows="5"
+                required></textarea>
+        </div>
+    `;
 
             topicosContainer.appendChild(div);
-            initTinyMCE();
+
+            const textarea = div.querySelector("textarea.editor");
+            initTinyMCEOnElement(textarea);
+
             atualizarNumeracaoTopicos();
         }
 

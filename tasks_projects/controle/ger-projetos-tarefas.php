@@ -1124,14 +1124,17 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
             menu.className = "menu-acoes";
 
             menu.innerHTML = `
-            <button onclick="dellProjeto(${id})">
-                <span style="color: red;"><i class="bi bi-trash"></i> Excluir Projeto</span>
+            <button onclick="editarDescricaoProjeto(${id})">
+                <i class="bi bi-card-text"></i> Editar descrição
             </button>
             <button onclick="viewPanTarefas(${id})">
                 <i class="bi bi-list-check"></i> Administrar as Tarefas do Projeto
             </button>
             <button onclick="viewPanUs(${id}, '${titulo}')">
                 <i class="bi bi-people"></i> Administrar Usuários do Projeto
+            </button>
+            <button onclick="dellProjeto(${id})">
+                <span style="color: red;"><i class="bi bi-trash"></i> Excluir Projeto</span>
             </button>
         `;
 
@@ -1817,6 +1820,99 @@ $usuarios = $stmtUsuario->fetchAll(PDO::FETCH_ASSOC);
                     }
 
                 });
+        }
+
+        function editarDescricaoProjeto(projetoId) {
+
+            // evita duplicar modal
+            document.getElementById("overlay-editar-descricao")?.remove();
+
+            const overlay = document.createElement("div");
+            overlay.id = "overlay-editar-descricao";
+            overlay.style.position = "fixed";
+            overlay.style.inset = "0";
+            overlay.style.background = "rgba(0,0,0,0.4)";
+            overlay.style.display = "flex";
+            overlay.style.alignItems = "center";
+            overlay.style.justifyContent = "center";
+            overlay.style.zIndex = "9999";
+
+            const modal = document.createElement("div");
+            modal.style.background = "#fff";
+            modal.style.padding = "20px";
+            modal.style.borderRadius = "10px";
+            modal.style.width = "400px";
+            modal.style.boxShadow = "0 10px 30px rgba(0,0,0,0.3)";
+
+            modal.innerHTML = `
+                <h5 style="margin-bottom:15px;">Editar descrição</h5>
+
+                <label style="font-weight:500;">Escreva a nova descrição:</label>
+
+                <textarea id="novaDescricao" 
+                    class="form-control mt-2" 
+                    rows="4"></textarea>
+
+                <div style="margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
+                    <button class="btn btn-secondary" onclick="fecharModalDescricao()">
+                        Cancelar
+                    </button>
+
+                    <button class="btn btn-primary" onclick="salvarDescricaoProjeto(${projetoId})">
+                        Confirmar
+                    </button>
+                </div>
+            `;
+
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            // fechar clicando fora
+            overlay.addEventListener("click", e => {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+
+        function fecharModalDescricao() {
+            document.getElementById("overlay-editar-descricao")?.remove();
+        }
+        async function salvarDescricaoProjeto(projetoId) {
+
+            const descricao = document.getElementById("novaDescricao").value.trim();
+
+            if (!descricao) {
+                alert("A descrição não pode estar vazia.");
+                return;
+            }
+
+            try {
+
+                const response = await fetch("editar-descricao-projeto", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: projetoId,      // ✅ CORRIGIDO
+                        valor: descricao    // ✅ CORRIGIDO
+                    })
+                });
+
+                const resp = await response.json();
+
+                if (resp.status === "success") {
+
+                    alert("Descrição atualizada com sucesso!");
+                    fecharModalDescricao();
+
+                } else {
+                    alert(resp.message);
+                }
+
+            } catch (erro) {
+                console.error(erro);
+                alert("Erro ao conectar com o servidor.");
+            }
         }
     </script>
 

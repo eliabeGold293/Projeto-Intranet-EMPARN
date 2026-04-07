@@ -271,7 +271,7 @@ $classeNome = $usuarioDados['classe_nome'] ?? '';
             <!-- Card fixo 3 -->
             <div class="col">
                 <a href="view-projetos" class="text-decoration-none">
-                    <div class="service-card" style="background:#d90429;">
+                    <div class="service-card" style="background:green;">
                         <i class="bi bi-kanban-fill service-icon"></i>
                         <div class="service-title">PROJETOS & TAREFAS</div>
                     </div>

@@ -187,6 +187,10 @@ switch($arquivo){
         break;
 
     # Rotas de apis
+    case 'editar-descricao-projeto':
+        include 'apis/editar-descricao-projeto.php';
+        break;
+
     case 'adicionar-arquivo-topico':
         include 'apis/adicionar-arquivo-topico.php';
         break;
