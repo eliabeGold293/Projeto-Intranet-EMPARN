@@ -1,168 +1,35 @@
 <?php
 require_once __DIR__ . '/../config/connection.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+$data_inicio = $_GET['data_inicio'] ?? date('Y-01-01');
+$data_fim    = $_GET['data_fim'] ?? date('Y-12-31');
 
-/* ======================
-FILTROS
-====================== */
+// Total usuários
+$sql_total = "SELECT COUNT(DISTINCT usuario_id) as total FROM login_contador WHERE data_login BETWEEN :inicio AND :fim";
+$stmt = $pdo->prepare($sql_total);
+$stmt->execute(['inicio' => $data_inicio, 'fim' => $data_fim]);
+$total_usuarios = $stmt->fetch()['total'] ?? 0;
 
-$tipoPeriodo = $_GET['tipo'] ?? 'mes'; // dia | mes | ano
-$data = $_GET['data'] ?? '';
-$mes  = $_GET['mes'] ?? date('m');
-$ano  = $_GET['ano'] ?? date('Y');
-
-$usuario = $_GET['usuario'] ?? '';
-$classe  = $_GET['classe'] ?? '';
-
-$where = [];
-$params = [];
-
-/* ======================
-FILTROS BASE
-====================== */
-
-if ($usuario) {
-    $where[] = "u.id = :usuario";
-    $params[':usuario'] = $usuario;
-}
-
-if ($classe) {
-    $where[] = "u.classe_id = :classe";
-    $params[':classe'] = $classe;
-}
-
-/* ======================
-PERÍODO
-====================== */
-
-$groupBy = "DATE(lc.data_login)";
-$titulo = "";
-
-switch ($tipoPeriodo) {
-
-    case 'dia':
-        if ($data) {
-            $where[] = "DATE(lc.data_login) = :data";
-            $params[':data'] = $data;
-            $titulo = "Dia " . date('d/m/Y', strtotime($data));
-        } else {
-            $where[] = "DATE(lc.data_login) = CURRENT_DATE";
-            $titulo = "Hoje";
-        }
-        break;
-
-    case 'ano':
-        $where[] = "EXTRACT(YEAR FROM lc.data_login) = :ano";
-        $params[':ano'] = $ano;
-        $groupBy = "TO_CHAR(lc.data_login, 'MM')";
-        $titulo = "Ano $ano";
-        break;
-
-    default: // mês
-        $where[] = "EXTRACT(MONTH FROM lc.data_login) = :mes";
-        $where[] = "EXTRACT(YEAR FROM lc.data_login) = :ano";
-        $params[':mes'] = $mes;
-        $params[':ano'] = $ano;
-        $titulo = "Mês $mes/$ano";
-        break;
-}
-
-$whereSQL = "WHERE " . implode(" AND ", $where);
-
-/* ======================
-FUNÇÃO
-====================== */
-
-function execQuery($pdo, $sql, $params = [])
-{
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    return $stmt;
-}
-
-/* ======================
-CARDS
-====================== */
-
-$total = execQuery($pdo, "
-SELECT COALESCE(SUM(lc.quantidade_login),0)
-FROM login_contador lc
-JOIN usuario u ON u.id = lc.usuario_id
-$whereSQL
-", $params)->fetchColumn();
-
-$ativos = execQuery($pdo, "
-SELECT COUNT(DISTINCT lc.usuario_id)
-FROM login_contador lc
-JOIN usuario u ON u.id = lc.usuario_id
-$whereSQL
-", $params)->fetchColumn();
-
-/* 🔥 CORREÇÃO PROFISSIONAL AQUI */
-$paramsUsuarios = [];
-
-$sqlUsuarios = "SELECT COUNT(*) FROM usuario";
-
-if ($classe) {
-    $sqlUsuarios .= " WHERE classe_id = :classe";
-    $paramsUsuarios[':classe'] = $classe;
-}
-
-$totalUsuarios = execQuery($pdo, $sqlUsuarios, $paramsUsuarios)->fetchColumn();
-
-$inativos = $totalUsuarios - $ativos;
-
-/* ======================
-GRÁFICO
-====================== */
-
-$sqlGrafico = "
-SELECT $groupBy as periodo, SUM(lc.quantidade_login) total
-FROM login_contador lc
-JOIN usuario u ON u.id = lc.usuario_id
-$whereSQL
-GROUP BY periodo
-ORDER BY periodo
+// Lista usuários
+$sql_usuarios = "
+SELECT u.id, u.nome, u.email, SUM(l.quantidade_login) as total_logins
+FROM login_contador l
+JOIN usuario u ON u.id = l.usuario_id
+WHERE l.data_login BETWEEN :inicio AND :fim
+GROUP BY u.id, u.nome, u.email
+ORDER BY total_logins DESC
 ";
+$stmt = $pdo->prepare($sql_usuarios);
+$stmt->execute(['inicio' => $data_inicio, 'fim' => $data_fim]);
+$usuarios = $stmt->fetchAll();
 
-$grafico = execQuery($pdo, $sqlGrafico, $params)->fetchAll(PDO::FETCH_ASSOC);
+// TOP 5
+$top5 = array_slice($usuarios, 0, 5);
+$bottom5 = array_slice(array_reverse($usuarios), 0, 5);
 
-$labels = [];
-$dados = [];
-
-foreach ($grafico as $g) {
-    $labels[] = $g['periodo'];
-    $dados[] = (int)$g['total'];
-}
-
-if (!$labels) {
-    $labels = ['Sem dados'];
-    $dados = [0];
-}
-
-/* ======================
-RANKING
-====================== */
-
-$ranking = execQuery($pdo, "
-SELECT u.nome, SUM(lc.quantidade_login) total
-FROM login_contador lc
-JOIN usuario u ON u.id = lc.usuario_id
-$whereSQL
-GROUP BY u.nome
-ORDER BY total DESC
-LIMIT 10
-", $params)->fetchAll(PDO::FETCH_ASSOC);
-
-/* ======================
-LISTAS
-====================== */
-
-$usuarios = $pdo->query("SELECT id,nome FROM usuario ORDER BY nome")->fetchAll();
-$classes  = $pdo->query("SELECT id,nome FROM classe_usuario ORDER BY nome")->fetchAll();
-
+// Média
+$total_acessos = array_sum(array_column($usuarios, 'total_logins'));
+$media_acessos = $total_usuarios > 0 ? round($total_acessos / $total_usuarios, 2) : 0;
 ?>
 
 <!DOCTYPE html>
@@ -170,158 +37,266 @@ $classes  = $pdo->query("SELECT id,nome FROM classe_usuario ORDER BY nome")->fet
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard PRO</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <title>Relatório de Acessos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        body { background: #f4f6fa; }
-
-        .card-pro {
-            border-radius: 16px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-        }
-
-        .metric {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .icon-box {
-            font-size: 26px;
-            background: #eef2ff;
-            padding: 10px;
-            border-radius: 10px;
-            color: #4f46e5;
-        }
-    </style>
 </head>
 
-<body>
+<body class="bg-light">
 
-<div class="container mt-4">
+    <div class="container py-4">
 
-    <h3 class="mb-2">
-        <i class="bi bi-speedometer2"></i> Dashboard PRO
-    </h3>
-    <div class="text-muted mb-4"><?= $titulo ?></div>
+        <h3 class="mb-4"><i class="bi bi-bar-chart"></i> Relatório de Acessos</h3>
 
-    <!-- FILTROS -->
-    <form class="row g-2 mb-4">
+        <!-- FILTRO -->
+        <form class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label>Data início</label>
+                <input type="date" name="data_inicio" class="form-control" value="<?= $data_inicio ?>">
+            </div>
 
-        <div class="col-md-2">
-            <select name="tipo" class="form-select">
-                <option value="dia" <?= $tipoPeriodo=='dia'?'selected':'' ?>>Dia</option>
-                <option value="mes" <?= $tipoPeriodo=='mes'?'selected':'' ?>>Mês</option>
-                <option value="ano" <?= $tipoPeriodo=='ano'?'selected':'' ?>>Ano</option>
-            </select>
+            <div class="col-md-4">
+                <label>Data fim</label>
+                <input type="date" name="data_fim" class="form-control" value="<?= $data_fim ?>">
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+            </div>
+        </form>
+
+        <!-- CARDS -->
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+                <div class="card shadow h-100">
+                    <div class="card-body">
+                        <h5><i class="bi bi-people"></i> Usuários ativos</h5>
+                        <h2><?= $total_usuarios ?></h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow border-primary h-100">
+                    <div class="card-body">
+                        <h5 class="text-primary">
+                            <i class="bi bi-calculator"></i> Média de acessos
+                        </h5>
+                        <h2><?= $media_acessos ?> acessos</h2>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-2">
-            <input type="date" name="data" value="<?= $data ?>" class="form-control">
+        <!-- LISTA -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5><i class="bi bi-list"></i> Usuários no período</h5>
+
+                        <div style="max-height:300px;overflow:auto;">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome</th>
+                                        <th>Acessos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($usuarios as $u): ?>
+                                        <tr>
+                                            <td><?= $u['id'] ?></td>
+                                            <td><?= $u['nome'] ?></td>
+                                            <td><?= $u['total_logins'] ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-2">
-            <input type="number" name="mes" value="<?= $mes ?>" min="1" max="12" class="form-control" placeholder="Mês">
+        <!-- TOPS -->
+        <div class="row mb-4">
+
+            <!-- TOP 5 MAIS -->
+            <div class="col-md-6">
+                <div class="card shadow border-success h-100">
+                    <div class="card-body">
+                        <h5 class="text-success">
+                            <i class="bi bi-trophy"></i> Top 5 que mais acessaram
+                        </h5>
+
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nome</th>
+                                    <th>Acessos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($top5 as $index => $u): ?>
+                                    <tr>
+                                        <td><?= $index + 1 ?></td>
+                                        <td><?= $u['nome'] ?></td>
+                                        <td><?= $u['total_logins'] ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOP 5 MENOS -->
+            <div class="col-md-6">
+                <div class="card shadow border-danger h-100">
+                    <div class="card-body">
+                        <h5 class="text-danger">
+                            <i class="bi bi-emoji-frown"></i> Top 5 que menos acessaram
+                        </h5>
+
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nome</th>
+                                    <th>Acessos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($bottom5 as $index => $u): ?>
+                                    <tr>
+                                        <td><?= $index + 1 ?></td>
+                                        <td><?= $u['nome'] ?></td>
+                                        <td><?= $u['total_logins'] ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-2">
-            <input type="number" name="ano" value="<?= $ano ?>" class="form-control" placeholder="Ano">
+        <!-- GRÁFICO -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h5><i class="bi bi-graph-up"></i> Acessos por usuário</h5>
+                <div style="overflow-x:auto;">
+                    <div id="grafico-container" style="min-width:600px; height:450px;">
+                        <canvas id="grafico"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100">
-                <i class="bi bi-funnel"></i> Filtrar
+        <!-- BOTÕES -->
+        <div class="d-flex gap-2">
+            <a href="gerar_pdf?inicio=<?= $data_inicio ?>&fim=<?= $data_fim ?>" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> PDF ABNT
+            </a>
+
+            <button class="btn btn-success" onclick="gerarExcel()">
+                <i class="bi bi-file-earmark-excel"></i> Excel
             </button>
         </div>
 
-    </form>
-
-    <!-- CARDS -->
-    <div class="row mb-4">
-
-        <div class="col-md-4">
-            <div class="card-pro d-flex justify-content-between">
-                <div>
-                    <div>Total</div>
-                    <div class="metric"><?= $total ?></div>
-                </div>
-                <i class="bi bi-bar-chart icon-box"></i>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card-pro d-flex justify-content-between">
-                <div>
-                    <div>Ativos</div>
-                    <div class="metric"><?= $ativos ?></div>
-                </div>
-                <i class="bi bi-people icon-box"></i>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card-pro d-flex justify-content-between">
-                <div>
-                    <div>Inativos</div>
-                    <div class="metric"><?= $inativos ?></div>
-                </div>
-                <i class="bi bi-person-x icon-box"></i>
-            </div>
-        </div>
-
     </div>
 
-    <!-- GRÁFICO -->
-    <div class="card-pro mb-4">
-        <h5><i class="bi bi-graph-up"></i> Evolução</h5>
-        <canvas id="grafico"></canvas>
-    </div>
+    <script>
+        const usuarios = <?= json_encode($usuarios) ?>;
+        const labels = usuarios.map(u => u.nome);
+        const dados = usuarios.map(u => u.total_logins);
 
-    <!-- RANKING -->
-    <div class="card-pro">
-        <h5><i class="bi bi-trophy"></i> Ranking</h5>
+        // largura dinâmica (cada usuário = 100px)
+        const largura = usuarios.length * 100;
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Usuário</th>
-                    <th>Acessos</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $i=1; foreach ($ranking as $r): ?>
-                <tr>
-                    <td><?= $i++ ?></td>
-                    <td><?= $r['nome'] ?></td>
-                    <td><?= $r['total'] ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+        // aplica largura no container (scroll)
+        document.getElementById('grafico-container').style.minWidth = largura + 'px';
 
-</div>
+        // AJUSTE REAL DO TAMANHO DO GRÁFICO
+        const canvas = document.getElementById('grafico');
+        canvas.width = largura;
+        canvas.height = 450;
 
-<script>
-new Chart(document.getElementById('grafico'), {
-    type: 'line',
-    data: {
-        labels: <?= json_encode($labels) ?>,
-        datasets: [{
-            label: 'Acessos',
-            data: <?= json_encode($dados) ?>,
-            tension: 0.4,
-            fill: true
-        }]
-    }
-});
-</script>
+        // CRIA GRÁFICO
+        new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Acessos',
+                    data: dados
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // ===== EXCEL =====
+        function gerarExcel() {
+
+            let csv = "ID,Nome,Email,Acessos\n";
+
+            usuarios.forEach(u => {
+                csv += `${u.id},${u.nome},${u.email},${u.total_logins}\n`;
+            });
+
+            // FORMATAR DATAS
+            const inicio = "<?= $data_inicio ?>";
+            const fim = "<?= $data_fim ?>";
+
+            function formatarData(data) {
+                const [ano, mes, dia] = data.split("-");
+                return `${dia}-${mes}-${ano}`; // formato seguro
+            }
+
+            const inicioFormatado = formatarData(inicio);
+            const fimFormatado = formatarData(fim);
+
+            const nomeArquivo = `relatorio_acessos_${inicioFormatado}_a_${fimFormatado}.csv`;
+
+            // DOWNLOAD
+            let blob = new Blob(["\uFEFF" + csv], {
+                type: 'text/csv;charset=utf-8;'
+            });
+
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = nomeArquivo;
+            link.click();
+        }
+    </script>
 
 </body>
+
 </html>

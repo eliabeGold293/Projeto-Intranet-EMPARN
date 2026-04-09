@@ -187,6 +187,10 @@ switch($arquivo){
         break;
 
     # Rotas de apis
+    case 'gerar_pdf':
+        include 'apis/gerar_pdf.php';
+        break;
+        
     case 'editar-descricao-projeto':
         include 'apis/editar-descricao-projeto.php';
         break;
