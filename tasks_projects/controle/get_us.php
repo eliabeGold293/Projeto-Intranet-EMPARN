@@ -376,6 +376,7 @@ try {
 
                             } else {
                                 msgDiv.textContent = data;
+                                msgDiv.style.color = "red";
                                 msgDiv.className = "message error";
 
                                 // DESATIVA LOADING (erro)

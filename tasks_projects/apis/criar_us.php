@@ -45,6 +45,16 @@ try {
     }
 
     // ================================
+    // VERIFICAR EMAIL DUPLICADO
+    // ================================
+    $stmt = $pdo->prepare("SELECT id FROM usuario WHERE email = :email LIMIT 1");
+    $stmt->execute([':email' => $email]);
+
+    if ($stmt->fetch()) {
+        response(false, "Este e-mail já está cadastrado.", [], 409);
+    }
+
+    // ================================
     // SENHA
     // ================================
     $senhaTemporaria = $senhaRecebida ?: bin2hex(random_bytes(4));
@@ -97,14 +107,16 @@ try {
     try {
         $mail = new PHPMailer(true);
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
+        $mail->Host       = $_ENV['MAIL_HOST'];
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'eliabeflorencio@gmail.com';
-        $mail->Password   = 'ucny vcng qfqs uhww';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Username   = $_ENV['MAIL_USERNAME'];
+        $mail->Password   = $_ENV['MAIL_PASSWORD'];
+        $mail->Port       = $_ENV['MAIL_PORT'];
+        $mail->SMTPSecure = $_ENV['MAIL_ENCRYPTION'] === 'tls'
+            ? PHPMailer::ENCRYPTION_STARTTLS
+            : PHPMailer::ENCRYPTION_SMTPS;
 
-        $mail->setFrom('SEU_EMAIL@gmail.com', 'Sistema');
+        $mail->setFrom($_ENV['MAIL_FROM'], $_ENV['MAIL_NAME']);
         $mail->addAddress($email, $nome);
         $mail->isHTML(true);
         $mail->Subject = 'Acesso ao Sistema Emparn';
@@ -129,10 +141,14 @@ try {
 
 } catch (PDOException $e) {
 
+    // PostgreSQL: violação de UNIQUE
+    if ($e->getCode() === '23505') {
+        response(false, "Este e-mail já está cadastrado.", [], 409);
+    }
+
     response(false, "Erro no banco de dados.", [
         "error" => $e->getMessage()
     ], 500);
-
 } catch (Throwable $e) {
 
     response(false, "Erro inesperado.", [

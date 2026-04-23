@@ -79,5 +79,5 @@ if ($usuario && password_verify($senha, $usuario['senha'])) {
     exit;
 
 } else {
-    echo 'Credenciais inválidas';
+    echo '<h1 style="color: red;"> Senha inválida </h1>';
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 session_start();
@@ -50,6 +51,26 @@ try {
     }
 
     if ($email) {
+
+        // ================================
+        // VERIFICAR EMAIL DUPLICADO (OUTRO USUÁRIO)
+        // ================================
+        $stmtCheck = $pdo->prepare("
+        SELECT id FROM usuario 
+        WHERE email = :email AND id != :id
+        LIMIT 1
+        ");
+
+        $stmtCheck->execute([
+            ':email' => $email,
+            ':id' => $id
+        ]);
+
+        if ($stmtCheck->fetch()) {
+            echo "Este e-mail já está em uso por outro usuário.";
+            exit;
+        }
+
         $campos[] = "email = :email";
         $params[':email'] = $email;
         $alteracoes[] = "email: {$usuarioAntigo['email']} → {$email}";
@@ -110,7 +131,6 @@ try {
                 'UPDATE',
                 $descricao
             );
-
         } catch (Exception $e) {
             error_log("Erro ao registrar log: " . $e->getMessage());
         }
@@ -124,19 +144,17 @@ try {
 
                 $mail = new PHPMailer(true);
                 $mail->isSMTP();
-                $mail->Host       = 'smtp.gmail.com';
+                $mail->Host       = $_ENV['MAIL_HOST'];
                 $mail->SMTPAuth   = true;
-                $mail->Username   = 'eliabeflorencio@gmail.com';
-                $mail->Password   = 'ucny vcng qfqs uhww';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port       = 587;
+                $mail->Username   = $_ENV['MAIL_USERNAME'];
+                $mail->Password   = $_ENV['MAIL_PASSWORD'];
+                $mail->Port       = $_ENV['MAIL_PORT'];
+                $mail->SMTPSecure = $_ENV['MAIL_ENCRYPTION'] === 'tls'
+                    ? PHPMailer::ENCRYPTION_STARTTLS
+                    : PHPMailer::ENCRYPTION_SMTPS;
 
-                $mail->setFrom('SEU_EMAIL@gmail.com', 'Sistema');
-                $mail->addAddress(
-                    $email ?? $usuarioAntigo['email'],
-                    $nome ?? $usuarioAntigo['nome']
-                );
-
+                $mail->setFrom($_ENV['MAIL_FROM'], $_ENV['MAIL_NAME']);
+                $mail->addAddress($email, $nome);
                 $mail->isHTML(true);
                 $mail->Subject = 'Senha redefinida - Sistema Emparn';
                 $mail->Body = "
@@ -148,7 +166,6 @@ try {
                 ";
 
                 $mail->send();
-
             } catch (Exception $e) {
                 error_log("Erro ao enviar email: {$e->getMessage()}");
             }
@@ -158,7 +175,13 @@ try {
     } else {
         echo "Nenhum campo foi informado para atualização.";
     }
-
 } catch (PDOException $e) {
+
+    // Violação de UNIQUE (email duplicado)
+    if ($e->getCode() === '23505') {
+        echo "Este e-mail já está em uso por outro usuário.";
+        exit;
+    }
+
     echo "Erro ao salvar alterações: " . $e->getMessage();
 }

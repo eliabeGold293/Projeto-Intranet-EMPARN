@@ -237,10 +237,28 @@ try {
                 .then(json => {
 
                     if (json.success) {
+
+                        let extraInfo = "";
+
+                        if (json.email_enviado === false) {
+                            extraInfo = `
+            <br><br>
+            <strong style="color: #b30000;">⚠️ Usuário criado, mas o e-mail NÃO foi enviado.</strong>
+            <br>
+            <small>${json.email_erro ?? "Erro desconhecido"}</small>
+${json.smtp_debug ? `<pre style="font-size:12px; margin-top:10px;">${json.smtp_debug}</pre>` : ""}
+        `;
+                        } else if (json.email_enviado === true) {
+                            extraInfo = `
+            <br><small class="text-success">📧 E-mail enviado com sucesso</small>
+        `;
+                        }
+
                         msgDiv.innerHTML =
                             `<div class="alert alert-success">
-                    <i class="bi bi-check-circle"></i> ${json.message}
-                </div>`;
+            <i class="bi bi-check-circle"></i> ${json.message}
+            ${extraInfo}
+        </div>`;
 
                         this.reset();
                         this.classList.remove("was-validated");
@@ -248,9 +266,9 @@ try {
                     } else {
                         msgDiv.innerHTML =
                             `<div class="alert alert-danger">
-                    <i class="bi bi-x-circle"></i> ${json.message}<br>
-                    <small>${json.error ?? ""}</small>
-                </div>`;
+            <i class="bi bi-x-circle"></i> ${json.message}<br>
+            <small>${json.error ?? ""}</small>
+        </div>`;
                     }
                 })
                 .catch((err) => {
