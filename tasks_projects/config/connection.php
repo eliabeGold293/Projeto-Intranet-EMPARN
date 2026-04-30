@@ -3,7 +3,7 @@
 $host = 'localhost';
 $port = '5432';
 $dbname = 'emparn';
-$user = 'postgres';
+$user = 'emparn_intranet_tarefas_user';
 $password = 'password';
 $modo_debug = true;
 
