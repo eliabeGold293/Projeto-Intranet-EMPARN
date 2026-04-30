@@ -5,7 +5,7 @@ $port = '5432';
 $dbname = 'emparn';
 $user = 'emparn_intranet_tarefas_user';
 $password = 'password';
-$modo_debug = true;
+$modo_debug = false;
 
 try {
     $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);
